@@ -1,0 +1,3 @@
+name: Wauh
+version: '${project.version}'
+main: org.gecko.wauh.Main
