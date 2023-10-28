@@ -8,6 +8,14 @@ import org.gecko.wauh.wauhbuck.BucketListener;
 import org.gecko.wauh.commands.SetRadiusLimitCommand;
 
 public final class Main extends JavaPlugin {
+    private int radiusLimit = 20;
+    public int getRadiusLimit() {
+        return radiusLimit + 2;
+    }
+
+    public void setRadiusLimit(int newLimit) {
+        radiusLimit = newLimit;
+    }
 
     @Override
     public void onEnable() {
@@ -22,7 +30,7 @@ public final class Main extends JavaPlugin {
         } catch (NullPointerException e) {
             Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "I am in eternal suffering.");
         }
-        this.getCommand("kit").setExecutor(new SetRadiusLimitCommand());
+        this.getCommand("setradiuslimit").setExecutor(new SetRadiusLimitCommand(this));
 
     }
 
@@ -31,10 +39,5 @@ public final class Main extends JavaPlugin {
         // Plugin shutdown logic
         Bukkit.getConsoleSender().sendMessage("");
         Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "kys");
-    }
-    int radiusLimit = 20;
-
-    public int getRadiusLimit() {
-        return radiusLimit + 2;
     }
 }

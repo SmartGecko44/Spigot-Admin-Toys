@@ -54,6 +54,7 @@ public class BucketListener implements Listener, CommandExecutor {
                 // Reset the water removal counts and initialize the set of blocks to process
                 waterRemovedCount = 0;
                 stationaryWaterRemovedCount = 0;
+                highestDist = 0;
                 blocksToProcess.clear();
                 currentRemovingPlayer = player;
                 replacedBlocks.clear();
@@ -83,7 +84,7 @@ public class BucketListener implements Listener, CommandExecutor {
         boolean limitReachedThisIteration = false; // Variable to track whether the limit was reached this iteration
         for (Block block : blocksToProcess) {
             int dist = (int) clickedLocation.distance(block.getLocation());
-            if (dist > (radiusLimit)) {
+            if (highestDist > (radiusLimit)) {
                 limitReached = true;
                 limitReachedThisIteration = true;
             }

@@ -1,3 +1,11 @@
 name: Wauh
 version: '${project.version}'
 main: org.gecko.wauh.Main
+description: Bo o o wa uh
+commands:
+  stopwauh:
+    description: Stop removing the wauh
+    usage: /stopwauhremoval
+  setradiuslimit:
+    description: Set the radius limit
+    usage: /setradiuslimit <radius>

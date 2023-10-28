@@ -53,6 +53,7 @@ public class BarrierListener implements Listener, CommandExecutor {
                 // Reset the water removal counts and initialize the set of blocks to process
                 grassRemovedCount = 0;
                 dirtRemovedCount = 0;
+                highestDist = 0;
                 blocksToProcess.clear();
                 currentRemovingPlayer = player;
 
@@ -77,7 +78,7 @@ public class BarrierListener implements Listener, CommandExecutor {
         boolean limitReachedThisIteration = false; // Variable to track whether the limit was reached this iteration
         for (Block block : blocksToProcess) {
             int dist = (int) clickedLocation.distance(block.getLocation());
-            if (dist > (radiusLimit)) {
+            if (highestDist > radiusLimit) {
                 limitReached = true;
                 limitReachedThisIteration = true;
             }
