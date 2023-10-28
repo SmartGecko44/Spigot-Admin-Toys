@@ -5,10 +5,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -18,34 +14,25 @@ import org.gecko.wauh.Main;
 import java.util.HashSet;
 import java.util.Set;
 
-public class BucketListener implements Listener, CommandExecutor {
+public class BucketListener implements Listener {
 
     private int waterRemovedCount = 0;
     private int stationaryWaterRemovedCount = 0;
     private Set<Block> blocksToProcess = new HashSet<>();
     private Player currentRemovingPlayer;
     private final Set<Block> replacedBlocks = new HashSet<>();
-    private boolean stopWaterRemoval = false;
+    public boolean stopWaterRemoval = false;
     private Location clickedLocation;
     private boolean limitReached = false;
     private int highestDist = 0;
-
-    @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (sender instanceof Player) {
-            Player player = (Player) sender;
-            stopWaterRemoval = true;
-            player.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "Water removal" + ChatColor.RED + " stopped.");
-            displaySummary();
-        }
-        return true;
-    }
+    public boolean wauhRemovalActive = false;
 
     @EventHandler
     public void onBucketFill(PlayerBucketFillEvent event) {
         // Check if the bucket is filling with water
         if (event.getBlockClicked().getType() == Material.WATER || event.getBlockClicked().getType() == Material.STATIONARY_WATER) {
             if (event.getBucket() == Material.BUCKET) {
+                wauhRemovalActive = true;
                 limitReached = false;
                 event.getBlockClicked().setType(Material.BEDROCK);
                 Player player = event.getPlayer();
@@ -84,14 +71,19 @@ public class BucketListener implements Listener, CommandExecutor {
         boolean limitReachedThisIteration = false; // Variable to track whether the limit was reached this iteration
         for (Block block : blocksToProcess) {
             int dist = (int) clickedLocation.distance(block.getLocation());
-            if (highestDist > (radiusLimit)) {
+            if (dist > radiusLimit) {
                 limitReached = true;
                 limitReachedThisIteration = true;
             }
             if (dist > highestDist) {
-                highestDist = dist;
-                // Send a message to the player only when the dist value rises
-                currentRemovingPlayer.sendMessage(dist + "/" + realRadiusLimit);
+                if (highestDist <= (realRadiusLimit - 1)) {
+                    highestDist = dist;
+                    // Send a message to the player only when the dist value rises
+                    currentRemovingPlayer.sendMessage(dist + "/" + realRadiusLimit);
+                } else {
+                    limitReached = true;
+                    limitReachedThisIteration = true;
+                }
             }
 
             // Check if the block is water or stationary water
@@ -108,10 +100,20 @@ public class BucketListener implements Listener, CommandExecutor {
             replacedBlocks.add(block);
 
             // Iterate through neighboring blocks and add them to the next set
-            for (BlockFace face : BlockFace.values()) {
-                Block neighboringBlock = block.getRelative(face);
-                if ((neighboringBlock.getType() == Material.WATER || neighboringBlock.getType() == Material.STATIONARY_WATER)) {
-                    nextSet.add(neighboringBlock);
+            for (int i = -1; i <= 1; i++) {
+                if (i == 0) continue; // Skip the current block
+                Block neighboringBlockX = block.getRelative(i, 0, 0);
+                Block neighboringBlockY = block.getRelative(0, i, 0);
+                Block neighboringBlockZ = block.getRelative(0, 0, i);
+
+                if ((neighboringBlockX.getType() == Material.WATER || neighboringBlockX.getType() == Material.STATIONARY_WATER)) {
+                    nextSet.add(neighboringBlockX);
+                }
+                if ((neighboringBlockY.getType() == Material.WATER || neighboringBlockY.getType() == Material.STATIONARY_WATER)) {
+                    nextSet.add(neighboringBlockY);
+                }
+                if ((neighboringBlockZ.getType() == Material.WATER || neighboringBlockZ.getType() == Material.STATIONARY_WATER)) {
+                    nextSet.add(neighboringBlockZ);
                 }
             }
         }
@@ -136,10 +138,11 @@ public class BucketListener implements Listener, CommandExecutor {
             Bukkit.getScheduler().runTaskLater(Main.getPlugin(Main.class), this::processWaterRemoval, 2L);
         } else {
             displaySummary();
+            Bukkit.getScheduler().runTaskLater(Main.getPlugin(Main.class), this::removeReplacedBlocks, 20L);
         }
     }
 
-    private void displaySummary() {
+    public void displaySummary() {
         // Display the water removal summary to the player
         Player player = currentRemovingPlayer;
         player.sendMessage(ChatColor.GREEN + "Removed " + ChatColor.RED + waterRemovedCount + ChatColor.GREEN + " wauh blocks.");
@@ -153,5 +156,6 @@ public class BucketListener implements Listener, CommandExecutor {
             block.setType(Material.AIR);
         }
         replacedBlocks.clear();
+        wauhRemovalActive = false;
     }
 }
