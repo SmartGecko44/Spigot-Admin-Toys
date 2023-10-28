@@ -79,7 +79,11 @@ public class BucketListener implements Listener {
                 if (highestDist <= (realRadiusLimit - 1)) {
                     highestDist = dist;
                     // Send a message to the player only when the dist value rises
-                    currentRemovingPlayer.sendMessage(dist + "/" + realRadiusLimit);
+                    if (highestDist < realRadiusLimit) {
+                        currentRemovingPlayer.sendMessage(ChatColor.GREEN + "Wauh removal: " + ChatColor.RED + dist + ChatColor.WHITE+  "/" + ChatColor.GREEN + realRadiusLimit);
+                    } else {
+                        currentRemovingPlayer.sendMessage(ChatColor.GREEN + "Wauh removal: " + ChatColor.GREEN + dist + ChatColor.WHITE+  "/" + ChatColor.GREEN + realRadiusLimit);
+                    }
                 } else {
                     limitReached = true;
                     limitReachedThisIteration = true;
@@ -149,6 +153,7 @@ public class BucketListener implements Listener {
 
         // Display the water removal summary in the console
         Bukkit.getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + player.getName() + ChatColor.GREEN + " removed " + ChatColor.RED + waterRemovedCount + ChatColor.GREEN + " flowing water blocks and " + ChatColor.RED + stationaryWaterRemovedCount + ChatColor.GREEN + " stationary water blocks.");
+        wauhRemovalActive = false;
     }
 
     private void removeReplacedBlocks() {
@@ -156,6 +161,5 @@ public class BucketListener implements Listener {
             block.setType(Material.AIR);
         }
         replacedBlocks.clear();
-        wauhRemovalActive = false;
     }
 }

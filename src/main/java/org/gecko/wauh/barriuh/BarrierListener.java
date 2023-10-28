@@ -75,7 +75,11 @@ public class BarrierListener implements Listener {
                 if (highestDist <= (realRadiusLimit - 1)) {
                     highestDist = dist;
                     // Send a message to the player only when the dist value rises
-                    currentRemovingPlayer.sendMessage(dist + "/" + realRadiusLimit);
+                    if (highestDist < realRadiusLimit) {
+                        currentRemovingPlayer.sendMessage(ChatColor.GREEN + "Block removal: " + ChatColor.RED + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit);
+                    } else if (highestDist == realRadiusLimit) {
+                        currentRemovingPlayer.sendMessage(ChatColor.GREEN + "Block removal: " + ChatColor.GREEN + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit);
+                    }
                 } else {
                     limitReached = true;
                     limitReachedThisIteration = true;
