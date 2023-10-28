@@ -27,6 +27,7 @@ public class BarrierListener implements Listener, CommandExecutor {
     private boolean stopBlockRemoval = false;
     private Location clickedLocation;
     private boolean limitReached = false;
+    private int highestDist = 0;
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args){
@@ -66,6 +67,7 @@ public class BarrierListener implements Listener, CommandExecutor {
 
     private void processBlockRemoval() {
         int radiusLimit = Main.getPlugin(Main.class).getRadiusLimit();
+        int realradiusLimit = radiusLimit - 2;
         if (stopBlockRemoval) {
             stopBlockRemoval = false;
             displaySummary();
@@ -74,9 +76,15 @@ public class BarrierListener implements Listener, CommandExecutor {
         Set<Block> nextSet = new HashSet<>();
         boolean limitReachedThisIteration = false; // Variable to track whether the limit was reached this iteration
         for (Block block : blocksToProcess) {
-            if (clickedLocation.distance(block.getLocation()) > (radiusLimit + 2)) {
+            int dist = (int) clickedLocation.distance(block.getLocation());
+            if (dist > (radiusLimit)) {
                 limitReached = true;
                 limitReachedThisIteration = true;
+            }
+            if (dist > highestDist) {
+                highestDist = dist;
+                // Send a message to the player only when the dist value rises
+                currentRemovingPlayer.sendMessage(dist + "/" + realradiusLimit);
             }
 
             // Check if the block is grass or dirt

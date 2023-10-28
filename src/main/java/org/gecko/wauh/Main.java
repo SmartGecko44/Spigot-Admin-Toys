@@ -7,7 +7,7 @@ import org.gecko.wauh.barriuh.BarrierListener;
 import org.gecko.wauh.wauhbuck.BucketListener;
 
 public final class Main extends JavaPlugin {
-    int radiusLimit = 500;
+    int radiusLimit = 20;
 
     @Override
     public void onEnable() {

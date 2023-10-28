@@ -28,7 +28,7 @@ public class BucketListener implements Listener, CommandExecutor {
     private boolean stopWaterRemoval = false;
     private Location clickedLocation;
     private boolean limitReached = false;
-    private int dist = 0;
+    private int highestDist = 0;
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
@@ -71,7 +71,7 @@ public class BucketListener implements Listener, CommandExecutor {
 
     private void processWaterRemoval() {
         int radiusLimit = Main.getPlugin(Main.class).getRadiusLimit();
-        String radiusLimitToString = String.valueOf(radiusLimit);
+        int realRadiusLimit = radiusLimit - 2;
         if (stopWaterRemoval) {
             stopWaterRemoval = false;
             displaySummary();
@@ -82,13 +82,16 @@ public class BucketListener implements Listener, CommandExecutor {
         Set<Block> nextSet = new HashSet<>();
         boolean limitReachedThisIteration = false; // Variable to track whether the limit was reached this iteration
         for (Block block : blocksToProcess) {
-            dist = (int) clickedLocation.distance(block.getLocation());
-            if (dist > (radiusLimit + 2)) {
+            int dist = (int) clickedLocation.distance(block.getLocation());
+            if (dist > (radiusLimit)) {
                 limitReached = true;
                 limitReachedThisIteration = true;
             }
-
-            //currentRemovingPlayer.sendMessage(ChatColor.RED + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + radiusLimitToString);
+            if (dist > highestDist) {
+                highestDist = dist;
+                // Send a message to the player only when the dist value rises
+                currentRemovingPlayer.sendMessage(dist + "/" + realRadiusLimit);
+            }
 
             // Check if the block is water or stationary water
             if (block.getType() == Material.WATER) {
