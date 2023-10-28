@@ -67,7 +67,7 @@ public class BarrierListener implements Listener, CommandExecutor {
 
     private void processBlockRemoval() {
         int radiusLimit = Main.getPlugin(Main.class).getRadiusLimit();
-        int realradiusLimit = radiusLimit - 2;
+        int realRadiusLimit = radiusLimit - 2;
         if (stopBlockRemoval) {
             stopBlockRemoval = false;
             displaySummary();
@@ -84,7 +84,7 @@ public class BarrierListener implements Listener, CommandExecutor {
             if (dist > highestDist) {
                 highestDist = dist;
                 // Send a message to the player only when the dist value rises
-                currentRemovingPlayer.sendMessage(dist + "/" + realradiusLimit);
+                currentRemovingPlayer.sendMessage(dist + "/" + realRadiusLimit);
             }
 
             // Check if the block is grass or dirt

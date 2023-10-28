@@ -1,9 +1,12 @@
-  name: Wauh
-  version: 1.0
-  main: org.gecko.wauh.Main
-  description: Bo o o wa uh
+name: Wauh
+version: 1.0
+main: org.gecko.wauh.Main
+description: Bo o o wa uh
 
-  commands:
-    stopwauh:
-      description: Stop removing the wauh
-      usage: /stopwauhremoval
+commands:
+  stopwauh:
+    description: Stop removing the wauh
+    usage: /stopwauhremoval
+  setradiuslimit:
+    description: Set the radius limit
+    usage: /setradiuslimit <radius>
