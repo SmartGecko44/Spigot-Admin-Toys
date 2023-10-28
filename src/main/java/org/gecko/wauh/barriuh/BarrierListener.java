@@ -5,10 +5,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -18,33 +14,26 @@ import org.gecko.wauh.Main;
 import java.util.HashSet;
 import java.util.Set;
 
-public class BarrierListener implements Listener, CommandExecutor {
+public class BarrierListener implements Listener {
 
     private int grassRemovedCount = 0;
     private int dirtRemovedCount = 0;
+    private int barrierRemovedCount = 0;
     private Set<Block> blocksToProcess = new HashSet<>();
     private Player currentRemovingPlayer;
-    private boolean stopBlockRemoval = false;
+    public boolean stopBlockRemoval = false;
     private Location clickedLocation;
     private boolean limitReached = false;
-
-    @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args){
-        if (sender instanceof Player) {
-            Player player = (Player) sender;
-            stopBlockRemoval = true;
-            player.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "Water removal" + ChatColor.RED + "stopped.");
-            displaySummary();
-        }
-        return true;
-    }
+    private int highestDist = 0;
+    public boolean blockRemovalActive = false;
 
     @EventHandler
     public void BarrierClick(BlockBreakEvent event) {
         Player player = event.getPlayer();
-        if (event.getBlock().getType() == Material.GRASS || event.getBlock().getType() == Material.DIRT) {
+        if (event.getBlock().getType() == Material.GRASS || event.getBlock().getType() == Material.DIRT || event.getBlock().getType() == Material.BARRIER) {
             // Check if the bucket is filling with water
             if (player.getInventory().getItemInMainHand().getType() == Material.BARRIER) {
+                blockRemovalActive = true;
                 limitReached = false;
                 event.getBlock().setType(Material.BEDROCK);
                 clickedLocation = event.getBlock().getLocation();
@@ -52,6 +41,8 @@ public class BarrierListener implements Listener, CommandExecutor {
                 // Reset the water removal counts and initialize the set of blocks to process
                 grassRemovedCount = 0;
                 dirtRemovedCount = 0;
+                barrierRemovedCount = 0;
+                highestDist = 0;
                 blocksToProcess.clear();
                 currentRemovingPlayer = player;
 
@@ -66,6 +57,7 @@ public class BarrierListener implements Listener, CommandExecutor {
 
     private void processBlockRemoval() {
         int radiusLimit = Main.getPlugin(Main.class).getRadiusLimit();
+        int realRadiusLimit = radiusLimit - 2;
         if (stopBlockRemoval) {
             stopBlockRemoval = false;
             displaySummary();
@@ -74,9 +66,24 @@ public class BarrierListener implements Listener, CommandExecutor {
         Set<Block> nextSet = new HashSet<>();
         boolean limitReachedThisIteration = false; // Variable to track whether the limit was reached this iteration
         for (Block block : blocksToProcess) {
-            if (clickedLocation.distance(block.getLocation()) > (radiusLimit + 2)) {
+            int dist = (int) clickedLocation.distance(block.getLocation());
+            if (dist > radiusLimit) {
                 limitReached = true;
                 limitReachedThisIteration = true;
+            }
+            if (dist > highestDist) {
+                if (highestDist <= (realRadiusLimit - 1)) {
+                    highestDist = dist;
+                    // Send a message to the player only when the dist value rises
+                    if (highestDist < realRadiusLimit) {
+                        currentRemovingPlayer.sendMessage(ChatColor.GREEN + "Block removal: " + ChatColor.RED + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit);
+                    } else if (highestDist == realRadiusLimit) {
+                        currentRemovingPlayer.sendMessage(ChatColor.GREEN + "Block removal: " + ChatColor.GREEN + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit);
+                    }
+                } else {
+                    limitReached = true;
+                    limitReachedThisIteration = true;
+                }
             }
 
             // Check if the block is grass or dirt
@@ -84,15 +91,27 @@ public class BarrierListener implements Listener, CommandExecutor {
                 grassRemovedCount++;
             } else if (block.getType() == Material.DIRT) {
                 dirtRemovedCount++;
+            } else if (block.getType() == Material.BARRIER) {
+                barrierRemovedCount++;
             }
 
             block.setType(Material.AIR);
 
             // Iterate through neighboring blocks and add them to the next set
-            for (BlockFace face : BlockFace.values()) {
-                Block neighboringBlock = block.getRelative(face);
-                if ((neighboringBlock.getType() == Material.GRASS || neighboringBlock.getType() == Material.DIRT)) {
-                    nextSet.add(neighboringBlock);
+            for (int i = -1; i <= 1; i++) {
+                if (i == 0) continue; // Skip the current block
+                Block neighboringBlockX = block.getRelative(i, 0, 0);
+                Block neighboringBlockY = block.getRelative(0, i, 0);
+                Block neighboringBlockZ = block.getRelative(0, 0, i);
+
+                if ((neighboringBlockX.getType() == Material.GRASS || neighboringBlockX.getType() == Material.DIRT || neighboringBlockX.getType() == Material.BARRIER)) {
+                    nextSet.add(neighboringBlockX);
+                }
+                if ((neighboringBlockY.getType() == Material.GRASS || neighboringBlockY.getType() == Material.DIRT || neighboringBlockY.getType() == Material.BARRIER)) {
+                    nextSet.add(neighboringBlockY);
+                }
+                if ((neighboringBlockZ.getType() == Material.GRASS || neighboringBlockZ.getType() == Material.DIRT || neighboringBlockZ.getType() == Material.BARRIER)) {
+                    nextSet.add(neighboringBlockZ);
                 }
             }
         }
@@ -119,12 +138,13 @@ public class BarrierListener implements Listener, CommandExecutor {
         }
     }
 
-    private void displaySummary() {
+    public void displaySummary() {
         // Display the block removal summary to the player
         Player player = currentRemovingPlayer;
         player.sendMessage(ChatColor.GREEN + "Removed " + ChatColor.RED + grassRemovedCount + ChatColor.GREEN + " grass blocks and " + ChatColor.RED + dirtRemovedCount + ChatColor.GREEN + " dirt blocks.");
 
         // Display the block removal summary in the console
-        Bukkit.getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + player.getName() + ChatColor.GREEN + " removed " + ChatColor.RED + grassRemovedCount + ChatColor.GREEN + " grass blocks and " + ChatColor.RED + dirtRemovedCount + ChatColor.GREEN + " dirt blocks.");
+        Bukkit.getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + player.getName() + ChatColor.GREEN + " removed " + ChatColor.RED + grassRemovedCount + ChatColor.GREEN + " grass blocks, " + ChatColor.RED + dirtRemovedCount + ChatColor.GREEN + " dirt blocks and " + ChatColor.RED + barrierRemovedCount + ChatColor.GREEN + " barriers");
+        blockRemovalActive = false;
     }
 }
