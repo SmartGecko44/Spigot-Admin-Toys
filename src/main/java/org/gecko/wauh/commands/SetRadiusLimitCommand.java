@@ -25,6 +25,7 @@ public class SetRadiusLimitCommand implements CommandExecutor {
             }
         } else {
             sender.sendMessage("Only players can use this command.");
+            return false;
         }
         return true;
     }

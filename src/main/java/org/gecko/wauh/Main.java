@@ -18,11 +18,11 @@ public final class Main extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new BucketListener(), this);
         getServer().getPluginManager().registerEvents(new BarrierListener(), this);
         try {
-            getCommand("stopwauh").setExecutor(new BucketListener());
+            this.getCommand("stopwauh").setExecutor(new BucketListener());
         } catch (NullPointerException e) {
             Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "I am in eternal suffering.");
         }
-        getCommand("setradiuslimit").setExecutor(new SetRadiusLimitCommand());
+        this.getCommand("kit").setExecutor(new SetRadiusLimitCommand());
 
     }
 

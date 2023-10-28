@@ -7,6 +7,6 @@ commands:
   stopwauh:
     description: Stop removing the wauh
     usage: /stopwauhremoval
-  setradiuslimit:
+  kit:
     description: Set the radius limit
-    usage: /setradiuslimit <radius>
+    usage: /kit <radius>
