@@ -36,6 +36,7 @@ public class BedrockListener implements Listener {
 
             // Reset the water removal counts and initialize the set of blocks to process
             highestDist = 0;
+            allRemovedCount = 0;
             blocksToProcess.clear();
             currentRemovingPlayer = player;
 
@@ -90,13 +91,13 @@ public class BedrockListener implements Listener {
                 Block neighboringBlockY = block.getRelative(0, i, 0);
                 Block neighboringBlockZ = block.getRelative(0, 0, i);
 
-                if ((neighboringBlockX.getType() != Material.AIR || neighboringBlockX.getType() != Material.BEDROCK)) {
+                if ((neighboringBlockX.getType() != Material.AIR && neighboringBlockX.getType() != Material.BEDROCK)) {
                     nextSet.add(neighboringBlockX);
                 }
-                if ((neighboringBlockY.getType() != Material.AIR || neighboringBlockY.getType() != Material.BEDROCK)) {
+                if ((neighboringBlockY.getType() != Material.AIR && neighboringBlockY.getType() != Material.BEDROCK)) {
                     nextSet.add(neighboringBlockY);
                 }
-                if ((neighboringBlockZ.getType() != Material.AIR || neighboringBlockZ.getType() != Material.BEDROCK)) {
+                if ((neighboringBlockZ.getType() != Material.AIR && neighboringBlockZ.getType() != Material.BEDROCK)) {
                     nextSet.add(neighboringBlockZ);
                 }
             }
