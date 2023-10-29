@@ -34,7 +34,6 @@ public class BucketListener implements Listener {
             if (event.getBucket() == Material.BUCKET) {
                 wauhRemovalActive = true;
                 limitReached = false;
-                event.getBlockClicked().setType(Material.BEDROCK);
                 Player player = event.getPlayer();
                 clickedLocation = event.getBlockClicked().getLocation();
 
@@ -149,10 +148,12 @@ public class BucketListener implements Listener {
     public void displaySummary() {
         // Display the water removal summary to the player
         Player player = currentRemovingPlayer;
-        player.sendMessage(ChatColor.GREEN + "Removed " + ChatColor.RED + waterRemovedCount + ChatColor.GREEN + " wauh blocks.");
+        if (waterRemovedCount + stationaryWaterRemovedCount > 1) {
+            player.sendMessage(ChatColor.GREEN + "Removed " + ChatColor.RED + waterRemovedCount + ChatColor.GREEN + " wauh blocks.");
 
-        // Display the water removal summary in the console
-        Bukkit.getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + player.getName() + ChatColor.GREEN + " removed " + ChatColor.RED + waterRemovedCount + ChatColor.GREEN + " flowing water blocks and " + ChatColor.RED + stationaryWaterRemovedCount + ChatColor.GREEN + " stationary water blocks.");
+            // Display the water removal summary in the console
+            Bukkit.getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + player.getName() + ChatColor.GREEN + " removed " + ChatColor.RED + stationaryWaterRemovedCount + ChatColor.GREEN + " flowing water blocks and " + ChatColor.RED + waterRemovedCount + ChatColor.GREEN + " stationary water blocks.");
+        }
         wauhRemovalActive = false;
     }
 
