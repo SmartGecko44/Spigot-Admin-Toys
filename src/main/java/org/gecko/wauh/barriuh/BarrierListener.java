@@ -35,7 +35,6 @@ public class BarrierListener implements Listener {
             if (player.getInventory().getItemInMainHand().getType() == Material.BARRIER) {
                 blockRemovalActive = true;
                 limitReached = false;
-                event.getBlock().setType(Material.BEDROCK);
                 clickedLocation = event.getBlock().getLocation();
 
                 // Reset the water removal counts and initialize the set of blocks to process
@@ -139,12 +138,17 @@ public class BarrierListener implements Listener {
     }
 
     public void displaySummary() {
-        // Display the block removal summary to the player
         Player player = currentRemovingPlayer;
-        player.sendMessage(ChatColor.GREEN + "Removed " + ChatColor.RED + grassRemovedCount + ChatColor.GREEN + " grass blocks and " + ChatColor.RED + dirtRemovedCount + ChatColor.GREEN + " dirt blocks.");
-
-        // Display the block removal summary in the console
-        Bukkit.getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + player.getName() + ChatColor.GREEN + " removed " + ChatColor.RED + grassRemovedCount + ChatColor.GREEN + " grass blocks, " + ChatColor.RED + dirtRemovedCount + ChatColor.GREEN + " dirt blocks and " + ChatColor.RED + barrierRemovedCount + ChatColor.GREEN + " barriers");
-        blockRemovalActive = false;
+        // Display the block removal summary to the player
+        if (grassRemovedCount + dirtRemovedCount + barrierRemovedCount > 1) {
+            if (barrierRemovedCount == 0) {
+                player.sendMessage(ChatColor.GREEN + "Removed " + ChatColor.RED + grassRemovedCount + ChatColor.GREEN + " grass blocks and " + ChatColor.RED + dirtRemovedCount + ChatColor.GREEN + " dirt blocks.");
+            } else if (barrierRemovedCount > 0) {
+                player.sendMessage(ChatColor.GREEN + "Removed " + ChatColor.RED + grassRemovedCount + ChatColor.GREEN + " grass blocks, " + ChatColor.RED + dirtRemovedCount + ChatColor.GREEN + " dirt blocks and " + ChatColor.RED + barrierRemovedCount + ChatColor.GREEN + " barrier blocks.");
+            }
+            // Display the block removal summary in the console
+            Bukkit.getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + player.getName() + ChatColor.GREEN + " removed " + ChatColor.RED + grassRemovedCount + ChatColor.GREEN + " grass blocks, " + ChatColor.RED + dirtRemovedCount + ChatColor.GREEN + " dirt blocks and " + ChatColor.RED + barrierRemovedCount + ChatColor.GREEN + " barriers");
+            blockRemovalActive = false;
+        }
     }
 }
