@@ -1,4 +1,4 @@
-package org.gecko.wauh.wauhbuck;
+package org.gecko.wauh.Listeners;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -16,16 +16,16 @@ import java.util.Set;
 
 public class BucketListener implements Listener {
 
+    private final Set<Block> replacedBlocks = new HashSet<>();
+    public Player currentRemovingPlayer;
+    public boolean stopWaterRemoval = false;
+    public boolean wauhRemovalActive = false;
     private int waterRemovedCount = 0;
     private int stationaryWaterRemovedCount = 0;
     private Set<Block> blocksToProcess = new HashSet<>();
-    private Player currentRemovingPlayer;
-    private final Set<Block> replacedBlocks = new HashSet<>();
-    public boolean stopWaterRemoval = false;
     private Location clickedLocation;
     private boolean limitReached = false;
     private int highestDist = 0;
-    public boolean wauhRemovalActive = false;
 
     @EventHandler
     public void onBucketFill(PlayerBucketFillEvent event) {
@@ -33,8 +33,8 @@ public class BucketListener implements Listener {
         if (event.getBlockClicked().getType() == Material.WATER || event.getBlockClicked().getType() == Material.STATIONARY_WATER) {
             if (event.getBucket() == Material.BUCKET) {
                 wauhRemovalActive = true;
-                limitReached = false;
                 Player player = event.getPlayer();
+                limitReached = false;
                 clickedLocation = event.getBlockClicked().getLocation();
 
                 // Reset the water removal counts and initialize the set of blocks to process
@@ -46,9 +46,9 @@ public class BucketListener implements Listener {
                 replacedBlocks.clear();
 
                 // Add the clicked block to the set of blocks to process
-                blocksToProcess.add(clickedLocation.getBlock());
+                blocksToProcess.add(event.getBlockClicked());
 
-                replacedBlocks.add(clickedLocation.getBlock());
+                replacedBlocks.add(event.getBlockClicked());
 
                 // Start the water removal process
                 processWaterRemoval();
@@ -79,9 +79,9 @@ public class BucketListener implements Listener {
                     highestDist = dist;
                     // Send a message to the player only when the dist value rises
                     if (highestDist < realRadiusLimit) {
-                        currentRemovingPlayer.sendMessage(ChatColor.GREEN + "Wauh removal: " + ChatColor.RED + dist + ChatColor.WHITE+  "/" + ChatColor.GREEN + realRadiusLimit);
+                        currentRemovingPlayer.sendMessage(ChatColor.GREEN + "Wauh removal: " + ChatColor.RED + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit);
                     } else {
-                        currentRemovingPlayer.sendMessage(ChatColor.GREEN + "Wauh removal: " + ChatColor.GREEN + dist + ChatColor.WHITE+  "/" + ChatColor.GREEN + realRadiusLimit);
+                        currentRemovingPlayer.sendMessage(ChatColor.GREEN + "Wauh removal: " + ChatColor.GREEN + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit);
                     }
                 } else {
                     limitReached = true;
@@ -97,7 +97,7 @@ public class BucketListener implements Listener {
             }
 
             // Remove the water block
-            block.setType(Material.BARRIER);
+            block.setType(Material.STRUCTURE_VOID);
 
             // Add the block to the list of replaced blocks
             replacedBlocks.add(block);
@@ -149,12 +149,13 @@ public class BucketListener implements Listener {
         // Display the water removal summary to the player
         Player player = currentRemovingPlayer;
         if (waterRemovedCount + stationaryWaterRemovedCount > 1) {
-            player.sendMessage(ChatColor.GREEN + "Removed " + ChatColor.RED + waterRemovedCount + ChatColor.GREEN + " wauh blocks.");
+            player.sendMessage(ChatColor.GREEN + "Removed " + ChatColor.RED + (waterRemovedCount + stationaryWaterRemovedCount) + ChatColor.GREEN + " wauh blocks.");
 
             // Display the water removal summary in the console
             Bukkit.getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + player.getName() + ChatColor.GREEN + " removed " + ChatColor.RED + stationaryWaterRemovedCount + ChatColor.GREEN + " flowing water blocks and " + ChatColor.RED + waterRemovedCount + ChatColor.GREEN + " stationary water blocks.");
         }
         wauhRemovalActive = false;
+        currentRemovingPlayer = null;
     }
 
     private void removeReplacedBlocks() {
