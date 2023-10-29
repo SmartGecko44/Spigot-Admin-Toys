@@ -43,7 +43,6 @@ public class BucketListener implements Listener {
                 highestDist = 0;
                 blocksToProcess.clear();
                 currentRemovingPlayer = player;
-                replacedBlocks.clear();
 
                 // Add the clicked block to the set of blocks to process
                 blocksToProcess.add(event.getBlockClicked());
