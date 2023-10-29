@@ -30,21 +30,23 @@ public class BedrockListener implements Listener {
         Player player = event.getPlayer();
         // Check if the bucket is filling with water
         if (player.getInventory().getItemInMainHand().getType() == Material.BEDROCK) {
-            allRemovalActive = true;
-            limitReached = false;
-            clickedLocation = event.getBlock().getLocation();
+            if (event.getBlock().getType() != Material.BEDROCK) {
+                allRemovalActive = true;
+                limitReached = false;
+                clickedLocation = event.getBlock().getLocation();
 
-            // Reset the water removal counts and initialize the set of blocks to process
-            highestDist = 0;
-            allRemovedCount = 0;
-            blocksToProcess.clear();
-            currentRemovingPlayer = player;
+                // Reset the water removal counts and initialize the set of blocks to process
+                highestDist = 0;
+                allRemovedCount = 0;
+                blocksToProcess.clear();
+                currentRemovingPlayer = player;
 
-            // Add the clicked block to the set of blocks to process
-            blocksToProcess.add(clickedLocation.getBlock());
+                // Add the clicked block to the set of blocks to process
+                blocksToProcess.add(clickedLocation.getBlock());
 
-            // Start the water removal process
-            processAllRemoval();
+                // Start the water removal process
+                processAllRemoval();
+            }
         }
     }
 
@@ -91,13 +93,13 @@ public class BedrockListener implements Listener {
                 Block neighboringBlockY = block.getRelative(0, i, 0);
                 Block neighboringBlockZ = block.getRelative(0, 0, i);
 
-                if ((neighboringBlockX.getType() != Material.AIR && neighboringBlockX.getType() != Material.BEDROCK)) {
+                if ((neighboringBlockX.getType() != Material.AIR && neighboringBlockX.getType() != Material.BEDROCK  && neighboringBlockX.getType() != Material.STATIONARY_WATER && neighboringBlockX.getType() != Material.WATER)) {
                     nextSet.add(neighboringBlockX);
                 }
-                if ((neighboringBlockY.getType() != Material.AIR && neighboringBlockY.getType() != Material.BEDROCK)) {
+                if ((neighboringBlockY.getType() != Material.AIR && neighboringBlockY.getType() != Material.BEDROCK && neighboringBlockY.getType() != Material.STATIONARY_WATER && neighboringBlockY.getType() != Material.WATER)) {
                     nextSet.add(neighboringBlockY);
                 }
-                if ((neighboringBlockZ.getType() != Material.AIR && neighboringBlockZ.getType() != Material.BEDROCK)) {
+                if ((neighboringBlockZ.getType() != Material.AIR && neighboringBlockZ.getType() != Material.BEDROCK && neighboringBlockZ.getType() != Material.STATIONARY_WATER && neighboringBlockZ.getType() != Material.WATER)) {
                     nextSet.add(neighboringBlockZ);
                 }
             }
