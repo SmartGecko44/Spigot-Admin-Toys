@@ -5,16 +5,19 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.gecko.wauh.barriuh.BarrierListener;
-import org.gecko.wauh.wauhbuck.BucketListener;
+import org.gecko.wauh.Listeners.BarrierListener;
+import org.gecko.wauh.Listeners.BedrockListener;
+import org.gecko.wauh.Listeners.BucketListener;
 
 public class StopWauh implements CommandExecutor {
     private final BucketListener bucketListener;
     private final BarrierListener barrierListener;
+    private final BedrockListener bedrockListener;
 
-    public StopWauh(BucketListener bucketListener, BarrierListener barrierListener) {
+    public StopWauh(BucketListener bucketListener, BarrierListener barrierListener, BedrockListener bedrockListener) {
         this.bucketListener = bucketListener;
         this.barrierListener = barrierListener;
+        this.bedrockListener = bedrockListener;
     }
 
     @Override
@@ -33,6 +36,10 @@ public class StopWauh implements CommandExecutor {
         if (barrierListener.blockRemovalActive) {
             barrierListener.stopBlockRemoval = true;
             player.sendMessage(ChatColor.GREEN + "Block removal " + ChatColor.RED + ChatColor.BOLD + "stopped.");
+        }
+        if (bedrockListener.allRemovalActive) {
+            bedrockListener.stopAllRemoval = true;
+            player.sendMessage(ChatColor.GREEN + "All removal " + ChatColor.RED + ChatColor.BOLD + "stopped.");
         }
         if (!bucketListener.wauhRemovalActive && !barrierListener.blockRemovalActive) {
             player.sendMessage(ChatColor.RED + "There are no block removals running");

@@ -1,4 +1,4 @@
-package org.gecko.wauh.barriuh;
+package org.gecko.wauh.Listeners;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -16,16 +16,16 @@ import java.util.Set;
 
 public class BarrierListener implements Listener {
 
+    public Player currentRemovingPlayer;
+    public boolean stopBlockRemoval = false;
+    public boolean blockRemovalActive = false;
     private int grassRemovedCount = 0;
     private int dirtRemovedCount = 0;
     private int barrierRemovedCount = 0;
     private Set<Block> blocksToProcess = new HashSet<>();
-    private Player currentRemovingPlayer;
-    public boolean stopBlockRemoval = false;
     private Location clickedLocation;
     private boolean limitReached = false;
     private int highestDist = 0;
-    public boolean blockRemovalActive = false;
 
     @EventHandler
     public void BarrierClick(BlockBreakEvent event) {
@@ -149,6 +149,7 @@ public class BarrierListener implements Listener {
             // Display the block removal summary in the console
             Bukkit.getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + player.getName() + ChatColor.GREEN + " removed " + ChatColor.RED + grassRemovedCount + ChatColor.GREEN + " grass blocks, " + ChatColor.RED + dirtRemovedCount + ChatColor.GREEN + " dirt blocks and " + ChatColor.RED + barrierRemovedCount + ChatColor.GREEN + " barriers");
             blockRemovalActive = false;
+            currentRemovingPlayer = null;
         }
     }
 }
