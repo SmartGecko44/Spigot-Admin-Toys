@@ -30,7 +30,7 @@ public class BucketListener implements Listener {
     @EventHandler
     public void onBucketFill(PlayerBucketFillEvent event) {
         // Check if the bucket is filling with water
-        if (event.getBlockClicked().getType() == Material.WATER || event.getBlockClicked().getType() == Material.STATIONARY_WATER) {
+        if (event.getBlockClicked().getType() == Material.WATER || event.getBlockClicked().getType() == Material.STATIONARY_WATER || event.getBlockClicked().getType() == Material.LAVA || event.getBlockClicked().getType() == Material.STATIONARY_LAVA) {
             if (event.getBucket() == Material.BUCKET) {
                 wauhRemovalActive = true;
                 Player player = event.getPlayer();
@@ -108,13 +108,13 @@ public class BucketListener implements Listener {
                 Block neighboringBlockY = block.getRelative(0, i, 0);
                 Block neighboringBlockZ = block.getRelative(0, 0, i);
 
-                if ((neighboringBlockX.getType() == Material.WATER || neighboringBlockX.getType() == Material.STATIONARY_WATER)) {
+                if ((neighboringBlockX.getType() == Material.WATER || neighboringBlockX.getType() == Material.STATIONARY_WATER || neighboringBlockX.getType() == Material.LAVA || neighboringBlockX.getType() == Material.STATIONARY_LAVA)) {
                     nextSet.add(neighboringBlockX);
                 }
-                if ((neighboringBlockY.getType() == Material.WATER || neighboringBlockY.getType() == Material.STATIONARY_WATER)) {
+                if ((neighboringBlockY.getType() == Material.WATER || neighboringBlockY.getType() == Material.STATIONARY_WATER || neighboringBlockY.getType() == Material.LAVA || neighboringBlockY.getType() == Material.STATIONARY_LAVA)) {
                     nextSet.add(neighboringBlockY);
                 }
-                if ((neighboringBlockZ.getType() == Material.WATER || neighboringBlockZ.getType() == Material.STATIONARY_WATER)) {
+                if ((neighboringBlockZ.getType() == Material.WATER || neighboringBlockZ.getType() == Material.STATIONARY_WATER || neighboringBlockZ.getType() == Material.LAVA || neighboringBlockZ.getType() == Material.STATIONARY_LAVA)) {
                     nextSet.add(neighboringBlockZ);
                 }
             }

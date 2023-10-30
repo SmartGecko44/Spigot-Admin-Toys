@@ -93,13 +93,13 @@ public class BedrockListener implements Listener {
                 Block neighboringBlockY = block.getRelative(0, i, 0);
                 Block neighboringBlockZ = block.getRelative(0, 0, i);
 
-                if ((neighboringBlockX.getType() != Material.AIR && neighboringBlockX.getType() != Material.BEDROCK  && neighboringBlockX.getType() != Material.STATIONARY_WATER && neighboringBlockX.getType() != Material.WATER)) {
+                if ((neighboringBlockX.getType() != Material.AIR && neighboringBlockX.getType() != Material.BEDROCK  && neighboringBlockX.getType() != Material.STATIONARY_WATER && neighboringBlockX.getType() != Material.WATER || neighboringBlockX.getType() == Material.LAVA || neighboringBlockX.getType() == Material.STATIONARY_LAVA)) {
                     nextSet.add(neighboringBlockX);
                 }
-                if ((neighboringBlockY.getType() != Material.AIR && neighboringBlockY.getType() != Material.BEDROCK && neighboringBlockY.getType() != Material.STATIONARY_WATER && neighboringBlockY.getType() != Material.WATER)) {
+                if ((neighboringBlockY.getType() != Material.AIR && neighboringBlockY.getType() != Material.BEDROCK && neighboringBlockY.getType() != Material.STATIONARY_WATER && neighboringBlockY.getType() != Material.WATER || neighboringBlockY.getType() == Material.LAVA || neighboringBlockY.getType() == Material.STATIONARY_LAVA)) {
                     nextSet.add(neighboringBlockY);
                 }
-                if ((neighboringBlockZ.getType() != Material.AIR && neighboringBlockZ.getType() != Material.BEDROCK && neighboringBlockZ.getType() != Material.STATIONARY_WATER && neighboringBlockZ.getType() != Material.WATER)) {
+                if ((neighboringBlockZ.getType() != Material.AIR && neighboringBlockZ.getType() != Material.BEDROCK && neighboringBlockZ.getType() != Material.STATIONARY_WATER && neighboringBlockZ.getType() != Material.WATER || neighboringBlockZ.getType() == Material.LAVA || neighboringBlockZ.getType() == Material.STATIONARY_LAVA)) {
                     nextSet.add(neighboringBlockZ);
                 }
             }
