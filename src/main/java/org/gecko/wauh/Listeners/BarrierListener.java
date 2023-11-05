@@ -40,7 +40,7 @@ public class BarrierListener implements Listener {
         radiusLimit = Main.getPlugin(Main.class).getRadiusLimit();
         realRadiusLimit = radiusLimit - 2;
         if (realRadiusLimit > 1) {
-            if (!bucketListener.wauhRemovalActive && !bedrockListener.allRemovalActive && !waterBucketListener.tsunamiActive) {
+            if (!bucketListener.wauhRemovalActive && !blockRemovalActive && !bedrockListener.allRemovalActive && !waterBucketListener.tsunamiActive) {
                 Player player = event.getPlayer();
                 if (event.getBlock().getType() == Material.GRASS || event.getBlock().getType() == Material.DIRT || event.getBlock().getType() == Material.BARRIER) {
                     // Check if the bucket is filling with water

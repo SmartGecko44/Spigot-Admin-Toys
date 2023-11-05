@@ -38,7 +38,7 @@ public class BedrockListener implements Listener {
         radiusLimit = Main.getPlugin(Main.class).getRadiusLimit();
         realRadiusLimit = radiusLimit - 2;
         if (realRadiusLimit > 1) {
-            if (!bucketListener.wauhRemovalActive && !barrierListener.blockRemovalActive && !waterBucketListener.tsunamiActive) {
+            if (!bucketListener.wauhRemovalActive && !barrierListener.blockRemovalActive && !allRemovalActive && !waterBucketListener.tsunamiActive) {
                 Player player = event.getPlayer();
                 // Check if the bucket is filling with water
                 if (player.getInventory().getItemInMainHand().getType() == Material.BEDROCK) {

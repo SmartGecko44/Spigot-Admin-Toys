@@ -43,7 +43,7 @@ public class BucketListener implements Listener {
         radiusLimit = Main.getPlugin(Main.class).getRadiusLimit();
         realRadiusLimit = radiusLimit - 2;
         if (realRadiusLimit > 1) {
-            if (!barrierListener.blockRemovalActive && !bedrockListener.allRemovalActive && !waterBucketListener.tsunamiActive) {
+            if (!wauhRemovalActive && !barrierListener.blockRemovalActive && !bedrockListener.allRemovalActive && !waterBucketListener.tsunamiActive) {
                 // Check if the bucket is filling with water
                 if (event.getBlockClicked().getType() == Material.WATER || event.getBlockClicked().getType() == Material.STATIONARY_WATER || event.getBlockClicked().getType() == Material.LAVA || event.getBlockClicked().getType() == Material.STATIONARY_LAVA) {
                     if (event.getBucket() == Material.BUCKET) {
@@ -111,7 +111,7 @@ public class BucketListener implements Listener {
             }
 
             // Remove the water block
-            block.setType(Material.STRUCTURE_VOID);
+            block.setType(Material.AIR);
 
             // Add the block to the list of replaced blocks
             replacedBlocks.add(block);
