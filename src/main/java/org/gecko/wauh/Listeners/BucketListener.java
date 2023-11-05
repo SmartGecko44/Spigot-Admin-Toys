@@ -32,6 +32,7 @@ public class BucketListener implements Listener {
     private Location clickedLocation;
     private boolean limitReached = false;
     private int highestDist = 0;
+    private int dist;
     @EventHandler
     public void onBucketFill(PlayerBucketFillEvent event) {
         BarrierListener barrierListener = Main.getPlugin(Main.class).getBarrierListener();
@@ -68,7 +69,7 @@ public class BucketListener implements Listener {
 
     private void processWaterRemoval() {
         int radiusLimit = Main.getPlugin(Main.class).getRadiusLimit();
-        int realRadiusLimit = radiusLimit - 2;
+        int realRadiusLimit = radiusLimit + 2;
         if (stopWaterRemoval) {
             stopWaterRemoval = false;
             displaySummary();
@@ -79,22 +80,23 @@ public class BucketListener implements Listener {
         Set<Block> nextSet = new HashSet<>();
         boolean limitReachedThisIteration = false; // Variable to track whether the limit was reached this iteration
         for (Block block : blocksToProcess) {
-            int dist = (int) clickedLocation.distance(block.getLocation());
+            dist = (int) clickedLocation.distance(block.getLocation());
             if (dist > radiusLimit) {
                 limitReached = true;
                 limitReachedThisIteration = true;
             }
             if (dist > highestDist) {
                 int progressPercentage = (int) ((double) highestDist / (realRadiusLimit - 1) * 100);
-                if (highestDist <= (realRadiusLimit - 1)) {
+                if (highestDist <= (radiusLimit)) {
                     highestDist = dist;
                     // Send a message to the player only when the dist value rises
 
                     if (highestDist < realRadiusLimit) {
-
-                        currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Wauh removal: " + ChatColor.RED + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit));
+                        currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Wauh removal: " + ChatColor.RED + progressPercentage + "% " + ChatColor.GREEN + "(" + ChatColor.RED + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
+                    } else if (!limitReachedThisIteration) {
+                        currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Wauh removal: " + ChatColor.GREEN + progressPercentage + "% (" + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
                     } else {
-                        currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Wauh removal: " + ChatColor.GREEN + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit));
+                        currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Wauh removal: " + ChatColor.GREEN + "100% " + "(" + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
                     }
                 } else {
                     limitReached = true;
@@ -141,6 +143,7 @@ public class BucketListener implements Listener {
         } else if (!blocksToProcess.isEmpty()) {
             Bukkit.getScheduler().runTaskLater(Main.getPlugin(Main.class), this::processWaterRemoval, 2L);
         } else {
+            currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Wauh removal: " + ChatColor.GREEN + "100% " + "(" + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
             wauhFin();
         }
     }

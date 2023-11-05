@@ -10,6 +10,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.gecko.wauh.Main;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -24,6 +26,7 @@ public class BedrockListener implements Listener {
     private Location clickedLocation;
     private boolean limitReached = false;
     private int highestDist = 0;
+    private int dist;
 
     @EventHandler
     public void BedrockClick(BlockBreakEvent event) {
@@ -57,7 +60,7 @@ public class BedrockListener implements Listener {
 
     private void processAllRemoval() {
         int radiusLimit = Main.getPlugin(Main.class).getRadiusLimit();
-        int realRadiusLimit = radiusLimit - 2;
+        int realRadiusLimit = radiusLimit + 2;
         if (stopAllRemoval) {
             stopAllRemoval = false;
             displaySummary();
@@ -66,19 +69,22 @@ public class BedrockListener implements Listener {
         Set<Block> nextSet = new HashSet<>();
         boolean limitReachedThisIteration = false; // Variable to track whether the limit was reached this iteration
         for (Block block : blocksToProcess) {
-            int dist = (int) clickedLocation.distance(block.getLocation());
+            dist = (int) clickedLocation.distance(block.getLocation());
             if (dist > radiusLimit) {
                 limitReached = true;
                 limitReachedThisIteration = true;
             }
             if (dist > highestDist) {
-                if (highestDist <= (realRadiusLimit - 1)) {
+                int progressPercentage = (int) ((double) highestDist / (realRadiusLimit - 1) * 100);
+                if (highestDist <= (radiusLimit)) {
                     highestDist = dist;
                     // Send a message to the player only when the dist value rises
                     if (highestDist < realRadiusLimit) {
-                        currentRemovingPlayer.sendMessage(ChatColor.GREEN + "All removal: " + ChatColor.RED + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit);
-                    } else if (highestDist == realRadiusLimit) {
-                        currentRemovingPlayer.sendMessage(ChatColor.GREEN + "All removal: " + ChatColor.GREEN + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit);
+                        currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "All removal: " + ChatColor.RED + progressPercentage + "% " + ChatColor.GREEN + "(" + ChatColor.RED + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
+                    } else if (!limitReachedThisIteration) {
+                        currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "All removal: " + ChatColor.GREEN + progressPercentage + "% (" + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
+                    } else {
+                        currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "All removal: " + ChatColor.GREEN + "100% " + "(" + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
                     }
                 } else {
                     limitReached = true;
@@ -88,8 +94,11 @@ public class BedrockListener implements Listener {
 
             // Check if the block is grass or dirt
             allRemovedCount++;
-
-            block.setType(Material.AIR);
+            if (block.getType() != Material.DIAMOND_ORE) {
+                block.setType(Material.AIR);
+            } else {
+                block.breakNaturally();
+            }
 
             // Iterate through neighboring blocks and add them to the next set
             for (int i = -1; i <= 1; i++) {
@@ -133,6 +142,7 @@ public class BedrockListener implements Listener {
         } else if (!blocksToProcess.isEmpty()) {
             Bukkit.getScheduler().runTaskLater(Main.getPlugin(Main.class), this::processAllRemoval, 2L);
         } else {
+            currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "All removal: " + ChatColor.GREEN + "100% " + "(" + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
             displaySummary();
         }
     }

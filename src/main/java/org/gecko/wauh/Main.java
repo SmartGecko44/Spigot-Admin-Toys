@@ -20,6 +20,7 @@ public final class Main extends JavaPlugin {
     private WaterBucketListener waterBucketListener;
 
     public int getRadiusLimit() {
+        Bukkit.getConsoleSender().sendMessage(String.valueOf(radiusLimit + 2));
         return radiusLimit + 2;
     }
 
