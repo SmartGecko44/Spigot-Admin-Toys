@@ -30,6 +30,7 @@ public class BarrierListener implements Listener {
     private int highestDist = 0;
     private int dist;
     private int radiusLimit;
+    private int realRadiusLimit;
 
     @EventHandler
     public void BarrierClick(BlockBreakEvent event) {
@@ -37,7 +38,7 @@ public class BarrierListener implements Listener {
         BedrockListener bedrockListener = Main.getPlugin(Main.class).getBedrockListener();
         WaterBucketListener waterBucketListener = Main.getPlugin(Main.class).getWaterBucketListener();
         radiusLimit = Main.getPlugin(Main.class).getRadiusLimit();
-        int realRadiusLimit = radiusLimit - 2;
+        realRadiusLimit = radiusLimit - 2;
         if (realRadiusLimit > 1) {
             if (!bucketListener.wauhRemovalActive && !bedrockListener.allRemovalActive && !waterBucketListener.tsunamiActive) {
                 Player player = event.getPlayer();
@@ -68,7 +69,6 @@ public class BarrierListener implements Listener {
     }
 
     private void processBlockRemoval() {
-        int realRadiusLimit = radiusLimit - 2;
         if (stopBlockRemoval) {
             stopBlockRemoval = false;
             displaySummary();
