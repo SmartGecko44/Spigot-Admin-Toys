@@ -10,6 +10,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.gecko.wauh.Main;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -26,37 +28,47 @@ public class BarrierListener implements Listener {
     private Location clickedLocation;
     private boolean limitReached = false;
     private int highestDist = 0;
+    private int dist;
+    private int radiusLimit;
+    private int realRadiusLimit;
 
     @EventHandler
     public void BarrierClick(BlockBreakEvent event) {
-        Player player = event.getPlayer();
-        if (event.getBlock().getType() == Material.GRASS || event.getBlock().getType() == Material.DIRT || event.getBlock().getType() == Material.BARRIER) {
-            // Check if the bucket is filling with water
-            if (player.getInventory().getItemInMainHand().getType() == Material.BARRIER) {
-                blockRemovalActive = true;
-                limitReached = false;
-                clickedLocation = event.getBlock().getLocation();
+        BucketListener bucketListener = Main.getPlugin(Main.class).getBucketListener();
+        BedrockListener bedrockListener = Main.getPlugin(Main.class).getBedrockListener();
+        WaterBucketListener waterBucketListener = Main.getPlugin(Main.class).getWaterBucketListener();
+        radiusLimit = Main.getPlugin(Main.class).getRadiusLimit();
+        realRadiusLimit = radiusLimit - 2;
+        if (realRadiusLimit > 1) {
+            if (!bucketListener.wauhRemovalActive && !bedrockListener.allRemovalActive && !waterBucketListener.tsunamiActive) {
+                Player player = event.getPlayer();
+                if (event.getBlock().getType() == Material.GRASS || event.getBlock().getType() == Material.DIRT || event.getBlock().getType() == Material.BARRIER) {
+                    // Check if the bucket is filling with water
+                    if (player.getInventory().getItemInMainHand().getType() == Material.BARRIER) {
+                        blockRemovalActive = true;
+                        limitReached = false;
+                        clickedLocation = event.getBlock().getLocation();
 
-                // Reset the water removal counts and initialize the set of blocks to process
-                grassRemovedCount = 0;
-                dirtRemovedCount = 0;
-                barrierRemovedCount = 0;
-                highestDist = 0;
-                blocksToProcess.clear();
-                currentRemovingPlayer = player;
+                        // Reset the water removal counts and initialize the set of blocks to process
+                        grassRemovedCount = 0;
+                        dirtRemovedCount = 0;
+                        barrierRemovedCount = 0;
+                        highestDist = 0;
+                        blocksToProcess.clear();
+                        currentRemovingPlayer = player;
 
-                // Add the clicked block to the set of blocks to process
-                blocksToProcess.add(clickedLocation.getBlock());
+                        // Add the clicked block to the set of blocks to process
+                        blocksToProcess.add(clickedLocation.getBlock());
 
-                // Start the water removal process
-                processBlockRemoval();
+                        // Start the water removal process
+                        processBlockRemoval();
+                    }
+                }
             }
         }
     }
 
     private void processBlockRemoval() {
-        int radiusLimit = Main.getPlugin(Main.class).getRadiusLimit();
-        int realRadiusLimit = radiusLimit - 2;
         if (stopBlockRemoval) {
             stopBlockRemoval = false;
             displaySummary();
@@ -65,24 +77,22 @@ public class BarrierListener implements Listener {
         Set<Block> nextSet = new HashSet<>();
         boolean limitReachedThisIteration = false; // Variable to track whether the limit was reached this iteration
         for (Block block : blocksToProcess) {
-            int dist = (int) clickedLocation.distance(block.getLocation());
-            if (dist > radiusLimit) {
+            dist = (int) clickedLocation.distance(block.getLocation()) + 1;
+            if (dist > radiusLimit - 3) {
                 limitReached = true;
                 limitReachedThisIteration = true;
             }
-            if (dist > highestDist) {
-                if (highestDist <= (realRadiusLimit - 1)) {
-                    highestDist = dist;
+            if ((dist - 1) > highestDist) {
+                int progressPercentage = (int) ((double) highestDist / (realRadiusLimit - 2) * 100);
+                    highestDist = dist - 1;
                     // Send a message to the player only when the dist value rises
-                    if (highestDist < realRadiusLimit) {
-                        currentRemovingPlayer.sendMessage(ChatColor.GREEN + "Block removal: " + ChatColor.RED + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit);
-                    } else if (highestDist == realRadiusLimit) {
-                        currentRemovingPlayer.sendMessage(ChatColor.GREEN + "Block removal: " + ChatColor.GREEN + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit);
+                    if (highestDist < realRadiusLimit - 1) {
+                        currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Block removal: " + ChatColor.RED + progressPercentage + "% " + ChatColor.GREEN + "(" + ChatColor.RED + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
+                    } else if (!limitReachedThisIteration) {
+                        currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Block removal: " + ChatColor.GREEN + progressPercentage + "% (" + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
+                    } else {
+                        currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Block removal: " + ChatColor.GREEN + "100% " + "(" + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
                     }
-                } else {
-                    limitReached = true;
-                    limitReachedThisIteration = true;
-                }
             }
 
             // Check if the block is grass or dirt
@@ -94,7 +104,7 @@ public class BarrierListener implements Listener {
                 barrierRemovedCount++;
             }
 
-            block.setType(Material.AIR);
+            block.breakNaturally();
 
             // Iterate through neighboring blocks and add them to the next set
             for (int i = -1; i <= 1; i++) {
@@ -122,6 +132,7 @@ public class BarrierListener implements Listener {
         } else if (!blocksToProcess.isEmpty()) {
             Bukkit.getScheduler().runTaskLater(Main.getPlugin(Main.class), this::processBlockRemoval, 2L);
         } else {
+            currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Block removal: " + ChatColor.GREEN + "100% " + "(" + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
             displaySummary();
         }
     }

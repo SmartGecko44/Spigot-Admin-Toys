@@ -10,6 +10,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.gecko.wauh.Main;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -24,35 +26,45 @@ public class BedrockListener implements Listener {
     private Location clickedLocation;
     private boolean limitReached = false;
     private int highestDist = 0;
+    private int dist;
+    private int radiusLimit;
+    private int realRadiusLimit;
 
     @EventHandler
     public void BedrockClick(BlockBreakEvent event) {
-        Player player = event.getPlayer();
-        // Check if the bucket is filling with water
-        if (player.getInventory().getItemInMainHand().getType() == Material.BEDROCK) {
-            if (event.getBlock().getType() != Material.BEDROCK) {
-                allRemovalActive = true;
-                limitReached = false;
-                clickedLocation = event.getBlock().getLocation();
+        BucketListener bucketListener = Main.getPlugin(Main.class).getBucketListener();
+        BarrierListener barrierListener = Main.getPlugin(Main.class).getBarrierListener();
+        WaterBucketListener waterBucketListener = Main.getPlugin(Main.class).getWaterBucketListener();
+        radiusLimit = Main.getPlugin(Main.class).getRadiusLimit();
+        realRadiusLimit = radiusLimit - 2;
+        if (realRadiusLimit > 1) {
+            if (!bucketListener.wauhRemovalActive && !barrierListener.blockRemovalActive && !waterBucketListener.tsunamiActive) {
+                Player player = event.getPlayer();
+                // Check if the bucket is filling with water
+                if (player.getInventory().getItemInMainHand().getType() == Material.BEDROCK) {
+                    if (event.getBlock().getType() != Material.BEDROCK) {
+                        allRemovalActive = true;
+                        limitReached = false;
+                        clickedLocation = event.getBlock().getLocation();
 
-                // Reset the water removal counts and initialize the set of blocks to process
-                highestDist = 0;
-                allRemovedCount = 0;
-                blocksToProcess.clear();
-                currentRemovingPlayer = player;
+                        // Reset the water removal counts and initialize the set of blocks to process
+                        highestDist = 0;
+                        allRemovedCount = 0;
+                        blocksToProcess.clear();
+                        currentRemovingPlayer = player;
 
-                // Add the clicked block to the set of blocks to process
-                blocksToProcess.add(clickedLocation.getBlock());
+                        // Add the clicked block to the set of blocks to process
+                        blocksToProcess.add(clickedLocation.getBlock());
 
-                // Start the water removal process
-                processAllRemoval();
+                        // Start the water removal process
+                        processAllRemoval();
+                    }
+                }
             }
         }
     }
 
     private void processAllRemoval() {
-        int radiusLimit = Main.getPlugin(Main.class).getRadiusLimit();
-        int realRadiusLimit = radiusLimit - 2;
         if (stopAllRemoval) {
             stopAllRemoval = false;
             displaySummary();
@@ -61,30 +73,31 @@ public class BedrockListener implements Listener {
         Set<Block> nextSet = new HashSet<>();
         boolean limitReachedThisIteration = false; // Variable to track whether the limit was reached this iteration
         for (Block block : blocksToProcess) {
-            int dist = (int) clickedLocation.distance(block.getLocation());
-            if (dist > radiusLimit) {
+            dist = (int) clickedLocation.distance(block.getLocation()) + 1;
+            if (dist > radiusLimit - 3) {
                 limitReached = true;
                 limitReachedThisIteration = true;
             }
             if (dist > highestDist) {
-                if (highestDist <= (realRadiusLimit - 1)) {
-                    highestDist = dist;
+                int progressPercentage = (int) ((double) highestDist / (realRadiusLimit - 2) * 100);
+                    highestDist = dist - 1;
                     // Send a message to the player only when the dist value rises
-                    if (highestDist < realRadiusLimit) {
-                        currentRemovingPlayer.sendMessage(ChatColor.GREEN + "All removal: " + ChatColor.RED + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit);
-                    } else if (highestDist == realRadiusLimit) {
-                        currentRemovingPlayer.sendMessage(ChatColor.GREEN + "All removal: " + ChatColor.GREEN + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit);
+                    if (highestDist < realRadiusLimit - 1) {
+                        currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "All removal: " + ChatColor.RED + progressPercentage + "% " + ChatColor.GREEN + "(" + ChatColor.RED + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
+                    } else if (!limitReachedThisIteration) {
+                        currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "All removal: " + ChatColor.GREEN + progressPercentage + "% (" + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
+                    } else {
+                        currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "All removal: " + ChatColor.GREEN + "100% " + "(" + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
                     }
-                } else {
-                    limitReached = true;
-                    limitReachedThisIteration = true;
-                }
             }
 
             // Check if the block is grass or dirt
             allRemovedCount++;
-
-            block.setType(Material.AIR);
+            if (block.getType() != Material.DIAMOND_ORE) {
+                block.setType(Material.AIR);
+            } else {
+                block.breakNaturally();
+            }
 
             // Iterate through neighboring blocks and add them to the next set
             for (int i = -1; i <= 1; i++) {
@@ -93,16 +106,32 @@ public class BedrockListener implements Listener {
                 Block neighboringBlockY = block.getRelative(0, i, 0);
                 Block neighboringBlockZ = block.getRelative(0, 0, i);
 
-                if ((neighboringBlockX.getType() != Material.AIR && neighboringBlockX.getType() != Material.BEDROCK  && neighboringBlockX.getType() != Material.STATIONARY_WATER && neighboringBlockX.getType() != Material.WATER)) {
+                if (neighboringBlockX.getType() != Material.AIR
+                        && neighboringBlockX.getType() != Material.BEDROCK
+                        && neighboringBlockX.getType() != Material.STATIONARY_WATER
+                        && neighboringBlockX.getType() != Material.WATER
+                        && neighboringBlockX.getType() != Material.LAVA
+                        && neighboringBlockX.getType() != Material.STATIONARY_LAVA) {
                     nextSet.add(neighboringBlockX);
                 }
-                if ((neighboringBlockY.getType() != Material.AIR && neighboringBlockY.getType() != Material.BEDROCK && neighboringBlockY.getType() != Material.STATIONARY_WATER && neighboringBlockY.getType() != Material.WATER)) {
+                if (neighboringBlockY.getType() != Material.AIR
+                        && neighboringBlockY.getType() != Material.BEDROCK
+                        && neighboringBlockY.getType() != Material.STATIONARY_WATER
+                        && neighboringBlockY.getType() != Material.WATER
+                        && neighboringBlockY.getType() != Material.LAVA
+                        && neighboringBlockY.getType() != Material.STATIONARY_LAVA) {
                     nextSet.add(neighboringBlockY);
                 }
-                if ((neighboringBlockZ.getType() != Material.AIR && neighboringBlockZ.getType() != Material.BEDROCK && neighboringBlockZ.getType() != Material.STATIONARY_WATER && neighboringBlockZ.getType() != Material.WATER)) {
+                if (neighboringBlockZ.getType() != Material.AIR
+                        && neighboringBlockZ.getType() != Material.BEDROCK
+                        && neighboringBlockZ.getType() != Material.STATIONARY_WATER
+                        && neighboringBlockZ.getType() != Material.WATER
+                        && neighboringBlockZ.getType() != Material.LAVA
+                        && neighboringBlockZ.getType() != Material.STATIONARY_LAVA) {
                     nextSet.add(neighboringBlockZ);
                 }
             }
+
         }
 
         blocksToProcess = nextSet;
@@ -112,6 +141,7 @@ public class BedrockListener implements Listener {
         } else if (!blocksToProcess.isEmpty()) {
             Bukkit.getScheduler().runTaskLater(Main.getPlugin(Main.class), this::processAllRemoval, 2L);
         } else {
+            currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "All removal: " + ChatColor.GREEN + "100% " + "(" + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
             displaySummary();
         }
     }
