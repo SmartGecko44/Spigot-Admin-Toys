@@ -27,40 +27,44 @@ public class WaterBucketListener implements Listener {
     private boolean limitReached = false;
     private int highestDist = 0;
     private int dist;
+    private int radiusLimit;
+    private int realRadiusLimit;
 
     @EventHandler
     public void TsunamiClick(PlayerBucketEmptyEvent event) {
         BucketListener bucketListener = Main.getPlugin(Main.class).getBucketListener();
         BarrierListener barrierListener = Main.getPlugin(Main.class).getBarrierListener();
         BedrockListener bedrockListener = Main.getPlugin(Main.class).getBedrockListener();
-        if (!bucketListener.wauhRemovalActive && !barrierListener.blockRemovalActive && !bedrockListener.allRemovalActive) {
-            Player player = event.getPlayer();
-            // Check if the bucket is filling with water
-            if (player.getInventory().getItemInMainHand().getType() == Material.WATER_BUCKET) {
-                if (player.isSneaking()) {
-                    tsunamiActive = true;
-                    limitReached = false;
-                    clickedLocation = event.getBlockClicked().getRelative(event.getBlockFace()).getLocation();
+        radiusLimit = Main.getPlugin(Main.class).getRadiusLimit();
+        realRadiusLimit = radiusLimit - 2;
+        if (realRadiusLimit > 1) {
+            if (!bucketListener.wauhRemovalActive && !barrierListener.blockRemovalActive && !bedrockListener.allRemovalActive) {
+                Player player = event.getPlayer();
+                // Check if the bucket is filling with water
+                if (player.getInventory().getItemInMainHand().getType() == Material.WATER_BUCKET) {
+                    if (player.isSneaking()) {
+                        tsunamiActive = true;
+                        limitReached = false;
+                        clickedLocation = event.getBlockClicked().getRelative(event.getBlockFace()).getLocation();
 
-                    // Reset the water removal counts and initialize the set of blocks to process
-                    highestDist = 0;
-                    waterPlacedCount = 0;
-                    blocksToProcess.clear();
-                    currentRemovingPlayer = player;
+                        // Reset the water removal counts and initialize the set of blocks to process
+                        highestDist = 0;
+                        waterPlacedCount = 0;
+                        blocksToProcess.clear();
+                        currentRemovingPlayer = player;
 
-                    // Add the clicked block to the set of blocks to process
-                    blocksToProcess.add(clickedLocation.getBlock());
+                        // Add the clicked block to the set of blocks to process
+                        blocksToProcess.add(clickedLocation.getBlock());
 
-                    // Start the water removal process
-                    processTsunami();
+                        // Start the water removal process
+                        processTsunami();
+                    }
                 }
             }
         }
     }
 
     private void processTsunami() {
-        int radiusLimit = Main.getPlugin(Main.class).getRadiusLimit();
-        int realRadiusLimit = radiusLimit + 2;
         if (stopTsunami) {
             stopTsunami = false;
             displaySummary();
@@ -69,27 +73,22 @@ public class WaterBucketListener implements Listener {
         Set<Block> nextSet = new HashSet<>();
         boolean limitReachedThisIteration = false; // Variable to track whether the limit was reached this iteration
         for (Block block : blocksToProcess) {
-            dist = (int) clickedLocation.distance(block.getLocation());
-            if (dist > radiusLimit) {
+            dist = (int) clickedLocation.distance(block.getLocation()) + 1;
+            if (dist > radiusLimit - 3) {
                 limitReached = true;
                 limitReachedThisIteration = true;
             }
-            if (dist > highestDist) {
-                int progressPercentage = (int) ((double) highestDist / (realRadiusLimit - 1) * 100);
-                if (highestDist <= (radiusLimit)) {
-                    highestDist = dist;
+            if ((dist - 1) > highestDist) {
+                int progressPercentage = (int) ((double) highestDist / (realRadiusLimit - 2) * 100);
+                    highestDist = dist - 1;
                     // Send a message to the player only when the dist value rises
-                    if (highestDist < realRadiusLimit) {
+                    if (highestDist < realRadiusLimit - 1) {
                         currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Tsunami: " + ChatColor.RED + progressPercentage + "% " + ChatColor.GREEN + "(" + ChatColor.RED + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
                     } else if (!limitReachedThisIteration) {
                         currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Tsunami: " + ChatColor.GREEN + progressPercentage + "% (" + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
                     } else {
                         currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Tsunami: " + ChatColor.GREEN + "100% " + "(" + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
                     }
-                } else {
-                    limitReached = true;
-                    limitReachedThisIteration = true;
-                }
             }
 
             // Check if the block is grass or dirt
