@@ -29,41 +29,45 @@ public class BarrierListener implements Listener {
     private boolean limitReached = false;
     private int highestDist = 0;
     private int dist;
+    private int radiusLimit;
 
     @EventHandler
     public void BarrierClick(BlockBreakEvent event) {
         BucketListener bucketListener = Main.getPlugin(Main.class).getBucketListener();
         BedrockListener bedrockListener = Main.getPlugin(Main.class).getBedrockListener();
         WaterBucketListener waterBucketListener = Main.getPlugin(Main.class).getWaterBucketListener();
-        if (!bucketListener.wauhRemovalActive && !bedrockListener.allRemovalActive && !waterBucketListener.tsunamiActive) {
-            Player player = event.getPlayer();
-            if (event.getBlock().getType() == Material.GRASS || event.getBlock().getType() == Material.DIRT || event.getBlock().getType() == Material.BARRIER) {
-                // Check if the bucket is filling with water
-                if (player.getInventory().getItemInMainHand().getType() == Material.BARRIER) {
-                    blockRemovalActive = true;
-                    limitReached = false;
-                    clickedLocation = event.getBlock().getLocation();
+        radiusLimit = Main.getPlugin(Main.class).getRadiusLimit();
+        int realRadiusLimit = radiusLimit - 2;
+        if (realRadiusLimit > 1) {
+            if (!bucketListener.wauhRemovalActive && !bedrockListener.allRemovalActive && !waterBucketListener.tsunamiActive) {
+                Player player = event.getPlayer();
+                if (event.getBlock().getType() == Material.GRASS || event.getBlock().getType() == Material.DIRT || event.getBlock().getType() == Material.BARRIER) {
+                    // Check if the bucket is filling with water
+                    if (player.getInventory().getItemInMainHand().getType() == Material.BARRIER) {
+                        blockRemovalActive = true;
+                        limitReached = false;
+                        clickedLocation = event.getBlock().getLocation();
 
-                    // Reset the water removal counts and initialize the set of blocks to process
-                    grassRemovedCount = 0;
-                    dirtRemovedCount = 0;
-                    barrierRemovedCount = 0;
-                    highestDist = 0;
-                    blocksToProcess.clear();
-                    currentRemovingPlayer = player;
+                        // Reset the water removal counts and initialize the set of blocks to process
+                        grassRemovedCount = 0;
+                        dirtRemovedCount = 0;
+                        barrierRemovedCount = 0;
+                        highestDist = 0;
+                        blocksToProcess.clear();
+                        currentRemovingPlayer = player;
 
-                    // Add the clicked block to the set of blocks to process
-                    blocksToProcess.add(clickedLocation.getBlock());
+                        // Add the clicked block to the set of blocks to process
+                        blocksToProcess.add(clickedLocation.getBlock());
 
-                    // Start the water removal process
-                    processBlockRemoval();
+                        // Start the water removal process
+                        processBlockRemoval();
+                    }
                 }
             }
         }
     }
 
     private void processBlockRemoval() {
-        int radiusLimit = Main.getPlugin(Main.class).getRadiusLimit();
         int realRadiusLimit = radiusLimit - 2;
         if (stopBlockRemoval) {
             stopBlockRemoval = false;

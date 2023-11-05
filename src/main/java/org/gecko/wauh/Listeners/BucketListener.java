@@ -33,43 +33,47 @@ public class BucketListener implements Listener {
     private boolean limitReached = false;
     private int highestDist = 0;
     private int dist;
+    private int radiusLimit;
+    private int realRadiusLimit;
     @EventHandler
     public void onBucketFill(PlayerBucketFillEvent event) {
         BarrierListener barrierListener = Main.getPlugin(Main.class).getBarrierListener();
         BedrockListener bedrockListener = Main.getPlugin(Main.class).getBedrockListener();
         WaterBucketListener waterBucketListener = Main.getPlugin(Main.class).getWaterBucketListener();
-        if (!barrierListener.blockRemovalActive && !bedrockListener.allRemovalActive && !waterBucketListener.tsunamiActive) {
-            // Check if the bucket is filling with water
-            if (event.getBlockClicked().getType() == Material.WATER || event.getBlockClicked().getType() == Material.STATIONARY_WATER || event.getBlockClicked().getType() == Material.LAVA || event.getBlockClicked().getType() == Material.STATIONARY_LAVA) {
-                if (event.getBucket() == Material.BUCKET) {
-                    wauhRemovalActive = true;
-                    Player player = event.getPlayer();
+        radiusLimit = Main.getPlugin(Main.class).getRadiusLimit();
+        realRadiusLimit = radiusLimit - 2;
+        if (realRadiusLimit > 1) {
+            if (!barrierListener.blockRemovalActive && !bedrockListener.allRemovalActive && !waterBucketListener.tsunamiActive) {
+                // Check if the bucket is filling with water
+                if (event.getBlockClicked().getType() == Material.WATER || event.getBlockClicked().getType() == Material.STATIONARY_WATER || event.getBlockClicked().getType() == Material.LAVA || event.getBlockClicked().getType() == Material.STATIONARY_LAVA) {
+                    if (event.getBucket() == Material.BUCKET) {
+                        wauhRemovalActive = true;
+                        Player player = event.getPlayer();
 
-                    limitReached = false;
-                    clickedLocation = event.getBlockClicked().getLocation();
+                        limitReached = false;
+                        clickedLocation = event.getBlockClicked().getLocation();
 
-                    // Reset the water removal counts and initialize the set of blocks to process
-                    waterRemovedCount = 0;
-                    stationaryWaterRemovedCount = 0;
-                    highestDist = 0;
-                    blocksToProcess.clear();
-                    currentRemovingPlayer = player;
+                        // Reset the water removal counts and initialize the set of blocks to process
+                        waterRemovedCount = 0;
+                        stationaryWaterRemovedCount = 0;
+                        highestDist = 0;
+                        blocksToProcess.clear();
+                        currentRemovingPlayer = player;
 
-                    // Add the clicked block to the set of blocks to process
-                    blocksToProcess.add(event.getBlockClicked());
+                        // Add the clicked block to the set of blocks to process
+                        blocksToProcess.add(event.getBlockClicked());
 
-                    replacedBlocks.add(event.getBlockClicked());
+                        replacedBlocks.add(event.getBlockClicked());
 
-                    // Start the water removal process
-                    processWaterRemoval();
+                        // Start the water removal process
+                        processWaterRemoval();
+                    }
                 }
             }
         }
     }
 
     private void processWaterRemoval() {
-        int radiusLimit = Main.getPlugin(Main.class).getRadiusLimit();
-        int realRadiusLimit = radiusLimit + 2;
         if (stopWaterRemoval) {
             stopWaterRemoval = false;
             displaySummary();
@@ -80,28 +84,23 @@ public class BucketListener implements Listener {
         Set<Block> nextSet = new HashSet<>();
         boolean limitReachedThisIteration = false; // Variable to track whether the limit was reached this iteration
         for (Block block : blocksToProcess) {
-            dist = (int) clickedLocation.distance(block.getLocation());
-            if (dist > radiusLimit) {
+            dist = (int) clickedLocation.distance(block.getLocation()) + 1;
+            if (dist > radiusLimit - 3) {
                 limitReached = true;
                 limitReachedThisIteration = true;
             }
-            if (dist > highestDist) {
-                int progressPercentage = (int) ((double) highestDist / (realRadiusLimit - 1) * 100);
-                if (highestDist <= (radiusLimit)) {
-                    highestDist = dist;
+            if ((dist - 1) > highestDist) {
+                int progressPercentage = (int) ((double) highestDist / (realRadiusLimit - 2) * 100);
+                    highestDist = dist - 1;
                     // Send a message to the player only when the dist value rises
 
-                    if (highestDist < realRadiusLimit) {
+                    if (highestDist < realRadiusLimit - 1) {
                         currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Wauh removal: " + ChatColor.RED + progressPercentage + "% " + ChatColor.GREEN + "(" + ChatColor.RED + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
                     } else if (!limitReachedThisIteration) {
                         currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Wauh removal: " + ChatColor.GREEN + progressPercentage + "% (" + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
                     } else {
                         currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Wauh removal: " + ChatColor.GREEN + "100% " + "(" + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
                     }
-                } else {
-                    limitReached = true;
-                    limitReachedThisIteration = true;
-                }
             }
 
             // Check if the block is water or stationary water
