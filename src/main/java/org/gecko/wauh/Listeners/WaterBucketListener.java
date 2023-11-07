@@ -121,7 +121,7 @@ public class WaterBucketListener implements Listener {
         if (limitReachedThisIteration) {
             TsunamiFin();
         } else if (!blocksToProcess.isEmpty()) {
-            Bukkit.getScheduler().runTaskLater(Main.getPlugin(Main.class), this::processTsunami, 2L);
+            processTsunami();
         } else {
             currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Tsunami: " + ChatColor.GREEN + "100% " + "(" + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
             displaySummary();
