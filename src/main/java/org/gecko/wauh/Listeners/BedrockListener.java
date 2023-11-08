@@ -194,10 +194,10 @@ public class BedrockListener implements Listener {
     }
     private final Set<Block> removedBlocks = new HashSet<>();
     private final Set<Block> checkedBlocks = markedBlocks;
+    private boolean allFalingRemoved = false;
 
     private void removeMarkedBlocks() {
         int totalRemovedCount = allRemovedCount;
-        boolean allFalingRemoved = false;
         if (totalRemovedCount < 50000 && radiusLimit < 50) {
             for (Block block : markedBlocks) {
                 block.setType(Material.AIR);
@@ -219,20 +219,21 @@ public class BedrockListener implements Listener {
 
             for (int i = 0; i < scaledBlocksPerIteration && iterator.hasNext(); i++) {
                 Block block = iterator.next();
-                if (!allFalingRemoved) {
-                    if (block.getType() == Material.SAND || block.getType() == Material.GRAVEL) {
-                        block.setType(Material.AIR);
-                        removedBlocks.add(block);
-                        markedBlocks.remove(block);
-                    }
-                } else if (allFalingRemoved) {
+                if (allFalingRemoved) {
+                    currentRemovingPlayer.sendMessage("ahhhhh");
                     // Add debug output to indicate that a block is being removed
                     block.setType(Material.AIR);
                     removedBlocks.add(block); // Add the block to the new set
 
                     // Remove the block from the main replacedBlocks set
                     markedBlocks.remove(block);
+                } else {
+                    if (block.getType() == Material.SAND || block.getType() == Material.GRAVEL) {
+                        block.setType(Material.AIR);
+                        currentRemovingPlayer.sendMessage("I hate this");
+                    }
                 }
+                //currentRemovingPlayer.sendMessage("wtf");
                 checkedBlocks.remove(block);
             }
         }
@@ -241,12 +242,14 @@ public class BedrockListener implements Listener {
         if (!markedBlocks.isEmpty()) {
             Bukkit.getScheduler().runTaskLater(Main.getPlugin(Main.class), this::removeMarkedBlocks, 10L); // Schedule the next batch after 1 tick
         } else if (!removedBlocks.isEmpty()) {
+            currentRemovingPlayer.sendMessage("kys");
             // If all blocks have been processed, but there are blocks in the removedBlocks set,
             // process those in the next iteration.
             markedBlocks.addAll(removedBlocks);
             removedBlocks.clear();
             allRemovalActive = false;
-        } else if (checkedBlocks.isEmpty()) {
+        } else if (checkedBlocks.isEmpty() && !allFalingRemoved) {
+            currentRemovingPlayer.sendMessage("grrrrr");
             allFalingRemoved = true;
             removeMarkedBlocks();
         }
