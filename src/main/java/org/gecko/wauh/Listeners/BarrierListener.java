@@ -190,36 +190,45 @@ public class BarrierListener implements Listener {
 
     private void removeMarkedBlocks() {
         int totalRemovedCount = grassRemovedCount + dirtRemovedCount + barrierRemovedCount;
-        // Set BLOCKS_PER_ITERATION dynamically based on the total count
-        //TODO: Fix this stuff
-        int sqrtTotalBlocks = (int) (Math.sqrt((totalRemovedCount)) * radiusLimit) / (2 ^ (int) Math.sqrt(radiusLimit));
-        int scaledBlocksPerIteration = Math.max(1, sqrtTotalBlocks);
-        // Update BLOCKS_PER_ITERATION based on the scaled value
-
-        List<Block> reversedBlocks = new ArrayList<>(markedBlocks);
-        Collections.reverse(reversedBlocks); // Reverse the order of blocks
-
-        Iterator<Block> iterator = reversedBlocks.iterator();
-
-        for (int i = 0; i < scaledBlocksPerIteration && iterator.hasNext(); i++) {
-            Block block = iterator.next();
-            // Add debug output to indicate that a block is being removed
-            block.setType(Material.AIR);
-            removedBlocks.add(block); // Add the block to the new set
-
-            // Remove the block from the main replacedBlocks set
-            markedBlocks.remove(block);
-        }
-
-        // If there are more blocks to remove, schedule the next batch
-        if (!markedBlocks.isEmpty()) {
-            Bukkit.getScheduler().runTaskLater(Main.getPlugin(Main.class), this::removeMarkedBlocks, 10L); // Schedule the next batch after 1 tick
-        } else if (!removedBlocks.isEmpty()) {
-            // If all blocks have been processed, but there are blocks in the removedBlocks set,
-            // process those in the next iteration.
+        if (totalRemovedCount < 50000 && radiusLimit < 50) {
+            for (Block block : markedBlocks) {
+                block.setType(Material.AIR);
+            }
             markedBlocks.addAll(removedBlocks);
             removedBlocks.clear();
             blockRemovalActive = false;
+        } else {
+            // Set BLOCKS_PER_ITERATION dynamically based on the total count
+            //TODO: Fix this stuff
+            int sqrtTotalBlocks = (int) (Math.sqrt((totalRemovedCount)) * radiusLimit) / (2 ^ (int) Math.sqrt(radiusLimit));
+            int scaledBlocksPerIteration = Math.max(1, sqrtTotalBlocks);
+            // Update BLOCKS_PER_ITERATION based on the scaled value
+
+            List<Block> reversedBlocks = new ArrayList<>(markedBlocks);
+            Collections.reverse(reversedBlocks); // Reverse the order of blocks
+
+            Iterator<Block> iterator = reversedBlocks.iterator();
+
+            for (int i = 0; i < scaledBlocksPerIteration && iterator.hasNext(); i++) {
+                Block block = iterator.next();
+                // Add debug output to indicate that a block is being removed
+                block.setType(Material.AIR);
+                removedBlocks.add(block); // Add the block to the new set
+
+                // Remove the block from the main replacedBlocks set
+                markedBlocks.remove(block);
+            }
+
+            // If there are more blocks to remove, schedule the next batch
+            if (!markedBlocks.isEmpty()) {
+                Bukkit.getScheduler().runTaskLater(Main.getPlugin(Main.class), this::removeMarkedBlocks, 10L); // Schedule the next batch after 1 tick
+            } else if (!removedBlocks.isEmpty()) {
+                // If all blocks have been processed, but there are blocks in the removedBlocks set,
+                // process those in the next iteration.
+                markedBlocks.addAll(removedBlocks);
+                removedBlocks.clear();
+                blockRemovalActive = false;
+            }
         }
     }
 }

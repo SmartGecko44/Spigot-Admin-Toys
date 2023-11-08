@@ -28,6 +28,7 @@ public class BucketListener implements Listener {
     public boolean wauhRemovalActive = false;
     private int waterRemovedCount = 0;
     private int stationaryWaterRemovedCount = 0;
+    private int lave = 0;
     private Set<Block> blocksToProcess = new HashSet<>();
     private Location clickedLocation;
     private boolean limitReached = false;
@@ -58,6 +59,7 @@ public class BucketListener implements Listener {
                         // Reset the water removal counts and initialize the set of blocks to process
                         waterRemovedCount = 0;
                         stationaryWaterRemovedCount = 0;
+                        lave = 0;
                         highestDist = 0;
                         blocksToProcess.clear();
                         processedBlocks.clear();
@@ -114,8 +116,9 @@ public class BucketListener implements Listener {
                 waterRemovedCount++;
             } else if (block.getType() == Material.STATIONARY_WATER) {
                 stationaryWaterRemovedCount++;
+            } else if (block.getType() == Material.LAVA || block.getType() == Material.STATIONARY_LAVA) {
+                lave++;
             }
-
             // Remove the water block
             if (Main.getPlugin(Main.class).getShowRemoval()) {
                 block.setType(Material.STRUCTURE_VOID);
@@ -178,11 +181,11 @@ public class BucketListener implements Listener {
     public void displaySummary() {
         // Display the water removal summary to the player
         Player player = currentRemovingPlayer;
-        if (waterRemovedCount + stationaryWaterRemovedCount > 1) {
-            player.sendMessage(ChatColor.GREEN + "Removed " + ChatColor.RED + (waterRemovedCount + stationaryWaterRemovedCount) + ChatColor.GREEN + " wauh blocks.");
+        if (waterRemovedCount + stationaryWaterRemovedCount + lave > 1) {
+            player.sendMessage(ChatColor.GREEN + "Removed " + ChatColor.RED + (waterRemovedCount + stationaryWaterRemovedCount + lave) + ChatColor.GREEN + " wauh blocks.");
 
             // Display the water removal summary in the console
-            Bukkit.getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + player.getName() + ChatColor.GREEN + " removed " + ChatColor.RED + waterRemovedCount + ChatColor.GREEN + " updating water blocks and " + ChatColor.RED + stationaryWaterRemovedCount + ChatColor.GREEN + " stationary water blocks.");
+            Bukkit.getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + player.getName() + ChatColor.GREEN + " removed " + ChatColor.RED + waterRemovedCount + ChatColor.GREEN + " updating water blocks, " + ChatColor.RED + stationaryWaterRemovedCount + ChatColor.GREEN + " stationary water blocks and " + ChatColor.RED + lave + ChatColor.GREEN + " lave blocks.");
         }
         wauhRemovalActive = false;
     }
@@ -193,46 +196,55 @@ public class BucketListener implements Listener {
     private int repetitions = 1; // Add this variable
 
     private void removeReplacedBlocks() {
-        int totalRemovedCount = waterRemovedCount + stationaryWaterRemovedCount;
-        // Set BLOCKS_PER_ITERATION dynamically based on the total count
-        //TODO: Fix this stuff
-        int sqrtTotalBlocks = (int) (Math.sqrt((totalRemovedCount)) * radiusLimit) / (2 ^ (int) Math.sqrt(radiusLimit));
-        int scaledBlocksPerIteration = Math.max(1, sqrtTotalBlocks);
-        // Update BLOCKS_PER_ITERATION based on the scaled value
+        int totalRemovedCount = waterRemovedCount + stationaryWaterRemovedCount + lave;
+        if (totalRemovedCount < 50000 && radiusLimit < 50) {
+            for (Block block : replacedBlocks) {
+                block.setType(Material.AIR);
+            }
+            replacedBlocks.addAll(removedBlocks);
+            removedBlocks.clear();
+            wauhRemovalActive = false;
+        } else {
+            // Set BLOCKS_PER_ITERATION dynamically based on the total count
+            //TODO: Fix this stuff
+            int sqrtTotalBlocks = (int) (Math.sqrt((totalRemovedCount)) * radiusLimit) / (2 ^ (int) Math.sqrt(radiusLimit));
+            int scaledBlocksPerIteration = Math.max(1, sqrtTotalBlocks);
+            // Update BLOCKS_PER_ITERATION based on the scaled value
 
-        List<Block> reversedBlocks = new ArrayList<>(replacedBlocks);
-        Collections.reverse(reversedBlocks); // Reverse the order of blocks
+            List<Block> reversedBlocks = new ArrayList<>(replacedBlocks);
+            Collections.reverse(reversedBlocks); // Reverse the order of blocks
 
-        Iterator<Block> iterator = reversedBlocks.iterator();
+            Iterator<Block> iterator = reversedBlocks.iterator();
 
-        for (int i = 0; i < scaledBlocksPerIteration && iterator.hasNext(); i++) {
-            Block block = iterator.next();
-            // Add debug output to indicate that a block is being removed
-            block.setType(Material.AIR);
-            removedBlocks.add(block); // Add the block to the new set
+            for (int i = 0; i < scaledBlocksPerIteration && iterator.hasNext(); i++) {
+                Block block = iterator.next();
+                // Add debug output to indicate that a block is being removed
+                block.setType(Material.AIR);
+                removedBlocks.add(block); // Add the block to the new set
 
-            // Remove the block from the main replacedBlocks set
-            replacedBlocks.remove(block);
-        }
+                // Remove the block from the main replacedBlocks set
+                replacedBlocks.remove(block);
+            }
 
-        // If there are more blocks to remove, schedule the next batch
-        if (!replacedBlocks.isEmpty()) {
-            Bukkit.getScheduler().runTaskLater(Main.getPlugin(Main.class), this::removeReplacedBlocks, 1L); // Schedule the next batch after 1 tick
-        } else if (!removedBlocks.isEmpty()) {
-            // If all blocks have been processed, but there are blocks in the removedBlocks set,
-            // process those in the next iteration.
-            if (!Main.getPlugin(Main.class).getShowRemoval()) {
-                if (repetitions < 2) { // Repeat only twice
-                    repetitions++;
-                    replacedBlocks.addAll(removedBlocks);
-                    removedBlocks.clear();
-                    Bukkit.getScheduler().runTaskLater(Main.getPlugin(Main.class), this::removeReplacedBlocks, 1L);
+            // If there are more blocks to remove, schedule the next batch
+            if (!replacedBlocks.isEmpty()) {
+                Bukkit.getScheduler().runTaskLater(Main.getPlugin(Main.class), this::removeReplacedBlocks, 1L); // Schedule the next batch after 1 tick
+            } else if (!removedBlocks.isEmpty()) {
+                // If all blocks have been processed, but there are blocks in the removedBlocks set,
+                // process those in the next iteration.
+                if (!Main.getPlugin(Main.class).getShowRemoval()) {
+                    if (repetitions < 2) { // Repeat only twice
+                        repetitions++;
+                        replacedBlocks.addAll(removedBlocks);
+                        removedBlocks.clear();
+                        Bukkit.getScheduler().runTaskLater(Main.getPlugin(Main.class), this::removeReplacedBlocks, 1L);
+                    } else {
+                        // Reset repetitions to stop further repetitions
+                        repetitions = 0;
+                    }
                 } else {
-                    // Reset repetitions to stop further repetitions
                     repetitions = 0;
                 }
-            } else {
-                repetitions = 0;
             }
         }
     }
