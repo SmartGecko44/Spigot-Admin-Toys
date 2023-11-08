@@ -204,6 +204,13 @@ public class BedrockListener implements Listener {
             removedBlocks.clear();
             allRemovalActive = false;
         } else {
+            for (Block block : markedBlocks) {
+                if (block.getType() == Material.SAND) {
+                    block.setType(Material.AIR);
+                    removedBlocks.add(block);
+                    markedBlocks.remove(block);
+                }
+            }
             // Set BLOCKS_PER_ITERATION dynamically based on the total count
             //TODO: Fix this stuff
             int sqrtTotalBlocks = (int) (Math.sqrt((totalRemovedCount)) * radiusLimit) / (2 ^ (int) Math.sqrt(radiusLimit));
