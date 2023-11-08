@@ -193,9 +193,11 @@ public class BedrockListener implements Listener {
         }
     }
     private final Set<Block> removedBlocks = new HashSet<>();
+    private final Set<Block> checkedBlocks = markedBlocks;
 
     private void removeMarkedBlocks() {
         int totalRemovedCount = allRemovedCount;
+        boolean allFalingRemoved = false;
         if (totalRemovedCount < 50000 && radiusLimit < 50) {
             for (Block block : markedBlocks) {
                 block.setType(Material.AIR);
@@ -204,13 +206,6 @@ public class BedrockListener implements Listener {
             removedBlocks.clear();
             allRemovalActive = false;
         } else {
-            for (Block block : markedBlocks) {
-                if (block.getType() == Material.SAND) {
-                    block.setType(Material.AIR);
-                    removedBlocks.add(block);
-                    markedBlocks.remove(block);
-                }
-            }
             // Set BLOCKS_PER_ITERATION dynamically based on the total count
             //TODO: Fix this stuff
             int sqrtTotalBlocks = (int) (Math.sqrt((totalRemovedCount)) * radiusLimit) / (2 ^ (int) Math.sqrt(radiusLimit));
@@ -224,24 +219,36 @@ public class BedrockListener implements Listener {
 
             for (int i = 0; i < scaledBlocksPerIteration && iterator.hasNext(); i++) {
                 Block block = iterator.next();
-                // Add debug output to indicate that a block is being removed
-                block.setType(Material.AIR);
-                removedBlocks.add(block); // Add the block to the new set
+                if (!allFalingRemoved) {
+                    if (block.getType() == Material.SAND || block.getType() == Material.GRAVEL) {
+                        block.setType(Material.AIR);
+                        removedBlocks.add(block);
+                        markedBlocks.remove(block);
+                    }
+                } else if (allFalingRemoved) {
+                    // Add debug output to indicate that a block is being removed
+                    block.setType(Material.AIR);
+                    removedBlocks.add(block); // Add the block to the new set
 
-                // Remove the block from the main replacedBlocks set
-                markedBlocks.remove(block);
+                    // Remove the block from the main replacedBlocks set
+                    markedBlocks.remove(block);
+                }
+                checkedBlocks.remove(block);
             }
+        }
 
-            // If there are more blocks to remove, schedule the next batch
-            if (!markedBlocks.isEmpty()) {
-                Bukkit.getScheduler().runTaskLater(Main.getPlugin(Main.class), this::removeMarkedBlocks, 10L); // Schedule the next batch after 1 tick
-            } else if (!removedBlocks.isEmpty()) {
-                // If all blocks have been processed, but there are blocks in the removedBlocks set,
-                // process those in the next iteration.
-                markedBlocks.addAll(removedBlocks);
-                removedBlocks.clear();
-                allRemovalActive = false;
-            }
+        // If there are more blocks to remove, schedule the next batch
+        if (!markedBlocks.isEmpty()) {
+            Bukkit.getScheduler().runTaskLater(Main.getPlugin(Main.class), this::removeMarkedBlocks, 10L); // Schedule the next batch after 1 tick
+        } else if (!removedBlocks.isEmpty()) {
+            // If all blocks have been processed, but there are blocks in the removedBlocks set,
+            // process those in the next iteration.
+            markedBlocks.addAll(removedBlocks);
+            removedBlocks.clear();
+            allRemovalActive = false;
+        } else if (checkedBlocks.isEmpty()) {
+            allFalingRemoved = true;
+            removeMarkedBlocks();
         }
     }
 }
