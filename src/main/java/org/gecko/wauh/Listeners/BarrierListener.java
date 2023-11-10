@@ -91,11 +91,11 @@ public class BarrierListener implements Listener {
                 highestDist = dist - 1;
                 // Send a message to the player only when the dist value rises
                 if (highestDist < realRadiusLimit - 1) {
-                    currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Block removal: " + ChatColor.RED + progressPercentage + "% " + ChatColor.GREEN + "(" + ChatColor.RED + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
+                    currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Block removal: " + ChatColor.RED + progressPercentage + "% " + ChatColor.GREEN + "(" + ChatColor.RED + highestDist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
                 } else if (!limitReachedThisIteration) {
-                    currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Block removal: " + ChatColor.GREEN + progressPercentage + "% (" + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
+                    currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Block removal: " + ChatColor.GREEN + progressPercentage + "% (" + highestDist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
                 } else {
-                    currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Block removal: " + ChatColor.GREEN + "100% " + "(" + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
+                    currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Block removal: " + ChatColor.GREEN + "100% " + "(" + highestDist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
                 }
             }
 
@@ -110,7 +110,7 @@ public class BarrierListener implements Listener {
             if (!Main.getPlugin(Main.class).getShowRemoval()) {
                 markedBlocks.add(block);
             } else {
-                block.breakNaturally();
+                block.setType(Material.AIR);
             }
 
             // Iterate through neighboring blocks and add them to the next set
@@ -132,9 +132,6 @@ public class BarrierListener implements Listener {
             }
             processedBlocks.add(block);
         }
-        if (nextSet.isEmpty()) {
-            stopBlockRemoval = true;
-        }
         blocksToProcess = nextSet;
 
         if (limitReachedThisIteration) {
@@ -146,7 +143,7 @@ public class BarrierListener implements Listener {
                 processBlockRemoval();
             }
         } else {
-            currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Block removal: " + ChatColor.GREEN + "100% " + "(" + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
+            currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Block removal: " + ChatColor.GREEN + "100% " + "(" + highestDist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
             displaySummary();
         }
     }
@@ -182,7 +179,19 @@ public class BarrierListener implements Listener {
             } else {
                 blockRemovalActive = false;
                 currentRemovingPlayer = null;
+                stopBlockRemoval = false;
+                blocksToProcess.clear();
+                markedBlocks.clear();
+                processedBlocks.clear();
+                removedBlocks.clear();
             }
+            blockRemovalActive = false;
+            currentRemovingPlayer = null;
+            stopBlockRemoval = false;
+            blocksToProcess.clear();
+            markedBlocks.clear();
+            processedBlocks.clear();
+            removedBlocks.clear();
         }
     }
 
@@ -225,9 +234,13 @@ public class BarrierListener implements Listener {
             } else if (!removedBlocks.isEmpty()) {
                 // If all blocks have been processed, but there are blocks in the removedBlocks set,
                 // process those in the next iteration.
-                markedBlocks.addAll(removedBlocks);
-                removedBlocks.clear();
                 blockRemovalActive = false;
+                currentRemovingPlayer = null;
+                stopBlockRemoval = false;
+                blocksToProcess.clear();
+                markedBlocks.clear();
+                processedBlocks.clear();
+                removedBlocks.clear();
             }
         }
     }

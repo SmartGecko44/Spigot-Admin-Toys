@@ -23,6 +23,7 @@ public class WaterBucketListener implements Listener {
     private int waterPlacedCount;
     private Set<Block> blocksToProcess = new HashSet<>();
     private final Set<Block> markedBlocks = new HashSet<>();
+    private final Set<Block> removedBlocks = new HashSet<>();
     private Location clickedLocation;
     private boolean limitReached = false;
     private int highestDist = 0;
@@ -87,11 +88,11 @@ public class WaterBucketListener implements Listener {
                     highestDist = dist - 1;
                     // Send a message to the player only when the dist value rises
                     if (highestDist < realRadiusLimit - 1) {
-                        currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Tsunami: " + ChatColor.RED + progressPercentage + "% " + ChatColor.GREEN + "(" + ChatColor.RED + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
+                        currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Tsunami: " + ChatColor.RED + progressPercentage + "% " + ChatColor.GREEN + "(" + ChatColor.RED + highestDist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
                     } else if (!limitReachedThisIteration) {
-                        currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Tsunami: " + ChatColor.GREEN + progressPercentage + "% (" + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
+                        currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Tsunami: " + ChatColor.GREEN + progressPercentage + "% (" + highestDist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
                     } else {
-                        currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Tsunami: " + ChatColor.GREEN + "100% " + "(" + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
+                        currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Tsunami: " + ChatColor.GREEN + "100% " + "(" + highestDist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
                     }
             }
 
@@ -124,9 +125,6 @@ public class WaterBucketListener implements Listener {
             }
             processedBlocks.add(block);
         }
-        if (nextSet.isEmpty()) {
-            stopTsunami = true;
-        }
         blocksToProcess = nextSet;
 
         if (limitReachedThisIteration) {
@@ -138,7 +136,7 @@ public class WaterBucketListener implements Listener {
                 processTsunami();
             }
         } else {
-            currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Tsunami: " + ChatColor.GREEN + "100% " + "(" + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
+            currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Tsunami: " + ChatColor.GREEN + "100% " + "(" + highestDist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
             displaySummary();
         }
     }
@@ -170,11 +168,21 @@ public class WaterBucketListener implements Listener {
             } else {
                 tsunamiActive = false;
                 currentRemovingPlayer = null;
+                stopTsunami = false;
+                blocksToProcess.clear();
+                markedBlocks.clear();
+                processedBlocks.clear();
+                removedBlocks.clear();
             }
+            tsunamiActive = false;
+            currentRemovingPlayer = null;
+            stopTsunami = false;
+            blocksToProcess.clear();
+            markedBlocks.clear();
+            processedBlocks.clear();
+            removedBlocks.clear();
         }
     }
-
-    private final Set<Block> removedBlocks = new HashSet<>();
 
     private void removeMarkedBlocks() {
         int totalRemovedCount = waterPlacedCount;
@@ -182,9 +190,13 @@ public class WaterBucketListener implements Listener {
             for (Block block : markedBlocks) {
                 block.setType(Material.STATIONARY_WATER);
             }
-            markedBlocks.addAll(removedBlocks);
-            removedBlocks.clear();
             tsunamiActive = false;
+            currentRemovingPlayer = null;
+            stopTsunami = false;
+            blocksToProcess.clear();
+            markedBlocks.clear();
+            processedBlocks.clear();
+            removedBlocks.clear();
         } else {
             // Set BLOCKS_PER_ITERATION dynamically based on the total count
             //TODO: Fix this stuff
@@ -214,9 +226,13 @@ public class WaterBucketListener implements Listener {
             } else if (!removedBlocks.isEmpty()) {
                 // If all blocks have been processed, but there are blocks in the removedBlocks set,
                 // process those in the next iteration.
-                markedBlocks.addAll(removedBlocks);
-                removedBlocks.clear();
                 tsunamiActive = false;
+                currentRemovingPlayer = null;
+                stopTsunami = false;
+                blocksToProcess.clear();
+                markedBlocks.clear();
+                processedBlocks.clear();
+                removedBlocks.clear();
             }
         }
     }

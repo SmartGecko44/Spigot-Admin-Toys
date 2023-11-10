@@ -33,7 +33,6 @@ public class BucketListener implements Listener {
     private Location clickedLocation;
     private boolean limitReached = false;
     private int highestDist = 0;
-    private int dist;
     private int radiusLimit;
     private int realRadiusLimit;
     private final Set<Block> processedBlocks = new HashSet<>();
@@ -92,7 +91,7 @@ public class BucketListener implements Listener {
             if (processedBlocks.contains(block)) {
                 continue;
             }
-            dist = (int) clickedLocation.distance(block.getLocation()) + 1;
+            int dist = (int) clickedLocation.distance(block.getLocation()) + 1;
             if (dist > radiusLimit - 3) {
                 limitReached = true;
                 limitReachedThisIteration = true;
@@ -107,7 +106,7 @@ public class BucketListener implements Listener {
                 } else if (!limitReachedThisIteration) {
                     currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Wauh removal: " + ChatColor.GREEN + progressPercentage + "% (" + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
                 } else {
-                    currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Wauh removal: " + ChatColor.GREEN + "100% " + "(" + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
+                    currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Wauh removal: " + ChatColor.GREEN + "100% " + "(" + realRadiusLimit + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
                 }
             }
 
@@ -160,7 +159,7 @@ public class BucketListener implements Listener {
                 processWaterRemoval();
             }
         } else {
-            currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Wauh removal: " + ChatColor.GREEN + "100% " + "(" + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
+            currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Wauh removal: " + ChatColor.GREEN + "100% " + "(" + realRadiusLimit + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
             wauhFin();
         }
     }
@@ -168,13 +167,13 @@ public class BucketListener implements Listener {
     private void wauhFin() {
         // Check if there are more blocks to process
         if (limitReached) {
+            currentRemovingPlayer.sendMessage("test 1");
             displaySummary();
-            Bukkit.getScheduler().runTaskLater(Main.getPlugin(Main.class), this::removeReplacedBlocks, 20L);
         } else if (!blocksToProcess.isEmpty()) {
             Bukkit.getScheduler().runTaskLater(Main.getPlugin(Main.class), this::processWaterRemoval, 1L);
         } else {
+            currentRemovingPlayer.sendMessage("test 2");
             displaySummary();
-            Bukkit.getScheduler().runTaskLater(Main.getPlugin(Main.class), this::removeReplacedBlocks, 20L);
         }
     }
 
@@ -186,24 +185,34 @@ public class BucketListener implements Listener {
 
             // Display the water removal summary in the console
             Bukkit.getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + player.getName() + ChatColor.GREEN + " removed " + ChatColor.RED + waterRemovedCount + ChatColor.GREEN + " updating water blocks, " + ChatColor.RED + stationaryWaterRemovedCount + ChatColor.GREEN + " stationary water blocks and " + ChatColor.RED + lave + ChatColor.GREEN + " lave blocks.");
+            Bukkit.getScheduler().runTaskLater(Main.getPlugin(Main.class), this::removeReplacedBlocks, 20L);
+        } else {
+            wauhRemovalActive = false;
+            currentRemovingPlayer = null;
+            stopWaterRemoval = false;
+            blocksToProcess.clear();
+            replacedBlocks.clear();
+            processedBlocks.clear();
         }
-        wauhRemovalActive = false;
     }
 
 
     private final Set<Block> removedBlocks = new HashSet<>(); // Create a new set to store removed blocks
-
-    private int repetitions = 1; // Add this variable
+    private int repetitions = 1;
 
     private void removeReplacedBlocks() {
+        // Add this variable
         int totalRemovedCount = waterRemovedCount + stationaryWaterRemovedCount + lave;
         if (totalRemovedCount < 50000 && radiusLimit < 50) {
             for (Block block : replacedBlocks) {
                 block.setType(Material.AIR);
             }
-            replacedBlocks.addAll(removedBlocks);
-            removedBlocks.clear();
             wauhRemovalActive = false;
+            currentRemovingPlayer = null;
+            stopWaterRemoval = false;
+            blocksToProcess.clear();
+            replacedBlocks.clear();
+            processedBlocks.clear();
         } else {
             // Set BLOCKS_PER_ITERATION dynamically based on the total count
             //TODO: Fix this stuff
@@ -241,9 +250,22 @@ public class BucketListener implements Listener {
                     } else {
                         // Reset repetitions to stop further repetitions
                         repetitions = 0;
+                        wauhRemovalActive = false;
+                        currentRemovingPlayer = null;
+                        stopWaterRemoval = false;
+                        blocksToProcess.clear();
+                        replacedBlocks.clear();
+                        processedBlocks.clear();
                     }
+
                 } else {
                     repetitions = 0;
+                    wauhRemovalActive = false;
+                    currentRemovingPlayer = null;
+                    stopWaterRemoval = false;
+                    blocksToProcess.clear();
+                    replacedBlocks.clear();
+                    processedBlocks.clear();
                 }
             }
         }
