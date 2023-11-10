@@ -167,12 +167,10 @@ public class BucketListener implements Listener {
     private void wauhFin() {
         // Check if there are more blocks to process
         if (limitReached) {
-            currentRemovingPlayer.sendMessage("test 1");
             displaySummary();
         } else if (!blocksToProcess.isEmpty()) {
             Bukkit.getScheduler().runTaskLater(Main.getPlugin(Main.class), this::processWaterRemoval, 1L);
         } else {
-            currentRemovingPlayer.sendMessage("test 2");
             displaySummary();
         }
     }
