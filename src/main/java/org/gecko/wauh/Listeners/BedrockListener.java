@@ -206,7 +206,7 @@ public class BedrockListener implements Listener {
         }
     }
     private final Set<Block> removedBlocks = new HashSet<>();
-    private int repetitions = 2;
+    private int repetitions = 3;
     private boolean repeated = false;
 
     private void removeMarkedBlocks() {

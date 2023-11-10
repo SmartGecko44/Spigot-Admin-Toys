@@ -54,6 +54,7 @@ public class BarrierListener implements Listener {
                         grassRemovedCount = 0;
                         dirtRemovedCount = 0;
                         barrierRemovedCount = 0;
+                        dist = 0;
                         highestDist = 0;
                         blocksToProcess.clear();
                         currentRemovingPlayer = player;
@@ -203,9 +204,13 @@ public class BarrierListener implements Listener {
             for (Block block : markedBlocks) {
                 block.setType(Material.AIR);
             }
-            markedBlocks.addAll(removedBlocks);
-            removedBlocks.clear();
             blockRemovalActive = false;
+            currentRemovingPlayer = null;
+            stopBlockRemoval = false;
+            blocksToProcess.clear();
+            markedBlocks.clear();
+            processedBlocks.clear();
+            removedBlocks.clear();
         } else {
             // Set BLOCKS_PER_ITERATION dynamically based on the total count
             //TODO: Fix this stuff
@@ -227,21 +232,23 @@ public class BarrierListener implements Listener {
                 // Remove the block from the main replacedBlocks set
                 markedBlocks.remove(block);
             }
+        }
 
-            // If there are more blocks to remove, schedule the next batch
-            if (!markedBlocks.isEmpty()) {
-                Bukkit.getScheduler().runTaskLater(Main.getPlugin(Main.class), this::removeMarkedBlocks, 10L); // Schedule the next batch after 1 tick
-            } else if (!removedBlocks.isEmpty()) {
-                // If all blocks have been processed, but there are blocks in the removedBlocks set,
-                // process those in the next iteration.
-                blockRemovalActive = false;
-                currentRemovingPlayer = null;
-                stopBlockRemoval = false;
-                blocksToProcess.clear();
-                markedBlocks.clear();
-                processedBlocks.clear();
-                removedBlocks.clear();
-            }
+        // If there are more blocks to remove, schedule the next batch
+        if (!markedBlocks.isEmpty()) {
+            currentRemovingPlayer.sendMessage("kys 1");
+            Bukkit.getScheduler().runTaskLater(Main.getPlugin(Main.class), this::removeMarkedBlocks, 10L); // Schedule the next batch after 1 tick
+        } else if (!removedBlocks.isEmpty()) {
+            currentRemovingPlayer.sendMessage("kys 2");
+            // If all blocks have been processed, but there are blocks in the removedBlocks set,
+            // process those in the next iteration.
+            blockRemovalActive = false;
+            currentRemovingPlayer = null;
+            stopBlockRemoval = false;
+            blocksToProcess.clear();
+            markedBlocks.clear();
+            processedBlocks.clear();
+            removedBlocks.clear();
         }
     }
 }
