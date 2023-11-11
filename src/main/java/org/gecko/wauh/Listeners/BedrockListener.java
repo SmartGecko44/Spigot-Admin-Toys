@@ -166,7 +166,7 @@ public class BedrockListener implements Listener {
         // Check if there are more blocks to process
         if (limitReached) {
             displaySummary();
-        } else if(!blocksToProcess.isEmpty()){
+        } else if (!blocksToProcess.isEmpty()) {
             if (Main.getPlugin(Main.class).getShowRemoval()) {
                 Bukkit.getScheduler().runTaskLater(Main.getPlugin(Main.class), this::processAllRemoval, 2L);
             } else {

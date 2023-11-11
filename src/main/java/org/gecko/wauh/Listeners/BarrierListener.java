@@ -20,9 +20,9 @@ public class BarrierListener implements Listener {
     public Player currentRemovingPlayer;
     public boolean stopBlockRemoval = false;
     public boolean blockRemovalActive = false;
-    private int grassRemovedCount = 0;
-    private int dirtRemovedCount = 0;
-    private int barrierRemovedCount = 0;
+    private int grassRemovedCount;
+    private int dirtRemovedCount;
+    private int barrierRemovedCount;
     private Set<Block> blocksToProcess = new HashSet<>();
     private final Set<Block> markedBlocks = new HashSet<>();
     private Location clickedLocation;
@@ -54,7 +54,6 @@ public class BarrierListener implements Listener {
                         grassRemovedCount = 0;
                         dirtRemovedCount = 0;
                         barrierRemovedCount = 0;
-                        dist = 0;
                         highestDist = 0;
                         blocksToProcess.clear();
                         currentRemovingPlayer = player;
@@ -88,15 +87,17 @@ public class BarrierListener implements Listener {
                 limitReachedThisIteration = true;
             }
             if ((dist - 1) > highestDist) {
-                int progressPercentage = (int) ((double) highestDist / (realRadiusLimit - 2) * 100);
-                highestDist = dist - 1;
-                // Send a message to the player only when the dist value rises
-                if (highestDist < realRadiusLimit - 1) {
-                    currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Block removal: " + ChatColor.RED + progressPercentage + "% " + ChatColor.GREEN + "(" + ChatColor.RED + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
-                } else if (!limitReachedThisIteration) {
-                    currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Block removal: " + ChatColor.GREEN + progressPercentage + "% (" + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
-                } else {
-                    currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Block removal: " + ChatColor.GREEN + "100% " + "(" + realRadiusLimit + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
+                if (dist > 1) {
+                    int progressPercentage = (int) ((double) highestDist / (realRadiusLimit - 2) * 100);
+                    highestDist = dist - 1;
+                    // Send a message to the player only when the dist value rises
+                    if (highestDist < realRadiusLimit - 1) {
+                        currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Block removal: " + ChatColor.RED + progressPercentage + "% " + ChatColor.GREEN + "(" + ChatColor.RED + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
+                    } else if (!limitReachedThisIteration) {
+                        currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Block removal: " + ChatColor.GREEN + progressPercentage + "% (" + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
+                    } else {
+                        currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Block removal: " + ChatColor.GREEN + "100% " + "(" + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
+                    }
                 }
             }
 
@@ -133,6 +134,7 @@ public class BarrierListener implements Listener {
             }
             processedBlocks.add(block);
         }
+
         blocksToProcess = nextSet;
 
         if (limitReachedThisIteration) {
@@ -144,7 +146,9 @@ public class BarrierListener implements Listener {
                 processBlockRemoval();
             }
         } else {
-            currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Block removal: " + ChatColor.GREEN + "100% " + "(" + realRadiusLimit + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
+            if (dist > 1) {
+                currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Block removal: " + ChatColor.GREEN + "100% " + "(" + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
+            }
             displaySummary();
         }
     }
@@ -178,6 +182,7 @@ public class BarrierListener implements Listener {
             if (!Main.getPlugin(Main.class).getShowRemoval()) {
                 removeMarkedBlocks();
             } else {
+                player.sendMessage("else 1");
                 blockRemovalActive = false;
                 currentRemovingPlayer = null;
                 stopBlockRemoval = false;
@@ -186,6 +191,8 @@ public class BarrierListener implements Listener {
                 processedBlocks.clear();
                 removedBlocks.clear();
             }
+        } else {
+            player.sendMessage("else 2");
             blockRemovalActive = false;
             currentRemovingPlayer = null;
             stopBlockRemoval = false;
@@ -195,15 +202,15 @@ public class BarrierListener implements Listener {
             removedBlocks.clear();
         }
     }
-
     private final Set<Block> removedBlocks = new HashSet<>();
 
     private void removeMarkedBlocks() {
-        int totalRemovedCount = grassRemovedCount + dirtRemovedCount + barrierRemovedCount;
+        int totalRemovedCount = dirtRemovedCount + grassRemovedCount + barrierRemovedCount;
         if (totalRemovedCount < 50000 && radiusLimit < 50) {
             for (Block block : markedBlocks) {
                 block.setType(Material.AIR);
             }
+            currentRemovingPlayer.sendMessage("else 4");
             blockRemovalActive = false;
             currentRemovingPlayer = null;
             stopBlockRemoval = false;
@@ -214,7 +221,7 @@ public class BarrierListener implements Listener {
         } else {
             // Set BLOCKS_PER_ITERATION dynamically based on the total count
             //TODO: Fix this stuff
-            int sqrtTotalBlocks = (int) (Math.sqrt((totalRemovedCount)) * radiusLimit) / (2 ^ (int) Math.sqrt(radiusLimit));
+            int sqrtTotalBlocks = (int) (Math.sqrt(totalRemovedCount) * radiusLimit) / (2 ^ (int) Math.sqrt(radiusLimit));
             int scaledBlocksPerIteration = Math.max(1, sqrtTotalBlocks);
             // Update BLOCKS_PER_ITERATION based on the scaled value
 
@@ -225,23 +232,22 @@ public class BarrierListener implements Listener {
 
             for (int i = 0; i < scaledBlocksPerIteration && iterator.hasNext(); i++) {
                 Block block = iterator.next();
-                // Add debug output to indicate that a block is being removed
-                block.setType(Material.AIR);
-                removedBlocks.add(block); // Add the block to the new set
+                    block.setType(Material.AIR);
+                    removedBlocks.add(block); // Add the block to the new set
 
-                // Remove the block from the main replacedBlocks set
-                markedBlocks.remove(block);
+                    // Remove the block from the main replacedBlocks set
+                    markedBlocks.remove(block);
             }
         }
 
         // If there are more blocks to remove, schedule the next batch
         if (!markedBlocks.isEmpty()) {
-            currentRemovingPlayer.sendMessage("kys 1");
             Bukkit.getScheduler().runTaskLater(Main.getPlugin(Main.class), this::removeMarkedBlocks, 10L); // Schedule the next batch after 1 tick
         } else if (!removedBlocks.isEmpty()) {
-            currentRemovingPlayer.sendMessage("kys 2");
+            Bukkit.getScheduler().runTaskLater(Main.getPlugin(Main.class), this::removeMarkedBlocks, 100L);
             // If all blocks have been processed, but there are blocks in the removedBlocks set,
             // process those in the next iteration.
+            currentRemovingPlayer.sendMessage("else 3");
             blockRemovalActive = false;
             currentRemovingPlayer = null;
             stopBlockRemoval = false;
