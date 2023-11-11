@@ -13,7 +13,10 @@ import org.gecko.wauh.Main;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 
+import javax.xml.soap.Text;
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 public class BedrockListener implements Listener {
 
@@ -237,6 +240,7 @@ public class BedrockListener implements Listener {
             for (int i = 0; i < scaledBlocksPerIteration && iterator.hasNext(); i++) {
                 Block block = iterator.next();
                 if (repeated) {
+                    currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "Cleaning up falling blocks"));
                     if (block.getType() == Material.SAND || block.getType() == Material.GRAVEL) {
                         block.setType(Material.AIR);
                         removedBlocks.add(block); // Add the block to the new set
@@ -269,6 +273,7 @@ public class BedrockListener implements Listener {
                 // If all blocks have been processed, but there are blocks in the removedBlocks set,
                 // process those in the next iteration.
             } else {
+                currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Falling block cleanup finished"));
                 allRemovalActive = false;
                 currentRemovingPlayer = null;
                 stopAllRemoval = false;
