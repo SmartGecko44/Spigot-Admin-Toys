@@ -2,7 +2,6 @@ package org.gecko.wauh;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.gecko.wauh.Listeners.BarrierListener;
 import org.gecko.wauh.Listeners.BedrockListener;
@@ -10,22 +9,31 @@ import org.gecko.wauh.Listeners.BucketListener;
 import org.gecko.wauh.Listeners.WaterBucketListener;
 import org.gecko.wauh.commands.SetRadiusLimitCommand;
 import org.gecko.wauh.commands.StopWauh;
+import org.gecko.wauh.commands.ToggleRemovalView;
 
 public final class Main extends JavaPlugin {
 
     private int radiusLimit = 20;
+    private boolean showRemoval = true;
     private BucketListener bucketListener;
     private BarrierListener barrierListener;
     private BedrockListener bedrockListener;
     private WaterBucketListener waterBucketListener;
 
     public int getRadiusLimit() {
-        Bukkit.getConsoleSender().sendMessage(String.valueOf(radiusLimit + 2));
         return radiusLimit + 2;
+    }
+
+    public boolean getShowRemoval() {
+        return showRemoval;
     }
 
     public void setRadiusLimit(int newLimit) {
         radiusLimit = newLimit;
+    }
+
+    public void setRemovalView(boolean newShowRemoval) {
+        showRemoval = newShowRemoval;
     }
 
     public BucketListener getBucketListener() {
@@ -65,6 +73,7 @@ public final class Main extends JavaPlugin {
         // Register the StopWauh command with the listeners as arguments
         this.getCommand("stopwauh").setExecutor(new StopWauh(bucketListener, barrierListener, bedrockListener, waterBucketListener));
         this.getCommand("setradiuslimit").setExecutor(new SetRadiusLimitCommand(this));
+        this.getCommand("toggleremovalview").setExecutor(new ToggleRemovalView(this));
     }
 
     @Override

@@ -49,7 +49,7 @@ public class StopWauh implements CommandExecutor {
             player.sendMessage(ChatColor.GREEN + "Tsunami " + ChatColor.RED + ChatColor.BOLD + "stopped.");
         }
         if (!bucketListener.wauhRemovalActive && !barrierListener.blockRemovalActive && !bedrockListener.allRemovalActive && !waterBucketListener.tsunamiActive) {
-            player.sendMessage(ChatColor.RED + "There are no block removals running");
+            player.sendMessage(ChatColor.RED + "There are no operations running");
         }
 
         return true;
