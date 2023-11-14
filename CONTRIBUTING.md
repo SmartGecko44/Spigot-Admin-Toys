@@ -1,7 +1,7 @@
 # Contributing Guidelines
 
 Thank you for considering contributing to this Minecraft plugin! By contributing, you help make this project better for everyone. We appreciate your time and effort.
-
+___
 ## Getting Started
 
 Before you start contributing, please ensure you have read and understood our [Code of Conduct](CODE_OF_CONDUCT.md). Make sure your contributions align with the project's goals and standards.
@@ -11,7 +11,7 @@ Before you start contributing, please ensure you have read and understood our [C
 1. Fork the repository.
 2. Clone the forked repository to your local machine.
 3. Set up your development environment according to the provided instructions in the project documentation.
-
+___
 ## How to Contribute
 
 We welcome contributions in the form of bug reports, feature requests, code improvements, and more. Here are some guidelines to help you get started:
@@ -38,7 +38,7 @@ If you encounter any bugs or have feature requests, please [open an issue](../..
 5. **Formatting:** Keep code formatting consistent. Use tools like linters or formatters if available for your development environment.
 
 6. **Documentation:** Document your code, especially public APIs. Provide information about the purpose of functions, expected inputs, and return values.
-
+___
 ## Testing
 
 1. **Unit Tests:** Write unit tests for your code. Ensure that your changes pass existing tests and consider adding new tests to cover additional cases.
@@ -46,7 +46,7 @@ If you encounter any bugs or have feature requests, please [open an issue](../..
 2. **Integration Tests:** If applicable, include integration tests that cover the interaction of your code with other parts of the system.
 
 3. **Test Coverage:** Aim for high test coverage to catch potential issues early in the development process.
-
+___
 ## Pull Requests
 
 1. **Base Branch:** Submit your pull request to the appropriate branch (usually `main` or `master`).
@@ -56,11 +56,15 @@ If you encounter any bugs or have feature requests, please [open an issue](../..
 3. **Review:** Your pull request will be reviewed by maintainers. Be responsive to feedback and make necessary adjustments.
 
 4. **Continuous Integration:** Ensure that your changes pass the continuous integration tests if available.
+___
+## Security
 
+Please review our [Security Policy](SECURITY.md) for information on reporting vulnerabilities and our process for handling them.
+___
 ## Code of Conduct
 
 Help us keep a positive and inclusive community. See our [Code of Conduct](CODE_OF_CONDUCT.md) for details.
-
+___
 ## License
 
 By contributing to this project, you agree that your contributions will be licensed under the project's [LICENSE](LICENSE.md).
