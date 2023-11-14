@@ -6,23 +6,20 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Bed;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.gecko.wauh.Main;
-import org.gecko.wauh.Listeners.BarrierListener;
-import org.gecko.wauh.Listeners.BedrockListener;
-import org.gecko.wauh.Listeners.WaterBucketListener;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class BucketListener implements Listener {
 
     private final Set<Block> replacedBlocks = new HashSet<>();
+    private final Set<Block> processedBlocks = new HashSet<>();
+    private final Set<Block> removedBlocks = new HashSet<>(); // Create a new set to store removed blocks
     public Player currentRemovingPlayer;
     public boolean stopWaterRemoval = false;
     public boolean wauhRemovalActive = false;
@@ -35,7 +32,7 @@ public class BucketListener implements Listener {
     private int highestDist = 0;
     private int radiusLimit;
     private int realRadiusLimit;
-    private final Set<Block> processedBlocks = new HashSet<>();
+    private int repetitions = 1;
 
     @EventHandler
     public void onBucketFill(PlayerBucketFillEvent event) {
@@ -193,10 +190,6 @@ public class BucketListener implements Listener {
             processedBlocks.clear();
         }
     }
-
-
-    private final Set<Block> removedBlocks = new HashSet<>(); // Create a new set to store removed blocks
-    private int repetitions = 1;
 
     private void removeReplacedBlocks() {
         // Add this variable

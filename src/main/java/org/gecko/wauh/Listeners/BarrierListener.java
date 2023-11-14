@@ -1,5 +1,7 @@
 package org.gecko.wauh.Listeners;
 
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -10,13 +12,14 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.gecko.wauh.Main;
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
 
 import java.util.*;
 
 public class BarrierListener implements Listener {
 
+    private final Set<Block> markedBlocks = new HashSet<>();
+    private final Set<Block> processedBlocks = new HashSet<>();
+    private final Set<Block> removedBlocks = new HashSet<>();
     public Player currentRemovingPlayer;
     public boolean stopBlockRemoval = false;
     public boolean blockRemovalActive = false;
@@ -24,14 +27,12 @@ public class BarrierListener implements Listener {
     private int dirtRemovedCount;
     private int barrierRemovedCount;
     private Set<Block> blocksToProcess = new HashSet<>();
-    private final Set<Block> markedBlocks = new HashSet<>();
     private Location clickedLocation;
     private boolean limitReached = false;
     private int highestDist = 0;
     private int dist;
     private int radiusLimit;
     private int realRadiusLimit;
-    private final Set<Block> processedBlocks = new HashSet<>();
 
     @EventHandler
     public void BarrierClick(BlockBreakEvent event) {
@@ -202,7 +203,6 @@ public class BarrierListener implements Listener {
             removedBlocks.clear();
         }
     }
-    private final Set<Block> removedBlocks = new HashSet<>();
 
     private void removeMarkedBlocks() {
         int totalRemovedCount = dirtRemovedCount + grassRemovedCount + barrierRemovedCount;
@@ -232,11 +232,11 @@ public class BarrierListener implements Listener {
 
             for (int i = 0; i < scaledBlocksPerIteration && iterator.hasNext(); i++) {
                 Block block = iterator.next();
-                    block.setType(Material.AIR);
-                    removedBlocks.add(block); // Add the block to the new set
+                block.setType(Material.AIR);
+                removedBlocks.add(block); // Add the block to the new set
 
-                    // Remove the block from the main replacedBlocks set
-                    markedBlocks.remove(block);
+                // Remove the block from the main replacedBlocks set
+                markedBlocks.remove(block);
             }
         }
 

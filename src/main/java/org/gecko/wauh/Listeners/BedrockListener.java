@@ -1,5 +1,7 @@
 package org.gecko.wauh.Listeners;
 
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -10,29 +12,27 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.gecko.wauh.Main;
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
 
-import javax.xml.soap.Text;
-import java.awt.*;
 import java.util.*;
-import java.util.List;
 
 public class BedrockListener implements Listener {
 
+    private final Set<Block> markedBlocks = new HashSet<>();
+    private final Set<Block> processedBlocks = new HashSet<>();
+    private final Set<Block> removedBlocks = new HashSet<>();
     public Player currentRemovingPlayer;
     public boolean stopAllRemoval = false;
     public boolean allRemovalActive = false;
     private int allRemovedCount;
     private Set<Block> blocksToProcess = new HashSet<>();
-    private final Set<Block> markedBlocks = new HashSet<>();
     private Location clickedLocation;
     private boolean limitReached = false;
     private int highestDist = 0;
     private int dist;
     private int radiusLimit;
     private int realRadiusLimit;
-    private final Set<Block> processedBlocks = new HashSet<>();
+    private int repetitions = 3;
+    private boolean repeated = false;
 
     @EventHandler
     public void BedrockClick(BlockBreakEvent event) {
@@ -104,9 +104,9 @@ public class BedrockListener implements Listener {
             allRemovedCount++;
             if (Main.getPlugin(Main.class).getShowRemoval()) {
                 // if (block.getType() != Material.DIAMOND_ORE) {
-                    // block.setType(Material.AIR);
+                // block.setType(Material.AIR);
                 // } else {
-                    block.setType(Material.AIR);
+                block.setType(Material.AIR);
                 // }
             } else {
                 markedBlocks.add(block);
@@ -120,27 +120,27 @@ public class BedrockListener implements Listener {
                 Block neighboringBlockZ = block.getRelative(0, 0, i);
 
                 if (neighboringBlockX.getType() != Material.AIR
-                    && neighboringBlockX.getType() != Material.BEDROCK
-                    && neighboringBlockX.getType() != Material.STATIONARY_WATER
-                    && neighboringBlockX.getType() != Material.WATER
-                    && neighboringBlockX.getType() != Material.LAVA
-                    && neighboringBlockX.getType() != Material.STATIONARY_LAVA) {
+                        && neighboringBlockX.getType() != Material.BEDROCK
+                        && neighboringBlockX.getType() != Material.STATIONARY_WATER
+                        && neighboringBlockX.getType() != Material.WATER
+                        && neighboringBlockX.getType() != Material.LAVA
+                        && neighboringBlockX.getType() != Material.STATIONARY_LAVA) {
                     nextSet.add(neighboringBlockX);
                 }
                 if (neighboringBlockY.getType() != Material.AIR
-                    && neighboringBlockY.getType() != Material.BEDROCK
-                    && neighboringBlockY.getType() != Material.STATIONARY_WATER
-                    && neighboringBlockY.getType() != Material.WATER
-                    && neighboringBlockY.getType() != Material.LAVA
-                    && neighboringBlockY.getType() != Material.STATIONARY_LAVA) {
+                        && neighboringBlockY.getType() != Material.BEDROCK
+                        && neighboringBlockY.getType() != Material.STATIONARY_WATER
+                        && neighboringBlockY.getType() != Material.WATER
+                        && neighboringBlockY.getType() != Material.LAVA
+                        && neighboringBlockY.getType() != Material.STATIONARY_LAVA) {
                     nextSet.add(neighboringBlockY);
                 }
                 if (neighboringBlockZ.getType() != Material.AIR
-                    && neighboringBlockZ.getType() != Material.BEDROCK
-                    && neighboringBlockZ.getType() != Material.STATIONARY_WATER
-                    && neighboringBlockZ.getType() != Material.WATER
-                    && neighboringBlockZ.getType() != Material.LAVA
-                    && neighboringBlockZ.getType() != Material.STATIONARY_LAVA) {
+                        && neighboringBlockZ.getType() != Material.BEDROCK
+                        && neighboringBlockZ.getType() != Material.STATIONARY_WATER
+                        && neighboringBlockZ.getType() != Material.WATER
+                        && neighboringBlockZ.getType() != Material.LAVA
+                        && neighboringBlockZ.getType() != Material.STATIONARY_LAVA) {
                     nextSet.add(neighboringBlockZ);
                 }
             }
@@ -208,9 +208,6 @@ public class BedrockListener implements Listener {
             removedBlocks.clear();
         }
     }
-    private final Set<Block> removedBlocks = new HashSet<>();
-    private int repetitions = 3;
-    private boolean repeated = false;
 
     private void removeMarkedBlocks() {
         int totalRemovedCount = allRemovedCount;

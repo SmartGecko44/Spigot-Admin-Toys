@@ -9,11 +9,11 @@ import org.gecko.wauh.Main;
 
 public class ToggleRemovalView implements CommandExecutor {
     private final Main plugin;
-    
+
     public ToggleRemovalView(Main plugin) {
         this.plugin = plugin;
     }
-    
+
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (sender instanceof Player) {

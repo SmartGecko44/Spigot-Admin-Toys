@@ -1,5 +1,7 @@
 package org.gecko.wauh.Listeners;
 
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -10,27 +12,24 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.gecko.wauh.Main;
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
 
 import java.util.*;
 
 public class WaterBucketListener implements Listener {
 
+    private final Set<Block> markedBlocks = new HashSet<>();
+    private final Set<Block> removedBlocks = new HashSet<>();
+    private final Set<Block> processedBlocks = new HashSet<>();
     public Player currentRemovingPlayer;
     public boolean stopTsunami = false;
     public boolean tsunamiActive = false;
     private int waterPlacedCount;
     private Set<Block> blocksToProcess = new HashSet<>();
-    private final Set<Block> markedBlocks = new HashSet<>();
-    private final Set<Block> removedBlocks = new HashSet<>();
     private Location clickedLocation;
     private boolean limitReached = false;
     private int highestDist = 0;
-    private int dist;
     private int radiusLimit;
     private int realRadiusLimit;
-    private final Set<Block> processedBlocks = new HashSet<>();
 
     @EventHandler
     public void TsunamiClick(PlayerBucketEmptyEvent event) {
@@ -78,22 +77,22 @@ public class WaterBucketListener implements Listener {
             if (processedBlocks.contains(block)) {
                 continue;
             }
-            dist = (int) clickedLocation.distance(block.getLocation()) + 1;
+            int dist = (int) clickedLocation.distance(block.getLocation()) + 1;
             if (dist > radiusLimit - 3) {
                 limitReached = true;
                 limitReachedThisIteration = true;
             }
             if ((dist - 1) > highestDist) {
                 int progressPercentage = (int) ((double) highestDist / (realRadiusLimit - 2) * 100);
-                    highestDist = dist - 1;
-                    // Send a message to the player only when the dist value rises
-                    if (highestDist < realRadiusLimit - 1) {
-                        currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Tsunami: " + ChatColor.RED + progressPercentage + "% " + ChatColor.GREEN + "(" + ChatColor.RED + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
-                    } else if (!limitReachedThisIteration) {
-                        currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Tsunami: " + ChatColor.GREEN + progressPercentage + "% (" + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
-                    } else {
-                        currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Tsunami: " + ChatColor.GREEN + "100% " + "(" + realRadiusLimit + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
-                    }
+                highestDist = dist - 1;
+                // Send a message to the player only when the dist value rises
+                if (highestDist < realRadiusLimit - 1) {
+                    currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Tsunami: " + ChatColor.RED + progressPercentage + "% " + ChatColor.GREEN + "(" + ChatColor.RED + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
+                } else if (!limitReachedThisIteration) {
+                    currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Tsunami: " + ChatColor.GREEN + progressPercentage + "% (" + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
+                } else {
+                    currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Tsunami: " + ChatColor.GREEN + "100% " + "(" + realRadiusLimit + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
+                }
             }
 
             // Check if the block is grass or dirt
@@ -108,19 +107,19 @@ public class WaterBucketListener implements Listener {
 
             // Iterate through neighboring blocks and add them to the next set
             for (int i = -1; i <= 1; i++) {
-                    if (i == 0) continue;
-                    Block neighboringBlockX = block.getRelative(i, 0, 0);
-                    Block neighboringBlockY = block.getRelative(0, -1, 0);
-                    Block neighboringBlockZ = block.getRelative(0, 0, i);
+                if (i == 0) continue;
+                Block neighboringBlockX = block.getRelative(i, 0, 0);
+                Block neighboringBlockY = block.getRelative(0, -1, 0);
+                Block neighboringBlockZ = block.getRelative(0, 0, i);
 
-                    if ((neighboringBlockX.getType() == Material.AIR)) {
-                        nextSet.add(neighboringBlockX);
-                    }
-                    if ((neighboringBlockY.getType() == Material.AIR)) {
-                        nextSet.add(neighboringBlockY);
-                    }
-                    if ((neighboringBlockZ.getType() == Material.AIR)) {
-                        nextSet.add(neighboringBlockZ);
+                if ((neighboringBlockX.getType() == Material.AIR)) {
+                    nextSet.add(neighboringBlockX);
+                }
+                if ((neighboringBlockY.getType() == Material.AIR)) {
+                    nextSet.add(neighboringBlockY);
+                }
+                if ((neighboringBlockZ.getType() == Material.AIR)) {
+                    nextSet.add(neighboringBlockZ);
                 }
             }
             processedBlocks.add(block);
