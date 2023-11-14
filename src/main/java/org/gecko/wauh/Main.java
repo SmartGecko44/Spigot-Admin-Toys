@@ -24,12 +24,12 @@ public final class Main extends JavaPlugin {
         return radiusLimit + 2;
     }
 
-    public boolean getShowRemoval() {
-        return showRemoval;
-    }
-
     public void setRadiusLimit(int newLimit) {
         radiusLimit = newLimit;
+    }
+
+    public boolean getShowRemoval() {
+        return showRemoval;
     }
 
     public void setRemovalView(boolean newShowRemoval) {
