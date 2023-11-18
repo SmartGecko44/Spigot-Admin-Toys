@@ -218,6 +218,7 @@ public class BucketListener implements Listener {
 
             for (int i = 0; i < scaledBlocksPerIteration && iterator.hasNext(); i++) {
                 Block block = iterator.next();
+                currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "Cleaning up water"));
                 // Add debug output to indicate that a block is being removed
                 block.setType(Material.AIR);
                 removedBlocks.add(block); // Add the block to the new set
@@ -239,6 +240,7 @@ public class BucketListener implements Listener {
                         removedBlocks.clear();
                         Bukkit.getScheduler().runTaskLater(Main.getPlugin(Main.class), this::removeReplacedBlocks, 1L);
                     } else {
+                        currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Water block cleanup finished"));
                         // Reset repetitions to stop further repetitions
                         repetitions = 0;
                         wauhRemovalActive = false;
@@ -250,6 +252,7 @@ public class BucketListener implements Listener {
                     }
 
                 } else {
+                    currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Water block cleanup finished"));
                     repetitions = 0;
                     wauhRemovalActive = false;
                     currentRemovingPlayer = null;
