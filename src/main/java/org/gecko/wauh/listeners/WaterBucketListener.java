@@ -222,7 +222,7 @@ public class WaterBucketListener implements Listener {
             // If there are more blocks to remove, schedule the next batch
             if (!markedBlocks.isEmpty()) {
                 //TODO; Make delay better
-                Bukkit.getScheduler().runTaskLater(Main.getPlugin(Main.class), this::removeMarkedBlocks, 5L); // Schedule the next batch after 1 tick
+                Bukkit.getScheduler().runTaskLater(Main.getPlugin(Main.class), this::removeMarkedBlocks, 1L); // Schedule the next batch after 1 tick
             } else if (!removedBlocks.isEmpty()) {
                 // If all blocks have been processed, but there are blocks in the removedBlocks set,
                 // process those in the next iteration.
