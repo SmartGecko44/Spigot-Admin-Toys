@@ -1,4 +1,4 @@
-package org.gecko.wauh.Listeners;
+package org.gecko.wauh.listeners;
 
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -17,7 +17,7 @@ import java.util.*;
 
 public class BucketListener implements Listener {
 
-    private final Set<Block> replacedBlocks = new HashSet<>();
+    private final Set<Block> markedBlocks = new HashSet<>();
     private final Set<Block> processedBlocks = new HashSet<>();
     private final Set<Block> removedBlocks = new HashSet<>(); // Create a new set to store removed blocks
     public Player currentRemovingPlayer;
@@ -32,7 +32,7 @@ public class BucketListener implements Listener {
     private int highestDist = 0;
     private int radiusLimit;
     private int realRadiusLimit;
-    private int repetitions = 1;
+    private int repetitions = 0;
 
     @EventHandler
     public void onBucketFill(PlayerBucketFillEvent event) {
@@ -64,7 +64,7 @@ public class BucketListener implements Listener {
                         // Add the clicked block to the set of blocks to process
                         blocksToProcess.add(event.getBlockClicked());
 
-                        replacedBlocks.add(event.getBlockClicked());
+                        markedBlocks.add(event.getBlockClicked());
 
                         // Start the water removal process
                         processWaterRemoval();
@@ -119,9 +119,9 @@ public class BucketListener implements Listener {
             if (Main.getPlugin(Main.class).getShowRemoval()) {
                 block.setType(Material.STRUCTURE_VOID);
                 // Add the block to the list of replaced blocks
-                replacedBlocks.add(block);
+                markedBlocks.add(block);
             } else if (!Main.getPlugin(Main.class).getShowRemoval()) {
-                replacedBlocks.add(block);
+                markedBlocks.add(block);
             }
 
             // Iterate through neighboring blocks and add them to the next set
@@ -186,7 +186,7 @@ public class BucketListener implements Listener {
             currentRemovingPlayer = null;
             stopWaterRemoval = false;
             blocksToProcess.clear();
-            replacedBlocks.clear();
+            markedBlocks.clear();
             processedBlocks.clear();
         }
     }
@@ -194,15 +194,15 @@ public class BucketListener implements Listener {
     private void removeReplacedBlocks() {
         // Add this variable
         int totalRemovedCount = waterRemovedCount + stationaryWaterRemovedCount + lave;
-        if (totalRemovedCount < 50000 && radiusLimit < 50) {
-            for (Block block : replacedBlocks) {
+        if (totalRemovedCount < 50000) {
+            for (Block block : markedBlocks) {
                 block.setType(Material.AIR);
             }
             wauhRemovalActive = false;
             currentRemovingPlayer = null;
             stopWaterRemoval = false;
             blocksToProcess.clear();
-            replacedBlocks.clear();
+            markedBlocks.clear();
             processedBlocks.clear();
         } else {
             // Set BLOCKS_PER_ITERATION dynamically based on the total count
@@ -211,7 +211,7 @@ public class BucketListener implements Listener {
             int scaledBlocksPerIteration = Math.max(1, sqrtTotalBlocks);
             // Update BLOCKS_PER_ITERATION based on the scaled value
 
-            List<Block> reversedBlocks = new ArrayList<>(replacedBlocks);
+            List<Block> reversedBlocks = new ArrayList<>(markedBlocks);
             Collections.reverse(reversedBlocks); // Reverse the order of blocks
 
             Iterator<Block> iterator = reversedBlocks.iterator();
@@ -223,20 +223,20 @@ public class BucketListener implements Listener {
                 block.setType(Material.AIR);
                 removedBlocks.add(block); // Add the block to the new set
 
-                // Remove the block from the main replacedBlocks set
-                replacedBlocks.remove(block);
+                // Remove the block from the main markedBlocks set
+                markedBlocks.remove(block);
             }
 
             // If there are more blocks to remove, schedule the next batch
-            if (!replacedBlocks.isEmpty()) {
+            if (!markedBlocks.isEmpty()) {
                 Bukkit.getScheduler().runTaskLater(Main.getPlugin(Main.class), this::removeReplacedBlocks, 1L); // Schedule the next batch after 1 tick
             } else if (!removedBlocks.isEmpty()) {
                 // If all blocks have been processed, but there are blocks in the removedBlocks set,
                 // process those in the next iteration.
                 if (!Main.getPlugin(Main.class).getShowRemoval()) {
-                    if (repetitions < 2) { // Repeat only twice
-                        repetitions++;
-                        replacedBlocks.addAll(removedBlocks);
+                    if (repetitions > 0) { // Repeat only twice
+                        repetitions--;
+                        markedBlocks.addAll(removedBlocks);
                         removedBlocks.clear();
                         Bukkit.getScheduler().runTaskLater(Main.getPlugin(Main.class), this::removeReplacedBlocks, 1L);
                     } else {
@@ -247,7 +247,7 @@ public class BucketListener implements Listener {
                         currentRemovingPlayer = null;
                         stopWaterRemoval = false;
                         blocksToProcess.clear();
-                        replacedBlocks.clear();
+                        markedBlocks.clear();
                         processedBlocks.clear();
                     }
 
@@ -258,8 +258,9 @@ public class BucketListener implements Listener {
                     currentRemovingPlayer = null;
                     stopWaterRemoval = false;
                     blocksToProcess.clear();
-                    replacedBlocks.clear();
+                    markedBlocks.clear();
                     processedBlocks.clear();
+                    removedBlocks.clear();
                 }
             }
         }

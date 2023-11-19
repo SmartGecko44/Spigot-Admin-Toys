@@ -10,5 +10,5 @@ commands:
     description: Set the radius limit
     usage: /setradiuslimit <radius>
   toggleremovalview:
-    description: Toggle the visebility of the removal
-    usage: /toogleremovalview
+    description: Toggle the visibility of the removal
+    usage: /toggleremovalview

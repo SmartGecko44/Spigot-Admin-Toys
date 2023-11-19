@@ -1,4 +1,4 @@
-package org.gecko.wauh.Listeners;
+package org.gecko.wauh.listeners;
 
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -211,7 +211,7 @@ public class BedrockListener implements Listener {
 
     private void removeMarkedBlocks() {
         int totalRemovedCount = allRemovedCount;
-        if (totalRemovedCount < 50000 && radiusLimit < 50) {
+        if (totalRemovedCount < 50000) {
             for (Block block : markedBlocks) {
                 block.setType(Material.AIR);
             }
