@@ -5,10 +5,10 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.gecko.wauh.Listeners.BarrierListener;
-import org.gecko.wauh.Listeners.BedrockListener;
-import org.gecko.wauh.Listeners.BucketListener;
-import org.gecko.wauh.Listeners.WaterBucketListener;
+import org.gecko.wauh.listeners.BarrierListener;
+import org.gecko.wauh.listeners.BedrockListener;
+import org.gecko.wauh.listeners.BucketListener;
+import org.gecko.wauh.listeners.WaterBucketListener;
 
 public class StopWauh implements CommandExecutor {
     private final BucketListener bucketListener;

@@ -1,4 +1,4 @@
-package org.gecko.wauh.Listeners;
+package org.gecko.wauh.listeners;
 
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
