@@ -185,7 +185,7 @@ public class WaterBucketListener implements Listener {
 
     private void removeMarkedBlocks() {
         int totalRemovedCount = waterPlacedCount;
-        if (totalRemovedCount < 50000 && radiusLimit < 50) {
+        if (totalRemovedCount < 50000) {
             for (Block block : markedBlocks) {
                 block.setType(Material.STATIONARY_WATER);
             }
@@ -210,6 +210,7 @@ public class WaterBucketListener implements Listener {
 
             for (int i = 0; i < scaledBlocksPerIteration && iterator.hasNext(); i++) {
                 Block block = iterator.next();
+                currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "Placing water blocks"));
                 // Add debug output to indicate that a block is being removed
                 block.setType(Material.STATIONARY_WATER);
                 removedBlocks.add(block); // Add the block to the new set
@@ -225,6 +226,7 @@ public class WaterBucketListener implements Listener {
             } else if (!removedBlocks.isEmpty()) {
                 // If all blocks have been processed, but there are blocks in the removedBlocks set,
                 // process those in the next iteration.
+                currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Water placement finished"));
                 tsunamiActive = false;
                 currentRemovingPlayer = null;
                 stopTsunami = false;

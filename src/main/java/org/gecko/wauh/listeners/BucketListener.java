@@ -32,7 +32,7 @@ public class BucketListener implements Listener {
     private int highestDist = 0;
     private int radiusLimit;
     private int realRadiusLimit;
-    private int repetitions = 1;
+    private int repetitions = 0;
 
     @EventHandler
     public void onBucketFill(PlayerBucketFillEvent event) {
@@ -194,7 +194,7 @@ public class BucketListener implements Listener {
     private void removeReplacedBlocks() {
         // Add this variable
         int totalRemovedCount = waterRemovedCount + stationaryWaterRemovedCount + lave;
-        if (totalRemovedCount < 50000 && radiusLimit < 50) {
+        if (totalRemovedCount < 50000) {
             for (Block block : replacedBlocks) {
                 block.setType(Material.AIR);
             }
@@ -234,8 +234,8 @@ public class BucketListener implements Listener {
                 // If all blocks have been processed, but there are blocks in the removedBlocks set,
                 // process those in the next iteration.
                 if (!Main.getPlugin(Main.class).getShowRemoval()) {
-                    if (repetitions < 2) { // Repeat only twice
-                        repetitions++;
+                    if (repetitions > 0) { // Repeat only twice
+                        repetitions--;
                         replacedBlocks.addAll(removedBlocks);
                         removedBlocks.clear();
                         Bukkit.getScheduler().runTaskLater(Main.getPlugin(Main.class), this::removeReplacedBlocks, 1L);

@@ -211,7 +211,7 @@ public class BedrockListener implements Listener {
 
     private void removeMarkedBlocks() {
         int totalRemovedCount = allRemovedCount;
-        if (totalRemovedCount < 50000 && radiusLimit < 50) {
+        if (totalRemovedCount < 50000) {
             for (Block block : markedBlocks) {
                 block.setType(Material.AIR);
             }
