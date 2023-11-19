@@ -183,7 +183,6 @@ public class BarrierListener implements Listener {
             if (!Main.getPlugin(Main.class).getShowRemoval()) {
                 removeMarkedBlocks();
             } else {
-                player.sendMessage("else 1");
                 blockRemovalActive = false;
                 currentRemovingPlayer = null;
                 stopBlockRemoval = false;
@@ -193,7 +192,6 @@ public class BarrierListener implements Listener {
                 removedBlocks.clear();
             }
         } else {
-            player.sendMessage("else 2");
             blockRemovalActive = false;
             currentRemovingPlayer = null;
             stopBlockRemoval = false;
@@ -210,7 +208,6 @@ public class BarrierListener implements Listener {
             for (Block block : markedBlocks) {
                 block.setType(Material.AIR);
             }
-            currentRemovingPlayer.sendMessage("else 4");
             blockRemovalActive = false;
             currentRemovingPlayer = null;
             stopBlockRemoval = false;
@@ -247,7 +244,6 @@ public class BarrierListener implements Listener {
             Bukkit.getScheduler().runTaskLater(Main.getPlugin(Main.class), this::removeMarkedBlocks, 100L);
             // If all blocks have been processed, but there are blocks in the removedBlocks set,
             // process those in the next iteration.
-            currentRemovingPlayer.sendMessage("else 3");
             blockRemovalActive = false;
             currentRemovingPlayer = null;
             stopBlockRemoval = false;
