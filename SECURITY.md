@@ -4,8 +4,8 @@
 
 | Version | Supported          |
 |---------|--------------------|
-| 4.0.x   | :white_check_mark: |
-| < 4.0   | :x:                |
+| 4.1.x   | :white_check_mark: |
+| < 4.1   | :x:                |
 ___
 ## Reporting a Vulnerability
 
@@ -18,7 +18,5 @@ To report a vulnerability, please follow these steps:
 3. **Vulnerability Assessment:** The reported vulnerability will be assessed to determine its validity and severity.
 
 4. **Patch Release:** If the vulnerability is accepted and confirmed, a patch will be developed and released. The patch release schedule will be communicated to the reporter.
-
-**Note:** Security patches will only be released for the latest version (`4.0.0`). No security patches are planned for versions below `4.0.0` at the moment.
 
 Your cooperation in responsibly reporting vulnerabilities is appreciated. Thank you for helping to keep this project secure.
