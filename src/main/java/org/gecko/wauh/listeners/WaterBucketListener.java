@@ -18,8 +18,8 @@ import java.util.*;
 public class WaterBucketListener implements Listener {
 
     private final Set<Block> markedBlocks = new HashSet<>();
-    private final Set<Block> removedBlocks = new HashSet<>();
     private final Set<Block> processedBlocks = new HashSet<>();
+    private final Set<Block> removedBlocks = new HashSet<>();
     public Player currentRemovingPlayer;
     public boolean stopTsunami = false;
     public boolean tsunamiActive = false;
@@ -28,6 +28,7 @@ public class WaterBucketListener implements Listener {
     private Location clickedLocation;
     private boolean limitReached = false;
     private int highestDist = 0;
+    private int dist;
     private int radiusLimit;
     private int realRadiusLimit;
 
@@ -77,25 +78,26 @@ public class WaterBucketListener implements Listener {
             if (processedBlocks.contains(block)) {
                 continue;
             }
-            int dist = (int) clickedLocation.distance(block.getLocation()) + 1;
+            dist = (int) clickedLocation.distance(block.getLocation()) + 1;
             if (dist > radiusLimit - 3) {
                 limitReached = true;
                 limitReachedThisIteration = true;
             }
             if ((dist - 1) > highestDist) {
-                int progressPercentage = (int) ((double) highestDist / (realRadiusLimit - 2) * 100);
-                highestDist = dist - 1;
-                // Send a message to the player only when the dist value rises
-                if (highestDist < realRadiusLimit - 1) {
-                    currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Tsunami: " + ChatColor.RED + progressPercentage + "% " + ChatColor.GREEN + "(" + ChatColor.RED + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
-                } else if (!limitReachedThisIteration) {
-                    currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Tsunami: " + ChatColor.GREEN + progressPercentage + "% (" + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
-                } else {
-                    currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Tsunami: " + ChatColor.GREEN + "100% " + "(" + realRadiusLimit + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
+                if (dist > 1) {
+                    int progressPercentage = (int) ((double) highestDist / (realRadiusLimit - 2) * 100);
+                    highestDist = dist - 1;
+                    // Send a message to the player only when the dist value rises
+                    if (highestDist < realRadiusLimit - 1) {
+                        currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Tsunami: " + ChatColor.RED + progressPercentage + "% " + ChatColor.GREEN + "(" + ChatColor.RED + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
+                    } else if (!limitReachedThisIteration) {
+                        currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Tsunami: " + ChatColor.GREEN + progressPercentage + "% (" + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
+                    } else {
+                        currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Tsunami: " + ChatColor.GREEN + "100% " + "(" + realRadiusLimit + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
+                    }
                 }
             }
 
-            // Check if the block is grass or dirt
             waterPlacedCount++;
             if (block.getType() == Material.AIR) {
                 if (Main.getPlugin(Main.class).getShowRemoval()) {
@@ -107,7 +109,7 @@ public class WaterBucketListener implements Listener {
 
             // Iterate through neighboring blocks and add them to the next set
             for (int i = -1; i <= 1; i++) {
-                if (i == 0) continue;
+                if (i == 0) continue; // Skip the current block
                 Block neighboringBlockX = block.getRelative(i, 0, 0);
                 Block neighboringBlockY = block.getRelative(0, -1, 0);
                 Block neighboringBlockZ = block.getRelative(0, 0, i);
@@ -124,6 +126,7 @@ public class WaterBucketListener implements Listener {
             }
             processedBlocks.add(block);
         }
+
         blocksToProcess = nextSet;
 
         if (limitReachedThisIteration) {
@@ -135,7 +138,9 @@ public class WaterBucketListener implements Listener {
                 processTsunami();
             }
         } else {
-            currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Tsunami: " + ChatColor.GREEN + "100% " + "(" + realRadiusLimit + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
+            if (dist > 0) {
+                currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Tsunami: " + ChatColor.GREEN + "100% " + "(" + realRadiusLimit + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
+            }
             displaySummary();
         }
     }
@@ -173,6 +178,7 @@ public class WaterBucketListener implements Listener {
                 processedBlocks.clear();
                 removedBlocks.clear();
             }
+        } else {
             tsunamiActive = false;
             currentRemovingPlayer = null;
             stopTsunami = false;
@@ -199,7 +205,7 @@ public class WaterBucketListener implements Listener {
         } else {
             // Set BLOCKS_PER_ITERATION dynamically based on the total count
             //TODO: Fix this stuff
-            int sqrtTotalBlocks = (int) (Math.sqrt((totalRemovedCount)) * radiusLimit) / (2 ^ (int) Math.sqrt(radiusLimit));
+            int sqrtTotalBlocks = (int) (Math.sqrt(totalRemovedCount) * radiusLimit) / (2 ^ (int) Math.sqrt(radiusLimit));
             int scaledBlocksPerIteration = Math.max(1, sqrtTotalBlocks);
             // Update BLOCKS_PER_ITERATION based on the scaled value
 
@@ -211,30 +217,29 @@ public class WaterBucketListener implements Listener {
             for (int i = 0; i < scaledBlocksPerIteration && iterator.hasNext(); i++) {
                 Block block = iterator.next();
                 currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "Placing water blocks"));
-                // Add debug output to indicate that a block is being removed
                 block.setType(Material.STATIONARY_WATER);
                 removedBlocks.add(block); // Add the block to the new set
 
                 // Remove the block from the main replacedBlocks set
                 markedBlocks.remove(block);
             }
+        }
 
-            // If there are more blocks to remove, schedule the next batch
-            if (!markedBlocks.isEmpty()) {
-                //TODO; Make delay better
-                Bukkit.getScheduler().runTaskLater(Main.getPlugin(Main.class), this::removeMarkedBlocks, 1L); // Schedule the next batch after 1 tick
-            } else if (!removedBlocks.isEmpty()) {
-                // If all blocks have been processed, but there are blocks in the removedBlocks set,
-                // process those in the next iteration.
-                currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Water placement finished"));
-                tsunamiActive = false;
-                currentRemovingPlayer = null;
-                stopTsunami = false;
-                blocksToProcess.clear();
-                markedBlocks.clear();
-                processedBlocks.clear();
-                removedBlocks.clear();
-            }
+        // If there are more blocks to remove, schedule the next batch
+        if (!markedBlocks.isEmpty()) {
+            Bukkit.getScheduler().runTaskLater(Main.getPlugin(Main.class), this::removeMarkedBlocks, 1L); // Schedule the next batch after 1 tick
+        } else if (!removedBlocks.isEmpty()) {
+            Bukkit.getScheduler().runTaskLater(Main.getPlugin(Main.class), this::removeMarkedBlocks, 100L);
+            // If all blocks have been processed, but there are blocks in the removedBlocks set,
+            // process those in the next iteration.
+            currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Water placement finished"));
+            tsunamiActive = false;
+            currentRemovingPlayer = null;
+            stopTsunami = false;
+            blocksToProcess.clear();
+            markedBlocks.clear();
+            processedBlocks.clear();
+            removedBlocks.clear();
         }
     }
 }
