@@ -39,29 +39,46 @@ public class BedrockListener implements Listener {
         BucketListener bucketListener = Main.getPlugin(Main.class).getBucketListener();
         BarrierListener barrierListener = Main.getPlugin(Main.class).getBarrierListener();
         WaterBucketListener waterBucketListener = Main.getPlugin(Main.class).getWaterBucketListener();
+        TNTListener tntListener = Main.getPlugin(Main.class).getTntListener();
         radiusLimit = Main.getPlugin(Main.class).getRadiusLimit();
         realRadiusLimit = radiusLimit - 2;
         if (realRadiusLimit > 1) {
             if (!bucketListener.wauhRemovalActive && !barrierListener.blockRemovalActive && !allRemovalActive && !waterBucketListener.tsunamiActive) {
-                Player player = event.getPlayer();
-                // Check if the bucket is filling with water
-                if (player.getInventory().getItemInMainHand().getType() == Material.BEDROCK) {
-                    if (event.getBlock().getType() != Material.BEDROCK) {
-                        allRemovalActive = true;
-                        limitReached = false;
-                        clickedLocation = event.getBlock().getLocation();
+                if (event == null) {
+                    allRemovalActive = true;
+                    limitReached = false;
+                    clickedLocation = tntListener.tntLocation;
 
-                        // Reset the water removal counts and initialize the set of blocks to process
-                        highestDist = 0;
-                        allRemovedCount = 0;
-                        blocksToProcess.clear();
-                        currentRemovingPlayer = player;
+                    radiusLimit = tntListener.customRadiusLimit;
+                    realRadiusLimit = radiusLimit - 2;
+                    highestDist = 0;
+                    allRemovedCount = 0;
+                    blocksToProcess.clear();
+                    currentRemovingPlayer = tntListener.tntPlayer;
+                    blocksToProcess.add(clickedLocation.getBlock());
 
-                        // Add the clicked block to the set of blocks to process
-                        blocksToProcess.add(clickedLocation.getBlock());
+                    processAllRemoval();
+                } else {
+                    Player player = event.getPlayer();
+                    // Check if the bucket is filling with water
+                    if (player.getInventory().getItemInMainHand().getType() == Material.BEDROCK) {
+                        if (event.getBlock().getType() != Material.BEDROCK) {
+                            allRemovalActive = true;
+                            limitReached = false;
+                            clickedLocation = event.getBlock().getLocation();
 
-                        // Start the water removal process
-                        processAllRemoval();
+                            // Reset the water removal counts and initialize the set of blocks to process
+                            highestDist = 0;
+                            allRemovedCount = 0;
+                            blocksToProcess.clear();
+                            currentRemovingPlayer = player;
+
+                            // Add the clicked block to the set of blocks to process
+                            blocksToProcess.add(clickedLocation.getBlock());
+
+                            // Start the water removal process
+                            processAllRemoval();
+                        }
                     }
                 }
             }
