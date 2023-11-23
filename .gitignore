@@ -112,4 +112,5 @@ buildNumber.properties
 # Common working directory
 run/
 
-/src/main/java/org/gecko/wauh/informations/
+/src/main/java/org/gecko/wauh/informations/*
+/src/main/java/org/gecko/wauh/data/*

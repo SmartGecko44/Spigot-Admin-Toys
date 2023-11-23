@@ -3,10 +3,7 @@ package org.gecko.wauh;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.gecko.wauh.listeners.BarrierListener;
-import org.gecko.wauh.listeners.BedrockListener;
-import org.gecko.wauh.listeners.BucketListener;
-import org.gecko.wauh.listeners.WaterBucketListener;
+import org.gecko.wauh.listeners.*;
 import org.gecko.wauh.commands.SetRadiusLimitCommand;
 import org.gecko.wauh.commands.StopWauh;
 import org.gecko.wauh.commands.ToggleRemovalView;
@@ -19,6 +16,7 @@ public final class Main extends JavaPlugin {
     private BarrierListener barrierListener;
     private BedrockListener bedrockListener;
     private WaterBucketListener waterBucketListener;
+    private TNTListener tntListener;
 
     public int getRadiusLimit() {
         return radiusLimit + 2;
@@ -51,6 +49,9 @@ public final class Main extends JavaPlugin {
     public WaterBucketListener getWaterBucketListener() {
         return waterBucketListener;
     }
+    public TNTListener getTntListener() {
+        return tntListener;
+    }
 
     @Override
     public void onEnable() {
@@ -63,12 +64,14 @@ public final class Main extends JavaPlugin {
         barrierListener = new BarrierListener();
         bedrockListener = new BedrockListener();
         waterBucketListener = new WaterBucketListener();
+        tntListener = new TNTListener();
 
         // Register the listeners
         getServer().getPluginManager().registerEvents(bucketListener, this);
         getServer().getPluginManager().registerEvents(barrierListener, this);
         getServer().getPluginManager().registerEvents(bedrockListener, this);
         getServer().getPluginManager().registerEvents(waterBucketListener, this);
+        getServer().getPluginManager().registerEvents(tntListener, this);
 
         // Register the StopWauh command with the listeners as arguments
         this.getCommand("stopwauh").setExecutor(new StopWauh(bucketListener, barrierListener, bedrockListener, waterBucketListener));
