@@ -10,7 +10,8 @@ import org.gecko.wauh.commands.ToggleRemovalView;
 
 public final class Main extends JavaPlugin {
 
-    private int radiusLimit = 20;
+    private int playerRadiusLimit = 20;
+    private int tntRadiusLimit = 5;
     private boolean showRemoval = true;
     private BucketListener bucketListener;
     private BarrierListener barrierListener;
@@ -19,11 +20,17 @@ public final class Main extends JavaPlugin {
     private TNTListener tntListener;
 
     public int getRadiusLimit() {
-        return radiusLimit + 2;
+        return playerRadiusLimit + 2;
     }
 
     public void setRadiusLimit(int newLimit) {
-        radiusLimit = newLimit;
+         playerRadiusLimit = newLimit;
+    }
+    public int getTntRadiusLimit() {
+        return tntRadiusLimit + 2;
+    }
+    public void setTntRadiusLimit(int newLimit) {
+        tntRadiusLimit = newLimit;
     }
 
     public boolean getShowRemoval() {
@@ -76,6 +83,7 @@ public final class Main extends JavaPlugin {
         // Register the StopWauh command with the listeners as arguments
         this.getCommand("stopwauh").setExecutor(new StopWauh(bucketListener, barrierListener, bedrockListener, waterBucketListener));
         this.getCommand("setradiuslimit").setExecutor(new SetRadiusLimitCommand(this));
+        this.getCommand("setradiuslimit").setTabCompleter(new SetRadiusLimitCommand(this));
         this.getCommand("toggleremovalview").setExecutor(new ToggleRemovalView(this));
     }
 
