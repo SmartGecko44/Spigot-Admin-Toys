@@ -113,4 +113,3 @@ buildNumber.properties
 run/
 
 /src/main/java/org/gecko/wauh/informations/*
-/src/main/java/org/gecko/wauh/data/*

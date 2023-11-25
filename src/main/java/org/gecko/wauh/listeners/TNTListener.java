@@ -10,7 +10,6 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 
 public class TNTListener implements Listener {
 
-    public int customRadiusLimit = 10 + 2;
     public Location tntLocation;
     public Player tntPlayer = null;
 
@@ -27,6 +26,8 @@ public class TNTListener implements Listener {
             if (tnt.getLocation() != null) {
                 if (tnt.getSource() instanceof Player) {
                     tntPlayer = (Player) tnt.getSource();
+                } else {
+                    tntPlayer = null;
                 }
 
                 tntLocation = tnt.getLocation();
