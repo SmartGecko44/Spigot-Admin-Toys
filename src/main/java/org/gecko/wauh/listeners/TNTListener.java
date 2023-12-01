@@ -32,7 +32,7 @@ public class TNTListener implements Listener {
 
                 tntLocation = tnt.getLocation();
                 BedrockListener bedrockListener = new BedrockListener();
-                bedrockListener.BedrockClick(null);
+                bedrockListener.BedrockClick(null, "TNT");
             }
         }
     }

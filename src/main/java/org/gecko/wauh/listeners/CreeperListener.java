@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.gecko.wauh.Main;
 
 public class CreeperListener implements Listener {
 
@@ -15,6 +16,12 @@ public class CreeperListener implements Listener {
 
     @EventHandler
     public void onCreeperExplode(EntityExplodeEvent event) {
+        int creeperLimit = Main.getPlugin(Main.class).getCreeperRadiusLimit();
+
+        if (creeperLimit == 0) {
+            return;
+        }
+
         Entity entity = event.getEntity();
 
         // Check if the exploding entity is TNT
@@ -27,7 +34,7 @@ public class CreeperListener implements Listener {
                 {
                     creeperLocation = creeper.getLocation();
                     BedrockListener bedrockListener = new BedrockListener();
-                    bedrockListener.BedrockClick(null);
+                    bedrockListener.BedrockClick(null, "creeper");
                 }
             }
         }

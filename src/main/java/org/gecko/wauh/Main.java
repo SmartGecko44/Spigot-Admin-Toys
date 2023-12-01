@@ -12,6 +12,7 @@ public final class Main extends JavaPlugin {
 
     private int playerRadiusLimit = 20;
     private int tntRadiusLimit = 5;
+    private int creeperRadiusLimit = 0;
     private boolean showRemoval = true;
     private BucketListener bucketListener;
     private BarrierListener barrierListener;
@@ -33,7 +34,12 @@ public final class Main extends JavaPlugin {
     public void setTntRadiusLimit(int newLimit) {
         tntRadiusLimit = newLimit;
     }
-
+    public int getCreeperRadiusLimit() {
+        return creeperRadiusLimit + 2;
+    }
+    public void setCreeperLimit(int newLimit) {
+        creeperRadiusLimit = newLimit;
+    }
     public boolean getShowRemoval() {
         return showRemoval;
     }
