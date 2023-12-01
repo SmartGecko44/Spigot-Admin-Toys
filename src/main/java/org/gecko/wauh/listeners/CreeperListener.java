@@ -34,7 +34,7 @@ public class CreeperListener implements Listener {
                 {
                     creeperLocation = creeper.getLocation();
                     BedrockListener bedrockListener = new BedrockListener();
-                    bedrockListener.BedrockClick(null, "creeper");
+                    bedrockListener.handleBedrockBreakEvent(null, "creeper");
                 }
             }
         }

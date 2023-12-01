@@ -35,18 +35,19 @@ public class BedrockListener implements Listener {
     private boolean repeated = false;
 
     @EventHandler
-    public void BedrockClick(BlockBreakEvent event, String source) {
-        BucketListener bucketListener = Main.getPlugin(Main.class).getBucketListener();
-        BarrierListener barrierListener = Main.getPlugin(Main.class).getBarrierListener();
-        WaterBucketListener waterBucketListener = Main.getPlugin(Main.class).getWaterBucketListener();
-        TNTListener tntListener = Main.getPlugin(Main.class).getTntListener();
-        CreeperListener creeperListener = Main.getPlugin(Main.class).getCreeperListener();
+    public void handleBedrockBreakEvent(BlockBreakEvent event, String source) {
+        Main mainPlugin = Main.getPlugin(Main.class);
+        BucketListener bucketListener = mainPlugin.getBucketListener();
+        BarrierListener barrierListener = mainPlugin.getBarrierListener();
+        WaterBucketListener waterBucketListener = mainPlugin.getWaterBucketListener();
+        TNTListener tntListener = mainPlugin.getTntListener();
+        CreeperListener creeperListener = mainPlugin.getCreeperListener();
         if (event != null) {
-            radiusLimit = Main.getPlugin(Main.class).getRadiusLimit();
+            radiusLimit = mainPlugin.getRadiusLimit();
         } else if (source.equals("TNT")) {
-            radiusLimit = Main.getPlugin(Main.class).getTntRadiusLimit();
+            radiusLimit = mainPlugin.getTntRadiusLimit();
         } else {
-            radiusLimit = Main.getPlugin(Main.class).getCreeperRadiusLimit();
+            radiusLimit = mainPlugin.getCreeperRadiusLimit();
         }
         realRadiusLimit = radiusLimit - 2;
         if (realRadiusLimit > 1) {
