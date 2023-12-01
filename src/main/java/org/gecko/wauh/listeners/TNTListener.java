@@ -32,7 +32,7 @@ public class TNTListener implements Listener {
 
                 tntLocation = tnt.getLocation();
                 BedrockListener bedrockListener = new BedrockListener();
-                bedrockListener.handleBedrockBreakEvent(null, "TNT");
+                bedrockListener.bedrockValueAssignHandler(null, "TNT");
             }
         }
     }

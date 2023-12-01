@@ -33,18 +33,31 @@ public class BedrockListener implements Listener {
     private int realRadiusLimit;
     private int repetitions = 3;
     private boolean repeated = false;
+    private static final Set<Material> IMMUTABLE_MATERIALS = EnumSet.of(Material.AIR, Material.BEDROCK, Material.STATIONARY_WATER, Material.WATER, Material.LAVA, Material.STATIONARY_LAVA);
+
+    private void addIfValid(Block block, Set<Block> nextSet) {
+        if (!IMMUTABLE_MATERIALS.contains(block.getType())) {
+            nextSet.add(block);
+        }
+    }
 
     @EventHandler
-    public void handleBedrockBreakEvent(BlockBreakEvent event, String source) {
+    public void bedrockBreakEventHandler(BlockBreakEvent event) {
+        bedrockValueAssignHandler(event, "player");
+    }
+
+    public void bedrockValueAssignHandler(BlockBreakEvent event, String source) {
+        Bukkit.getConsoleSender().sendMessage("Suck my balls");
         Main mainPlugin = Main.getPlugin(Main.class);
+        Bukkit.getConsoleSender().sendMessage(allRemovalActive + " " + source + " " + mainPlugin.getCreeperRadiusLimit());
         BucketListener bucketListener = mainPlugin.getBucketListener();
         BarrierListener barrierListener = mainPlugin.getBarrierListener();
         WaterBucketListener waterBucketListener = mainPlugin.getWaterBucketListener();
         TNTListener tntListener = mainPlugin.getTntListener();
         CreeperListener creeperListener = mainPlugin.getCreeperListener();
-        if (event != null) {
+        if (source.equalsIgnoreCase("player")) {
             radiusLimit = mainPlugin.getRadiusLimit();
-        } else if (source.equals("TNT")) {
+        } else if (source.equalsIgnoreCase("TNT")) {
             radiusLimit = mainPlugin.getTntRadiusLimit();
         } else {
             radiusLimit = mainPlugin.getCreeperRadiusLimit();
@@ -52,7 +65,8 @@ public class BedrockListener implements Listener {
         realRadiusLimit = radiusLimit - 2;
         if (realRadiusLimit > 1) {
             if (!bucketListener.wauhRemovalActive && !barrierListener.blockRemovalActive && !allRemovalActive && !waterBucketListener.tsunamiActive) {
-                if (event == null) {
+                if (source.equalsIgnoreCase("TNT") || source.equalsIgnoreCase("creeper")) {
+                    Bukkit.getConsoleSender().sendMessage("Brokieeee");
                     allRemovalActive = true;
                     limitReached = false;
                     if (tntListener.tntLocation != null) {
@@ -101,6 +115,7 @@ public class BedrockListener implements Listener {
     }
 
     private void processAllRemoval() {
+        Bukkit.getConsoleSender().sendMessage("Du kleiner Goh");
         if (stopAllRemoval) {
             stopAllRemoval = false;
             displaySummary();
@@ -148,35 +163,11 @@ public class BedrockListener implements Listener {
 
             // Iterate through neighboring blocks and add them to the next set
             for (int i = -1; i <= 1; i++) {
+                Bukkit.getConsoleSender().sendMessage("les gooo");
                 if (i == 0) continue; // Skip the current block
-                Block neighboringBlockX = block.getRelative(i, 0, 0);
-                Block neighboringBlockY = block.getRelative(0, i, 0);
-                Block neighboringBlockZ = block.getRelative(0, 0, i);
-
-                if (neighboringBlockX.getType() != Material.AIR
-                        && neighboringBlockX.getType() != Material.BEDROCK
-                        && neighboringBlockX.getType() != Material.STATIONARY_WATER
-                        && neighboringBlockX.getType() != Material.WATER
-                        && neighboringBlockX.getType() != Material.LAVA
-                        && neighboringBlockX.getType() != Material.STATIONARY_LAVA) {
-                    nextSet.add(neighboringBlockX);
-                }
-                if (neighboringBlockY.getType() != Material.AIR
-                        && neighboringBlockY.getType() != Material.BEDROCK
-                        && neighboringBlockY.getType() != Material.STATIONARY_WATER
-                        && neighboringBlockY.getType() != Material.WATER
-                        && neighboringBlockY.getType() != Material.LAVA
-                        && neighboringBlockY.getType() != Material.STATIONARY_LAVA) {
-                    nextSet.add(neighboringBlockY);
-                }
-                if (neighboringBlockZ.getType() != Material.AIR
-                        && neighboringBlockZ.getType() != Material.BEDROCK
-                        && neighboringBlockZ.getType() != Material.STATIONARY_WATER
-                        && neighboringBlockZ.getType() != Material.WATER
-                        && neighboringBlockZ.getType() != Material.LAVA
-                        && neighboringBlockZ.getType() != Material.STATIONARY_LAVA) {
-                    nextSet.add(neighboringBlockZ);
-                }
+                addIfValid(block.getRelative(i, 0, 0), nextSet);
+                addIfValid(block.getRelative(0, i, 0), nextSet);
+                addIfValid(block.getRelative(0, 0, i), nextSet);
             }
             processedBlocks.add(block);
         }
@@ -228,6 +219,7 @@ public class BedrockListener implements Listener {
             } else {
                 allRemovalActive = false;
                 currentRemovingPlayer = null;
+                clickedLocation = null;
                 stopAllRemoval = false;
                 blocksToProcess.clear();
                 markedBlocks.clear();
@@ -237,6 +229,7 @@ public class BedrockListener implements Listener {
         } else {
             allRemovalActive = false;
             currentRemovingPlayer = null;
+            clickedLocation = null;
             stopAllRemoval = false;
             blocksToProcess.clear();
             markedBlocks.clear();
@@ -262,6 +255,7 @@ public class BedrockListener implements Listener {
             }
             allRemovalActive = false;
             currentRemovingPlayer = null;
+            clickedLocation = null;
             stopAllRemoval = false;
             blocksToProcess.clear();
             markedBlocks.clear();
@@ -322,6 +316,7 @@ public class BedrockListener implements Listener {
                 }
                 allRemovalActive = false;
                 currentRemovingPlayer = null;
+                clickedLocation = null;
                 stopAllRemoval = false;
                 blocksToProcess.clear();
                 markedBlocks.clear();

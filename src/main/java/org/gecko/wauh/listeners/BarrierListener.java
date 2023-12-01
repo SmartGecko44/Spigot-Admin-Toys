@@ -35,7 +35,7 @@ public class BarrierListener implements Listener {
     private int realRadiusLimit;
 
     @EventHandler
-    public void BarrierClick(BlockBreakEvent event) {
+    public void barrierBreakEventHandler(BlockBreakEvent event) {
         BucketListener bucketListener = Main.getPlugin(Main.class).getBucketListener();
         BedrockListener bedrockListener = Main.getPlugin(Main.class).getBedrockListener();
         WaterBucketListener waterBucketListener = Main.getPlugin(Main.class).getWaterBucketListener();
