@@ -40,6 +40,7 @@ public class BedrockListener implements Listener {
         BarrierListener barrierListener = Main.getPlugin(Main.class).getBarrierListener();
         WaterBucketListener waterBucketListener = Main.getPlugin(Main.class).getWaterBucketListener();
         TNTListener tntListener = Main.getPlugin(Main.class).getTntListener();
+        CreeperListener creeperListener = Main.getPlugin(Main.class).getCreeperListener();
         if (event != null) {
             radiusLimit = Main.getPlugin(Main.class).getRadiusLimit();
         } else {
@@ -51,12 +52,21 @@ public class BedrockListener implements Listener {
                 if (event == null) {
                     allRemovalActive = true;
                     limitReached = false;
-                    clickedLocation = tntListener.tntLocation;
+                    if (tntListener.tntLocation != null) {
+                        clickedLocation = tntListener.tntLocation;
+                    } else {
+                        clickedLocation = creeperListener.creeperLocation;
+                    }
 
                     highestDist = 0;
                     allRemovedCount = 0;
                     blocksToProcess.clear();
-                    currentRemovingPlayer = tntListener.tntPlayer;
+                    if (tntListener.tntPlayer != null) {
+                        currentRemovingPlayer = tntListener.tntPlayer;
+                    } else {
+                        currentRemovingPlayer = creeperListener.creeperPlayer;
+                    }
+
                     blocksToProcess.add(clickedLocation.getBlock());
 
                     processAllRemoval();
@@ -232,6 +242,15 @@ public class BedrockListener implements Listener {
         }
     }
 
+    /**
+     * Remove the marked blocks.
+     * If the total removed count is less than 50000, remove all the marked blocks.
+     * Otherwise, remove the marked blocks in batches based on the scaled value of BLOCKS_PER_ITERATION.
+     * If there are more blocks to remove, schedule the next batch.
+     * If all blocks have been processed but there are blocks in the removedBlocks set,
+     * process those in the next iteration. If repetitions are greater than 0, repeat the process.
+     * Finally, clear all the sets and variables related to block removal.
+     */
     private void removeMarkedBlocks() {
         int totalRemovedCount = allRemovedCount;
         if (totalRemovedCount < 50000) {
