@@ -219,7 +219,7 @@ public class BucketListener implements Listener {
                 // If all blocks have been processed, but there are blocks in the removedBlocks set,
                 // process those in the next iteration.
                 if (!Main.getPlugin(Main.class).getShowRemoval()) {
-                    if (repetitions > 0) { // Repeat only twice
+                    if (repetitions > 0) {
                         repetitions--;
                         markedBlocks.addAll(removedBlocks);
                         removedBlocks.clear();
@@ -227,7 +227,7 @@ public class BucketListener implements Listener {
                     } else {
                         currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Water block cleanup finished"));
                         // Reset repetitions to stop further repetitions
-                        repetitions = 0;
+                        repetitions = 1;
                         wauhRemovalActive = false;
                         currentRemovingPlayer = null;
                         stopWaterRemoval = false;
@@ -238,7 +238,7 @@ public class BucketListener implements Listener {
 
                 } else {
                     currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Water block cleanup finished"));
-                    repetitions = 0;
+                    repetitions = 1;
                     wauhRemovalActive = false;
                     currentRemovingPlayer = null;
                     stopWaterRemoval = false;
