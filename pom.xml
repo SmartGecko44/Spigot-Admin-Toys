@@ -53,6 +53,40 @@
         </resources>
     </build>
 
+    <profiles>
+        <!-- Local build profile -->
+        <profile>
+            <id>local</id>
+            <activation>
+                <property>
+                    <name>env.LOCAL_BUILD</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-shade-plugin</artifactId>
+                        <version>3.2.4</version>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>shade</goal>
+                                </goals>
+                                <configuration>
+                                    <createDependencyReducedPom>false</createDependencyReducedPom>
+                                    <!-- Adjust the output directory for local builds -->
+                                    <outputDirectory>/Users/gecko/Server 1.12.2 Spigot/plugins</outputDirectory>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
     <repositories>
         <repository>
             <id>spigotmc-repo</id>
