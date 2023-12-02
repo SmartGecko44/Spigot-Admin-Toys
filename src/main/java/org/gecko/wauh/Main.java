@@ -3,6 +3,7 @@ package org.gecko.wauh;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.gecko.wauh.data.ConfigurationManager;
 import org.gecko.wauh.listeners.*;
 import org.gecko.wauh.commands.SetRadiusLimitCommand;
 import org.gecko.wauh.commands.StopWauh;
@@ -22,6 +23,7 @@ public final class Main extends JavaPlugin {
     private TNTListener tntListener;
     private CreeperListener creeperListener;
     private ScaleReverse scaleReverse;
+    private ConfigurationManager configurationManager;
 
     public int getRadiusLimit() {
         return playerRadiusLimit + 2;
