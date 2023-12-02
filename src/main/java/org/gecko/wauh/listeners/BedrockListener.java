@@ -249,7 +249,8 @@ public class BedrockListener implements Listener {
      * Finally, clear all the sets and variables related to block removal.
      */
     private void removeMarkedBlocks() {
-        ScaleReverse scaleReverse = Main.getPlugin(Main.class).getScaleReverse();
+        ScaleReverse scaleReverse;
+        scaleReverse = new ScaleReverse();
 
         int totalRemovedCount = allRemovedCount;
         if (totalRemovedCount < 50000) {

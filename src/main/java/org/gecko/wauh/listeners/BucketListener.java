@@ -193,7 +193,8 @@ public class BucketListener implements Listener {
     }
 
     private void removeReplacedBlocks() {
-        ScaleReverse scaleReverse = Main.getPlugin(Main.class).getScaleReverse();
+        ScaleReverse scaleReverse;
+        scaleReverse = new ScaleReverse();
 
         // Add this variable
         int totalRemovedCount = waterRemovedCount + stationaryWaterRemovedCount + lave;

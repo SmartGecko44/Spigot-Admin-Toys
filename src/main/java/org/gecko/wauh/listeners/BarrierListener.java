@@ -204,7 +204,8 @@ public class BarrierListener implements Listener {
     }
 
     private void removeMarkedBlocks() {
-        ScaleReverse scaleReverse = Main.getPlugin(Main.class).getScaleReverse();
+        ScaleReverse scaleReverse;
+        scaleReverse = new ScaleReverse();
 
         int totalRemovedCount = dirtRemovedCount + grassRemovedCount + barrierRemovedCount;
         if (totalRemovedCount < 50000) {

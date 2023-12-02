@@ -191,7 +191,8 @@ public class WaterBucketListener implements Listener {
     }
 
     private void removeMarkedBlocks() {
-        ScaleReverse scaleReverse = Main.getPlugin(Main.class).getScaleReverse();
+        ScaleReverse scaleReverse;
+        scaleReverse = new ScaleReverse();
 
         int totalRemovedCount = waterPlacedCount;
         if (totalRemovedCount < 50000) {
