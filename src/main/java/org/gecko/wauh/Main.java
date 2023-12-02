@@ -7,6 +7,7 @@ import org.gecko.wauh.listeners.*;
 import org.gecko.wauh.commands.SetRadiusLimitCommand;
 import org.gecko.wauh.commands.StopWauh;
 import org.gecko.wauh.commands.ToggleRemovalView;
+import org.gecko.wauh.logic.ScaleReverse;
 
 public final class Main extends JavaPlugin {
 
@@ -20,6 +21,7 @@ public final class Main extends JavaPlugin {
     private WaterBucketListener waterBucketListener;
     private TNTListener tntListener;
     private CreeperListener creeperListener;
+    private ScaleReverse scaleReverse;
 
     public int getRadiusLimit() {
         return playerRadiusLimit + 2;
@@ -68,6 +70,9 @@ public final class Main extends JavaPlugin {
     }
     public CreeperListener getCreeperListener() {
         return creeperListener;
+    }
+    public ScaleReverse getScaleReverse() {
+        return scaleReverse;
     }
 
     @Override

@@ -12,6 +12,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.gecko.wauh.Main;
+import org.gecko.wauh.logic.ScaleReverse;
 
 import java.util.*;
 
@@ -190,6 +191,8 @@ public class WaterBucketListener implements Listener {
     }
 
     private void removeMarkedBlocks() {
+        ScaleReverse scaleReverse = Main.getPlugin(Main.class).getScaleReverse();
+
         int totalRemovedCount = waterPlacedCount;
         if (totalRemovedCount < 50000) {
             for (Block block : markedBlocks) {
@@ -203,26 +206,7 @@ public class WaterBucketListener implements Listener {
             processedBlocks.clear();
             removedBlocks.clear();
         } else {
-            // Set BLOCKS_PER_ITERATION dynamically based on the total count
-            //TODO: Fix this stuff
-            int sqrtTotalBlocks = (int) (Math.sqrt(totalRemovedCount) * radiusLimit) / (2 ^ (int) Math.sqrt(radiusLimit));
-            int scaledBlocksPerIteration = Math.max(1, sqrtTotalBlocks);
-            // Update BLOCKS_PER_ITERATION based on the scaled value
-
-            List<Block> reversedBlocks = new ArrayList<>(markedBlocks);
-            Collections.reverse(reversedBlocks); // Reverse the order of blocks
-
-            Iterator<Block> iterator = reversedBlocks.iterator();
-
-            for (int i = 0; i < scaledBlocksPerIteration && iterator.hasNext(); i++) {
-                Block block = iterator.next();
-                currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "Placing water blocks"));
-                block.setType(Material.STATIONARY_WATER);
-                removedBlocks.add(block); // Add the block to the new set
-
-                // Remove the block from the main replacedBlocks set
-                markedBlocks.remove(block);
-            }
+            scaleReverse.ScaleReverseLogic(totalRemovedCount, radiusLimit, markedBlocks, "wauh");
         }
 
         // If there are more blocks to remove, schedule the next batch
@@ -240,6 +224,18 @@ public class WaterBucketListener implements Listener {
             markedBlocks.clear();
             processedBlocks.clear();
             removedBlocks.clear();
+        }
+    }
+
+    public void CleanRemove(int scaledBlocksPerIteration, Iterator<Block> iterator) {
+        for (int i = 0; i < scaledBlocksPerIteration && iterator.hasNext(); i++) {
+            Block block = iterator.next();
+            currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "Placing water blocks"));
+            block.setType(Material.STATIONARY_WATER);
+            removedBlocks.add(block); // Add the block to the new set
+
+            // Remove the block from the main replacedBlocks set
+            markedBlocks.remove(block);
         }
     }
 }
