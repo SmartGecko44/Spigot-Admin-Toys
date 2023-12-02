@@ -24,6 +24,8 @@ jobs:
       with:
         distribution: 'adopt'
         java-version: '8'
+    - name: Create Target Directory
+      run: mkdir -p target
     - name: Build with Maven
       run: mvn package --file pom.xml
       working-directory: target
