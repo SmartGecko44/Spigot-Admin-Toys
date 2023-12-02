@@ -25,10 +25,10 @@ public class ScaleReverse {
         int scaledBlocksPerIteration = Math.max(1, sqrtTotalBlocks);
         // Update BLOCKS_PER_ITERATION based on the scaled value
 
-        List<Block> reversedBlocks = new ArrayList<>(markedBlocks);
-        Collections.reverse(reversedBlocks); // Reverse the order of blocks
+//        List<Block> reversedBlocks = new ArrayList<>(markedBlocks);
+//        Collections.reverse(reversedBlocks); // Reverse the order of blocks
 
-        Iterator<Block> iterator = reversedBlocks.iterator();
+        Iterator<Block> iterator = markedBlocks.iterator();
 
         if (source.equalsIgnoreCase("bedrock")) {
             bedrockListener.CleanRemove(scaledBlocksPerIteration, iterator);
