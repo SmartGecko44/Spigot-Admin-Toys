@@ -12,6 +12,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.gecko.wauh.Main;
+import org.gecko.wauh.logic.ScaleReverse;
 
 import java.util.*;
 
@@ -35,7 +36,7 @@ public class BarrierListener implements Listener {
     private int realRadiusLimit;
 
     @EventHandler
-    public void BarrierClick(BlockBreakEvent event) {
+    public void barrierBreakEventHandler(BlockBreakEvent event) {
         BucketListener bucketListener = Main.getPlugin(Main.class).getBucketListener();
         BedrockListener bedrockListener = Main.getPlugin(Main.class).getBedrockListener();
         WaterBucketListener waterBucketListener = Main.getPlugin(Main.class).getWaterBucketListener();
@@ -203,6 +204,9 @@ public class BarrierListener implements Listener {
     }
 
     private void removeMarkedBlocks() {
+        ScaleReverse scaleReverse;
+        scaleReverse = new ScaleReverse();
+
         int totalRemovedCount = dirtRemovedCount + grassRemovedCount + barrierRemovedCount;
         if (totalRemovedCount < 50000) {
             for (Block block : markedBlocks) {
@@ -216,41 +220,34 @@ public class BarrierListener implements Listener {
             processedBlocks.clear();
             removedBlocks.clear();
         } else {
-            // Set BLOCKS_PER_ITERATION dynamically based on the total count
-            //TODO: Fix this stuff
-            int sqrtTotalBlocks = (int) (Math.sqrt(totalRemovedCount) * radiusLimit) / (2 ^ (int) Math.sqrt(radiusLimit));
-            int scaledBlocksPerIteration = Math.max(1, sqrtTotalBlocks);
-            // Update BLOCKS_PER_ITERATION based on the scaled value
+            scaleReverse.ScaleReverseLogic(totalRemovedCount, radiusLimit, markedBlocks, "barrier");
 
-            List<Block> reversedBlocks = new ArrayList<>(markedBlocks);
-            Collections.reverse(reversedBlocks); // Reverse the order of blocks
-
-            Iterator<Block> iterator = reversedBlocks.iterator();
-
-            for (int i = 0; i < scaledBlocksPerIteration && iterator.hasNext(); i++) {
-                Block block = iterator.next();
-                block.setType(Material.AIR);
-                removedBlocks.add(block); // Add the block to the new set
-
-                // Remove the block from the main replacedBlocks set
-                markedBlocks.remove(block);
+            // If there are more blocks to remove, schedule the next batch
+            if (!markedBlocks.isEmpty()) {
+                Bukkit.getScheduler().runTaskLater(Main.getPlugin(Main.class), this::removeMarkedBlocks, 10L); // Schedule the next batch after 1 tick
+            } else if (!removedBlocks.isEmpty()) {
+                Bukkit.getScheduler().runTaskLater(Main.getPlugin(Main.class), this::removeMarkedBlocks, 100L);
+                // If all blocks have been processed, but there are blocks in the removedBlocks set,
+                // process those in the next iteration.
+                blockRemovalActive = false;
+                currentRemovingPlayer = null;
+                stopBlockRemoval = false;
+                blocksToProcess.clear();
+                markedBlocks.clear();
+                processedBlocks.clear();
+                removedBlocks.clear();
             }
         }
+    }
 
-        // If there are more blocks to remove, schedule the next batch
-        if (!markedBlocks.isEmpty()) {
-            Bukkit.getScheduler().runTaskLater(Main.getPlugin(Main.class), this::removeMarkedBlocks, 10L); // Schedule the next batch after 1 tick
-        } else if (!removedBlocks.isEmpty()) {
-            Bukkit.getScheduler().runTaskLater(Main.getPlugin(Main.class), this::removeMarkedBlocks, 100L);
-            // If all blocks have been processed, but there are blocks in the removedBlocks set,
-            // process those in the next iteration.
-            blockRemovalActive = false;
-            currentRemovingPlayer = null;
-            stopBlockRemoval = false;
-            blocksToProcess.clear();
-            markedBlocks.clear();
-            processedBlocks.clear();
-            removedBlocks.clear();
+    public void CleanRemove(int scaledBlocksPerIteration, Iterator<Block> iterator) {
+        for (int i = 0; i < scaledBlocksPerIteration && iterator.hasNext(); i++) {
+            Block block = iterator.next();
+            block.setType(Material.AIR);
+            removedBlocks.add(block); // Add the block to the new set
+
+            // Remove the block from the main replacedBlocks set
+            markedBlocks.remove(block);
         }
     }
 }

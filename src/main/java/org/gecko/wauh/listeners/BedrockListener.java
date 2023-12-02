@@ -12,6 +12,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.gecko.wauh.Main;
+import org.gecko.wauh.logic.ScaleReverse;
 
 import java.util.*;
 
@@ -33,30 +34,54 @@ public class BedrockListener implements Listener {
     private int realRadiusLimit;
     private int repetitions = 3;
     private boolean repeated = false;
+    private static final Set<Material> IMMUTABLE_MATERIALS = EnumSet.of(Material.AIR, Material.BEDROCK, Material.STATIONARY_WATER, Material.WATER, Material.LAVA, Material.STATIONARY_LAVA);
+
+    private void addIfValid(Block block, Set<Block> nextSet) {
+        if (!IMMUTABLE_MATERIALS.contains(block.getType())) {
+            nextSet.add(block);
+        }
+    }
 
     @EventHandler
-    public void BedrockClick(BlockBreakEvent event) {
-        BucketListener bucketListener = Main.getPlugin(Main.class).getBucketListener();
-        BarrierListener barrierListener = Main.getPlugin(Main.class).getBarrierListener();
-        WaterBucketListener waterBucketListener = Main.getPlugin(Main.class).getWaterBucketListener();
-        TNTListener tntListener = Main.getPlugin(Main.class).getTntListener();
-        if (event != null) {
-            radiusLimit = Main.getPlugin(Main.class).getRadiusLimit();
+    public void bedrockBreakEventHandler(BlockBreakEvent event) {
+        bedrockValueAssignHandler(event, "player");
+    }
+
+    public void bedrockValueAssignHandler(BlockBreakEvent event, String source) {
+        Main mainPlugin = Main.getPlugin(Main.class);
+        BucketListener bucketListener = mainPlugin.getBucketListener();
+        BarrierListener barrierListener = mainPlugin.getBarrierListener();
+        WaterBucketListener waterBucketListener = mainPlugin.getWaterBucketListener();
+        TNTListener tntListener = mainPlugin.getTntListener();
+        CreeperListener creeperListener = mainPlugin.getCreeperListener();
+        if (source.equalsIgnoreCase("player")) {
+            radiusLimit = mainPlugin.getRadiusLimit();
+        } else if (source.equalsIgnoreCase("TNT")) {
+            radiusLimit = mainPlugin.getTntRadiusLimit();
         } else {
-            radiusLimit = Main.getPlugin(Main.class).getTntRadiusLimit();
+            radiusLimit = mainPlugin.getCreeperRadiusLimit();
         }
         realRadiusLimit = radiusLimit - 2;
         if (realRadiusLimit > 1) {
             if (!bucketListener.wauhRemovalActive && !barrierListener.blockRemovalActive && !allRemovalActive && !waterBucketListener.tsunamiActive) {
-                if (event == null) {
+                if (source.equalsIgnoreCase("TNT") || source.equalsIgnoreCase("creeper")) {
                     allRemovalActive = true;
                     limitReached = false;
-                    clickedLocation = tntListener.tntLocation;
+                    if (tntListener.tntLocation != null) {
+                        clickedLocation = tntListener.tntLocation;
+                    } else {
+                        clickedLocation = creeperListener.creeperLocation;
+                    }
 
                     highestDist = 0;
                     allRemovedCount = 0;
                     blocksToProcess.clear();
-                    currentRemovingPlayer = tntListener.tntPlayer;
+                    if (tntListener.tntPlayer != null) {
+                        currentRemovingPlayer = tntListener.tntPlayer;
+                    } else {
+                        currentRemovingPlayer = creeperListener.creeperPlayer;
+                    }
+
                     blocksToProcess.add(clickedLocation.getBlock());
 
                     processAllRemoval();
@@ -136,34 +161,9 @@ public class BedrockListener implements Listener {
             // Iterate through neighboring blocks and add them to the next set
             for (int i = -1; i <= 1; i++) {
                 if (i == 0) continue; // Skip the current block
-                Block neighboringBlockX = block.getRelative(i, 0, 0);
-                Block neighboringBlockY = block.getRelative(0, i, 0);
-                Block neighboringBlockZ = block.getRelative(0, 0, i);
-
-                if (neighboringBlockX.getType() != Material.AIR
-                        && neighboringBlockX.getType() != Material.BEDROCK
-                        && neighboringBlockX.getType() != Material.STATIONARY_WATER
-                        && neighboringBlockX.getType() != Material.WATER
-                        && neighboringBlockX.getType() != Material.LAVA
-                        && neighboringBlockX.getType() != Material.STATIONARY_LAVA) {
-                    nextSet.add(neighboringBlockX);
-                }
-                if (neighboringBlockY.getType() != Material.AIR
-                        && neighboringBlockY.getType() != Material.BEDROCK
-                        && neighboringBlockY.getType() != Material.STATIONARY_WATER
-                        && neighboringBlockY.getType() != Material.WATER
-                        && neighboringBlockY.getType() != Material.LAVA
-                        && neighboringBlockY.getType() != Material.STATIONARY_LAVA) {
-                    nextSet.add(neighboringBlockY);
-                }
-                if (neighboringBlockZ.getType() != Material.AIR
-                        && neighboringBlockZ.getType() != Material.BEDROCK
-                        && neighboringBlockZ.getType() != Material.STATIONARY_WATER
-                        && neighboringBlockZ.getType() != Material.WATER
-                        && neighboringBlockZ.getType() != Material.LAVA
-                        && neighboringBlockZ.getType() != Material.STATIONARY_LAVA) {
-                    nextSet.add(neighboringBlockZ);
-                }
+                addIfValid(block.getRelative(i, 0, 0), nextSet);
+                addIfValid(block.getRelative(0, i, 0), nextSet);
+                addIfValid(block.getRelative(0, 0, i), nextSet);
             }
             processedBlocks.add(block);
         }
@@ -215,6 +215,7 @@ public class BedrockListener implements Listener {
             } else {
                 allRemovalActive = false;
                 currentRemovingPlayer = null;
+                clickedLocation = null;
                 stopAllRemoval = false;
                 blocksToProcess.clear();
                 markedBlocks.clear();
@@ -224,6 +225,7 @@ public class BedrockListener implements Listener {
         } else {
             allRemovalActive = false;
             currentRemovingPlayer = null;
+            clickedLocation = null;
             stopAllRemoval = false;
             blocksToProcess.clear();
             markedBlocks.clear();
@@ -232,7 +234,19 @@ public class BedrockListener implements Listener {
         }
     }
 
+    /**
+     * Remove the marked blocks.
+     * If the total removed count is less than 50000, remove all the marked blocks.
+     * Otherwise, remove the marked blocks in batches based on the scaled value of BLOCKS_PER_ITERATION.
+     * If there are more blocks to remove, schedule the next batch.
+     * If all blocks have been processed but there are blocks in the removedBlocks set,
+     * process those in the next iteration. If repetitions are greater than 0, repeat the process.
+     * Finally, clear all the sets and variables related to block removal.
+     */
     private void removeMarkedBlocks() {
+        ScaleReverse scaleReverse;
+        scaleReverse = new ScaleReverse();
+
         int totalRemovedCount = allRemovedCount;
         if (totalRemovedCount < 50000) {
             for (Block block : markedBlocks) {
@@ -240,46 +254,14 @@ public class BedrockListener implements Listener {
             }
             allRemovalActive = false;
             currentRemovingPlayer = null;
+            clickedLocation = null;
             stopAllRemoval = false;
             blocksToProcess.clear();
             markedBlocks.clear();
             processedBlocks.clear();
             removedBlocks.clear();
         } else {
-            // Set BLOCKS_PER_ITERATION dynamically based on the total count
-            //TODO: Fix this stuff
-            int sqrtTotalBlocks = (int) (Math.sqrt(totalRemovedCount) * radiusLimit) / (2 ^ (int) Math.sqrt(radiusLimit));
-            int scaledBlocksPerIteration = Math.max(1, sqrtTotalBlocks);
-            // Update BLOCKS_PER_ITERATION based on the scaled value
-
-            List<Block> reversedBlocks = new ArrayList<>(markedBlocks);
-            Collections.reverse(reversedBlocks); // Reverse the order of blocks
-
-            Iterator<Block> iterator = reversedBlocks.iterator();
-
-            for (int i = 0; i < scaledBlocksPerIteration && iterator.hasNext(); i++) {
-                Block block = iterator.next();
-                if (repeated) {
-                    if (currentRemovingPlayer != null) {
-                        currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "Cleaning up falling blocks"));
-                    }
-                    if (block.getType() == Material.SAND || block.getType() == Material.GRAVEL) {
-                        block.setType(Material.AIR);
-                        removedBlocks.add(block); // Add the block to the new set
-
-                        // Remove the block from the main replacedBlocks set
-                        markedBlocks.remove(block);
-                    } else {
-                        markedBlocks.remove(block);
-                    }
-                } else {
-                    block.setType(Material.AIR);
-                    removedBlocks.add(block); // Add the block to the new set
-
-                    // Remove the block from the main replacedBlocks set
-                    markedBlocks.remove(block);
-                }
-            }
+            scaleReverse.ScaleReverseLogic(totalRemovedCount, radiusLimit, markedBlocks, "bedrock");
         }
 
         // If there are more blocks to remove, schedule the next batch
@@ -300,11 +282,38 @@ public class BedrockListener implements Listener {
                 }
                 allRemovalActive = false;
                 currentRemovingPlayer = null;
+                clickedLocation = null;
                 stopAllRemoval = false;
                 blocksToProcess.clear();
                 markedBlocks.clear();
                 processedBlocks.clear();
                 removedBlocks.clear();
+            }
+        }
+    }
+
+    public void CleanRemove(int scaledBlocksPerIteration, Iterator<Block> iterator) {
+        for (int i = 0; i < scaledBlocksPerIteration && iterator.hasNext(); i++) {
+            Block block = iterator.next();
+            if (repeated) {
+                if (currentRemovingPlayer != null) {
+                    currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "Cleaning up falling blocks"));
+                }
+                if (block.getType() == Material.SAND || block.getType() == Material.GRAVEL) {
+                    block.setType(Material.AIR);
+                    removedBlocks.add(block); // Add the block to the new set
+
+                    // Remove the block from the main replacedBlocks set
+                    markedBlocks.remove(block);
+                } else {
+                    markedBlocks.remove(block);
+                }
+            } else {
+                block.setType(Material.AIR);
+                removedBlocks.add(block); // Add the block to the new set
+
+                // Remove the block from the main replacedBlocks set
+                markedBlocks.remove(block);
             }
         }
     }

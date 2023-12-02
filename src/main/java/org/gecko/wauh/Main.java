@@ -7,17 +7,21 @@ import org.gecko.wauh.listeners.*;
 import org.gecko.wauh.commands.SetRadiusLimitCommand;
 import org.gecko.wauh.commands.StopWauh;
 import org.gecko.wauh.commands.ToggleRemovalView;
+import org.gecko.wauh.logic.ScaleReverse;
 
 public final class Main extends JavaPlugin {
 
     private int playerRadiusLimit = 20;
     private int tntRadiusLimit = 5;
+    private int creeperRadiusLimit = 0;
     private boolean showRemoval = true;
     private BucketListener bucketListener;
     private BarrierListener barrierListener;
     private BedrockListener bedrockListener;
     private WaterBucketListener waterBucketListener;
     private TNTListener tntListener;
+    private CreeperListener creeperListener;
+    private ScaleReverse scaleReverse;
 
     public int getRadiusLimit() {
         return playerRadiusLimit + 2;
@@ -32,7 +36,12 @@ public final class Main extends JavaPlugin {
     public void setTntRadiusLimit(int newLimit) {
         tntRadiusLimit = newLimit;
     }
-
+    public int getCreeperRadiusLimit() {
+        return creeperRadiusLimit + 2;
+    }
+    public void setCreeperLimit(int newLimit) {
+        creeperRadiusLimit = newLimit;
+    }
     public boolean getShowRemoval() {
         return showRemoval;
     }
@@ -59,6 +68,12 @@ public final class Main extends JavaPlugin {
     public TNTListener getTntListener() {
         return tntListener;
     }
+    public CreeperListener getCreeperListener() {
+        return creeperListener;
+    }
+    public ScaleReverse getScaleReverse() {
+        return scaleReverse;
+    }
 
     @Override
     public void onEnable() {
@@ -72,6 +87,7 @@ public final class Main extends JavaPlugin {
         bedrockListener = new BedrockListener();
         waterBucketListener = new WaterBucketListener();
         tntListener = new TNTListener();
+        creeperListener = new CreeperListener();
 
         // Register the listeners
         getServer().getPluginManager().registerEvents(bucketListener, this);
@@ -79,6 +95,7 @@ public final class Main extends JavaPlugin {
         getServer().getPluginManager().registerEvents(bedrockListener, this);
         getServer().getPluginManager().registerEvents(waterBucketListener, this);
         getServer().getPluginManager().registerEvents(tntListener, this);
+        getServer().getPluginManager().registerEvents(creeperListener, this);
 
         // Register the StopWauh command with the listeners as arguments
         this.getCommand("stopwauh").setExecutor(new StopWauh(bucketListener, barrierListener, bedrockListener, waterBucketListener));
