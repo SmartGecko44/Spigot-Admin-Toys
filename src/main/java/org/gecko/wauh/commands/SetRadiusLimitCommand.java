@@ -88,4 +88,3 @@ public class SetRadiusLimitCommand implements CommandExecutor, TabCompleter {
 
         return completions;
     }
-}
