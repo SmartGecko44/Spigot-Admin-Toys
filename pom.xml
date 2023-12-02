@@ -39,7 +39,6 @@
                         </goals>
                         <configuration>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
-                            <outputDirectory>/Users/gecko/Server 1.12.2 Spigot/plugins</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
