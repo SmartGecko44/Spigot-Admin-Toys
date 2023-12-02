@@ -48,9 +48,7 @@ public class BedrockListener implements Listener {
     }
 
     public void bedrockValueAssignHandler(BlockBreakEvent event, String source) {
-        Bukkit.getConsoleSender().sendMessage("Suck my balls");
         Main mainPlugin = Main.getPlugin(Main.class);
-        Bukkit.getConsoleSender().sendMessage(allRemovalActive + " " + source + " " + mainPlugin.getCreeperRadiusLimit());
         BucketListener bucketListener = mainPlugin.getBucketListener();
         BarrierListener barrierListener = mainPlugin.getBarrierListener();
         WaterBucketListener waterBucketListener = mainPlugin.getWaterBucketListener();
@@ -67,7 +65,6 @@ public class BedrockListener implements Listener {
         if (realRadiusLimit > 1) {
             if (!bucketListener.wauhRemovalActive && !barrierListener.blockRemovalActive && !allRemovalActive && !waterBucketListener.tsunamiActive) {
                 if (source.equalsIgnoreCase("TNT") || source.equalsIgnoreCase("creeper")) {
-                    Bukkit.getConsoleSender().sendMessage("Brokieeee");
                     allRemovalActive = true;
                     limitReached = false;
                     if (tntListener.tntLocation != null) {
@@ -116,7 +113,6 @@ public class BedrockListener implements Listener {
     }
 
     private void processAllRemoval() {
-        Bukkit.getConsoleSender().sendMessage("Du kleiner Goh");
         if (stopAllRemoval) {
             stopAllRemoval = false;
             displaySummary();
@@ -164,7 +160,6 @@ public class BedrockListener implements Listener {
 
             // Iterate through neighboring blocks and add them to the next set
             for (int i = -1; i <= 1; i++) {
-                Bukkit.getConsoleSender().sendMessage("les gooo");
                 if (i == 0) continue; // Skip the current block
                 addIfValid(block.getRelative(i, 0, 0), nextSet);
                 addIfValid(block.getRelative(0, i, 0), nextSet);

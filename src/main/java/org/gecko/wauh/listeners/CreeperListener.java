@@ -1,6 +1,5 @@
 package org.gecko.wauh.listeners;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Entity;
@@ -17,28 +16,24 @@ public class CreeperListener implements Listener {
 
     @EventHandler
     public void onCreeperExplode(EntityExplodeEvent event) {
-        int creeperLimit = Main.getPlugin(Main.class).getCreeperRadiusLimit() - 2;
-
-        Bukkit.getConsoleSender().sendMessage(String.valueOf(creeperLimit));
-
-        if (creeperLimit == 0) {
-            return;
-        }
-
         Entity entity = event.getEntity();
-
         // Check if the exploding entity is TNT
         if (entity instanceof Creeper) {
+            int creeperLimit = Main.getPlugin(Main.class).getCreeperRadiusLimit() - 2;
+
+            if (creeperLimit == 0) {
+                return;
+            }
+
+
             event.setCancelled(true); // Cancel the normal explosion
 
             // Get the location of the TNT explosion
             Creeper creeper = (Creeper) entity;
             if (creeper.getLocation() != null) {
-                {
-                    creeperLocation = creeper.getLocation();
-                    BedrockListener bedrockListener = new BedrockListener();
-                    bedrockListener.bedrockValueAssignHandler(null, "creeper");
-                }
+                creeperLocation = creeper.getLocation();
+                BedrockListener bedrockListener = new BedrockListener();
+                bedrockListener.bedrockValueAssignHandler(null, "creeper");
             }
         }
     }
