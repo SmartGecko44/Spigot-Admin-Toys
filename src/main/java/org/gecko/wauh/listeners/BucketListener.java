@@ -33,7 +33,7 @@ public class BucketListener implements Listener {
     private int highestDist = 0;
     private int radiusLimit;
     private int realRadiusLimit;
-    private int repetitions = 0;
+    private int repetitions = 1;
 
     @EventHandler
     public void onBucketFill(PlayerBucketFillEvent event) {

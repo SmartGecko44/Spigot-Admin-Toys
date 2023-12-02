@@ -35,6 +35,7 @@ public class BedrockListener implements Listener {
     private int repetitions = 3;
     private boolean repeated = false;
     private static final Set<Material> IMMUTABLE_MATERIALS = EnumSet.of(Material.AIR, Material.BEDROCK, Material.STATIONARY_WATER, Material.WATER, Material.LAVA, Material.STATIONARY_LAVA);
+    private final Main mainPlugin = Main.getPlugin(Main.class);
 
     private void addIfValid(Block block, Set<Block> nextSet) {
         if (!IMMUTABLE_MATERIALS.contains(block.getType())) {
@@ -48,7 +49,6 @@ public class BedrockListener implements Listener {
     }
 
     public void bedrockValueAssignHandler(BlockBreakEvent event, String source) {
-        Main mainPlugin = Main.getPlugin(Main.class);
         BucketListener bucketListener = mainPlugin.getBucketListener();
         BarrierListener barrierListener = mainPlugin.getBarrierListener();
         WaterBucketListener waterBucketListener = mainPlugin.getWaterBucketListener();
@@ -67,6 +67,7 @@ public class BedrockListener implements Listener {
                 if (source.equalsIgnoreCase("TNT") || source.equalsIgnoreCase("creeper")) {
                     allRemovalActive = true;
                     limitReached = false;
+
                     if (tntListener.tntLocation != null) {
                         clickedLocation = tntListener.tntLocation;
                     } else {
@@ -79,12 +80,13 @@ public class BedrockListener implements Listener {
                     if (tntListener.tntPlayer != null) {
                         currentRemovingPlayer = tntListener.tntPlayer;
                     } else {
-                        currentRemovingPlayer = creeperListener.creeperPlayer;
+                        currentRemovingPlayer = null;
                     }
 
                     blocksToProcess.add(clickedLocation.getBlock());
 
                     processAllRemoval();
+
                 } else {
                     Player player = event.getPlayer();
                     // Check if the bucket is filling with water
@@ -149,11 +151,7 @@ public class BedrockListener implements Listener {
             // Check if the block is grass or dirt
             allRemovedCount++;
             if (Main.getPlugin(Main.class).getShowRemoval()) {
-                // if (block.getType() != Material.DIAMOND_ORE) {
-                // block.setType(Material.AIR);
-                // } else {
                 block.setType(Material.AIR);
-                // }
             } else {
                 markedBlocks.add(block);
             }
@@ -167,7 +165,6 @@ public class BedrockListener implements Listener {
             }
             processedBlocks.add(block);
         }
-
         blocksToProcess = nextSet;
 
         if (limitReachedThisIteration) {
@@ -202,6 +199,8 @@ public class BedrockListener implements Listener {
     }
 
     public void displaySummary() {
+        TNTListener tntListener = mainPlugin.getTntListener();
+        CreeperListener creeperListener = mainPlugin.getCreeperListener();
         Player player = currentRemovingPlayer;
         // Display the block removal summary to the player
         if (allRemovedCount > 1) {
@@ -216,6 +215,9 @@ public class BedrockListener implements Listener {
                 allRemovalActive = false;
                 currentRemovingPlayer = null;
                 clickedLocation = null;
+                tntListener.tntLocation = null;
+                tntListener.tntPlayer = null;
+                creeperListener.creeperLocation = null;
                 stopAllRemoval = false;
                 blocksToProcess.clear();
                 markedBlocks.clear();
@@ -226,6 +228,9 @@ public class BedrockListener implements Listener {
             allRemovalActive = false;
             currentRemovingPlayer = null;
             clickedLocation = null;
+            tntListener.tntLocation = null;
+            tntListener.tntPlayer = null;
+            creeperListener.creeperLocation = null;
             stopAllRemoval = false;
             blocksToProcess.clear();
             markedBlocks.clear();
@@ -244,6 +249,8 @@ public class BedrockListener implements Listener {
      * Finally, clear all the sets and variables related to block removal.
      */
     private void removeMarkedBlocks() {
+        TNTListener tntListener = mainPlugin.getTntListener();
+        CreeperListener creeperListener = mainPlugin.getCreeperListener();
         ScaleReverse scaleReverse;
         scaleReverse = new ScaleReverse();
 
@@ -255,6 +262,9 @@ public class BedrockListener implements Listener {
             allRemovalActive = false;
             currentRemovingPlayer = null;
             clickedLocation = null;
+            tntListener.tntLocation = null;
+            tntListener.tntPlayer = null;
+            creeperListener.creeperLocation = null;
             stopAllRemoval = false;
             blocksToProcess.clear();
             markedBlocks.clear();
@@ -283,6 +293,9 @@ public class BedrockListener implements Listener {
                 allRemovalActive = false;
                 currentRemovingPlayer = null;
                 clickedLocation = null;
+                tntListener.tntLocation = null;
+                tntListener.tntPlayer = null;
+                creeperListener.creeperLocation = null;
                 stopAllRemoval = false;
                 blocksToProcess.clear();
                 markedBlocks.clear();
