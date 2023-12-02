@@ -1,4 +1,4 @@
-/*package org.gecko.wauh.data;
+package org.gecko.wauh.data;
 
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -38,4 +38,3 @@ public class ConfigurationManager {
     }
 
 }
-*/
