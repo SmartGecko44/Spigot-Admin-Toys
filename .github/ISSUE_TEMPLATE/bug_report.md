@@ -26,12 +26,12 @@ If applicable, add screenshots to help explain your problem.
 **Client (please complete the following information, if applicable):**
  - OS: [e.g. Windows]
       - Version [e.g. 23H2]
- - Client [e.g. Vanilla, Forge, Badlion Client]
+ - Client: [e.g. Vanilla, Forge, Badlion Client]
 
 **Server (please complete the following information, if applicable):**
- - OS: [e.g. Windows, Mac, Linux (which distro)]
+ - OS: [e.g. Windows, MacOS, Linux (which distro)]
       - Version [e.g. 23H2, 14.0.1]
- - Host [e.g. Powershell, Command Prompt (CMD), Bash]
+ - Host: [e.g. Powershell, Command Prompt (CMD), Bash]
 
 **Additional context**
 Add any other context about the problem here.
