@@ -23,7 +23,8 @@ public final class Main extends JavaPlugin {
     private TNTListener tntListener;
     private CreeperListener creeperListener;
     private ScaleReverse scaleReverse;
-    private ConfigurationManager configurationManager;
+    private final Main plugin = Main.getPlugin(Main.class);
+    private ConfigurationManager configManager = new ConfigurationManager(plugin);
 
     public int getRadiusLimit() {
         return playerRadiusLimit + 2;
