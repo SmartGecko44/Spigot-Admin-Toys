@@ -43,9 +43,11 @@ jobs:
       - name: Build with Maven
         run: mvn package --file ../pom.xml
         working-directory: target
-      - name: Print contents of the working directory
-        run: ls -R
 
+  upload:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
       - name: Create filtered-artifacts
         run: mkdir -p filtered-artifacts
 
