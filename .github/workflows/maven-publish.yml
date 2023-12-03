@@ -43,11 +43,15 @@ jobs:
       - name: Build with Maven
         run: mvn package --file ../pom.xml
         working-directory: target
+      - name: Print contents of the working directory
+        run: ls -R
 
   upload-artifact:
     runs-on: ubuntu-latest
     needs: build
     steps:
+      - name: Print contents of the working directory
+        run: ls -R
       - name: Filter and Upload JAR as an artifact
         run: |
           # Filter out files that start with 'Wauh' and upload the rest
@@ -57,3 +61,4 @@ jobs:
         with:
           name: my-artifact
           path: filtered-artifacts
+          if-no-files-found: error
