@@ -48,10 +48,12 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
+      - name: Find and move JAR file
+        run: |
+          mv target/*-original.jar target/original.jar
       - name: Upload JAR as an artifact
         uses: actions/upload-artifact@v2
         with:
           name: my-artifact
-          path: target/Wauh-*.jar
-          exclude: target/*-original.jar
+          path: target/Wauh*.jar
           if-no-files-found: error
