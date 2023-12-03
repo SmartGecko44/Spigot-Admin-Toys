@@ -52,5 +52,5 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: my-artifact
-          path: target/*[!-](-original).jar
+          path: target/[!-](-original)*.jar
           if-no-files-found: error
