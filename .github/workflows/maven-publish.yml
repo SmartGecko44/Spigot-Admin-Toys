@@ -51,6 +51,7 @@ jobs:
     needs: build
     steps:
       - name: Print contents of the working directory
+        working-directory: target
         run: ls -R
       - name: Filter and Upload JAR as an artifact
         run: |
