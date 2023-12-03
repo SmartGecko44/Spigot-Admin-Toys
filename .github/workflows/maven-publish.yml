@@ -9,6 +9,12 @@ on:
     branches:
       - master
       - experimental
+  release:
+    types:
+      - prereleased
+      - created
+      - published
+      - edited
 
 jobs:
   build:
