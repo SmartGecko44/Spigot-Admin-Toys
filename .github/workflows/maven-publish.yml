@@ -48,7 +48,7 @@ jobs:
           find -type f -name Wauh*.jar -exec cp {} filtered-artifacts/ \;
 
       - name: Upload JAR as an artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: Wauh-${{ github.run_number }}
           path: filtered-artifacts
