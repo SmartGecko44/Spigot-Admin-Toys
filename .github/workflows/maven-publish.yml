@@ -46,17 +46,15 @@ jobs:
       - name: Print contents of the working directory
         run: ls -R
 
-  upload-artifact:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
       - name: Print contents of the working directory
         working-directory: target
         run: ls -R
+
       - name: Filter and Upload JAR as an artifact
         run: |
           # Filter out files that start with 'Wauh' and upload the rest
           find -type f -name "Wauh*.jar" -exec cp {} filtered-artifacts/ \;
+
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
