@@ -58,3 +58,4 @@ jobs:
           name: Wauh-${{ github.run_number }}
           path: filtered-artifacts
           if-no-files-found: error
+          zip: false
