@@ -44,8 +44,13 @@ jobs:
         run: mvn package --file ../pom.xml
         working-directory: target
 
+  upload-artifact:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
       - name: Upload JAR as an artifact
         uses: actions/upload-artifact@v2
         with:
           name: my-artifact
-          path: target/*.jar
+          path: target/*[^-](-original).jar
+          if-no-files-found: error
