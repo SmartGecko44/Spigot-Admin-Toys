@@ -55,7 +55,7 @@ jobs:
       - name: Upload JAR as an artifact
         uses: actions/upload-artifact@v2
         with:
-          name: Wauh-${{ github.run_number }}
+          name: Wauh-${{ github.run_number }}.jar
           path: filtered-artifacts
           if-no-files-found: error
           zip: false
