@@ -48,9 +48,12 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - name: Upload JAR as an artifact
+      - name: Filter and Upload JAR as an artifact
+        run: |
+          # Filter out files that start with 'Wauh' and upload the rest
+          find target -type f -name "Wauh*.jar" -exec cp {} filtered-artifacts/ \;
+      - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
           name: my-artifact
-          path: target/Wauh*.jar
-          if-no-files-found: error
+          path: filtered-artifacts
