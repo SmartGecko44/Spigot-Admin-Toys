@@ -9,13 +9,12 @@ import org.gecko.wauh.listeners.*;
 import org.gecko.wauh.commands.SetRadiusLimitCommand;
 import org.gecko.wauh.commands.StopWauh;
 import org.gecko.wauh.commands.ToggleRemovalView;
-import org.gecko.wauh.logic.ScaleReverse;
 
 public final class Main extends JavaPlugin {
 
-    private int playerRadiusLimit = 20;
-    private int tntRadiusLimit = 5;
-    private int creeperRadiusLimit = 0;
+    private int playerRadiusLimit;
+    private int tntRadiusLimit;
+    private int creeperRadiusLimit;
     private boolean showRemoval = true;
     private BucketListener bucketListener;
     private BarrierListener barrierListener;
@@ -23,7 +22,6 @@ public final class Main extends JavaPlugin {
     private WaterBucketListener waterBucketListener;
     private TNTListener tntListener;
     private CreeperListener creeperListener;
-    private ScaleReverse scaleReverse;
     private ConfigurationManager configManager;
     private FileConfiguration config;
 
@@ -61,11 +59,10 @@ public final class Main extends JavaPlugin {
     @Override
     public void onDisable() {
         // Plugin shutdown logic
-        Bukkit.getConsoleSender().sendMessage("");
-        Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "kys");
     }
 
     public int getRadiusLimit() {
+        playerRadiusLimit = config.getInt("playerRadiusLimit", playerRadiusLimit);
         return playerRadiusLimit + 2;
     }
 
@@ -75,6 +72,7 @@ public final class Main extends JavaPlugin {
          configManager.saveConfig();
     }
     public int getTntRadiusLimit() {
+        tntRadiusLimit = config.getInt("tntRadiusLimit", tntRadiusLimit);
         return tntRadiusLimit + 2;
     }
     public void setTntRadiusLimit(int newLimit) {
@@ -83,6 +81,7 @@ public final class Main extends JavaPlugin {
         configManager.saveConfig();
     }
     public int getCreeperRadiusLimit() {
+        creeperRadiusLimit = config.getInt("creeperRadiusLimit", creeperRadiusLimit);
         return creeperRadiusLimit + 2;
     }
     public void setCreeperLimit(int newLimit) {
@@ -119,8 +118,4 @@ public final class Main extends JavaPlugin {
     public CreeperListener getCreeperListener() {
         return creeperListener;
     }
-    public ScaleReverse getScaleReverse() {
-        return scaleReverse;
-    }
-
 }

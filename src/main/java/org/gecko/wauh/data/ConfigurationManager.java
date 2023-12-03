@@ -7,6 +7,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.gecko.wauh.Main;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -38,6 +39,11 @@ public class ConfigurationManager {
                     logger.log(Level.SEVERE, "Config file could not be created");
                 } else {
                     Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "Config file created!");
+                    FileWriter writer = new FileWriter(configFile);
+                    writer.write("playerRadiusLimit: 20 \n");
+                    writer.write("tntRadiusLimit: 5\n");
+                    writer.write("creeperRadiusLimit: 0\n");
+                    writer.close();
                 }
             }
 
