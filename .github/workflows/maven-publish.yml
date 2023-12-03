@@ -12,7 +12,9 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on:
+      - MacBook Air 15 M2 24GB
+      - ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
