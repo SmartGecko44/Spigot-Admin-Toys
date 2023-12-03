@@ -13,25 +13,38 @@ import java.util.logging.Logger;
 
 public class ConfigurationManager {
     private final File configFile;
-    private final FileConfiguration config;
+    private FileConfiguration config;
     private final Logger logger = Logger.getLogger(Main.class.getName());
     public ConfigurationManager(Main plugin) {
-        this.configFile = new File(plugin.getDataFolder(), "data.yml");
+        File dir = new File("plugins/Wauh");
 
-        // Create the data.yml file if it doesn't exist
-        if (!configFile.exists()) {
-            File dir = new File("Wauh");
+        if (!dir.exists()) {
             boolean dirCreated = dir.mkdirs();
+
             if (!dirCreated) {
-                logger.log(Level.SEVERE, "Config folder could not be created");
+                plugin.getLogger().log(Level.SEVERE, "Config folder could not be created");
             } else {
                 Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "Config folder created!");
             }
-            plugin.saveResource("Wauh/data.yml", false);
         }
 
-        // Load the config
-        this.config = YamlConfiguration.loadConfiguration(configFile);
+        this.configFile = new File(dir, "data.yml");
+
+        try {
+            // Create the data.yml file if it doesn't exist
+            if (!configFile.exists()) {
+                boolean fileCreated = configFile.createNewFile();
+                if (!fileCreated) {
+                    logger.log(Level.SEVERE, "Config file could not be created");
+                } else {
+                    Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "Config file created!");
+                }
+            }
+
+            this.config = YamlConfiguration.loadConfiguration(configFile);
+        } catch (IOException ex) {
+            plugin.getLogger().log(Level.SEVERE, "Could not load config file", ex);
+        }
     }
 
     public FileConfiguration getConfig() {
