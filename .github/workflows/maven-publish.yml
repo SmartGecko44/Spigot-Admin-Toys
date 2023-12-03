@@ -17,13 +17,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 16
-
       - name: Cache Maven dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/.m2/repository
@@ -53,7 +48,7 @@ jobs:
           find -type f -name Wauh*.jar -exec cp {} filtered-artifacts/ \;
 
       - name: Upload JAR as an artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: Wauh-${{ github.run_number }}
           path: filtered-artifacts
