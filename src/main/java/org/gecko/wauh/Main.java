@@ -2,6 +2,7 @@ package org.gecko.wauh;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.gecko.wauh.data.ConfigurationManager;
 import org.gecko.wauh.listeners.*;
@@ -25,6 +26,7 @@ public final class Main extends JavaPlugin {
     private ScaleReverse scaleReverse;
     private final Main plugin = Main.getPlugin(Main.class);
     private ConfigurationManager configManager = new ConfigurationManager(plugin);
+    private FileConfiguration config = configManager.getConfig();
 
     public int getRadiusLimit() {
         return playerRadiusLimit + 2;
@@ -32,18 +34,24 @@ public final class Main extends JavaPlugin {
 
     public void setRadiusLimit(int newLimit) {
          playerRadiusLimit = newLimit;
+         config.set("playerRadiusLimit", playerRadiusLimit);
+         configManager.saveConfig();
     }
     public int getTntRadiusLimit() {
         return tntRadiusLimit + 2;
     }
     public void setTntRadiusLimit(int newLimit) {
         tntRadiusLimit = newLimit;
+        config.set("tntRadiusLimit", tntRadiusLimit);
+        configManager.saveConfig();
     }
     public int getCreeperRadiusLimit() {
         return creeperRadiusLimit + 2;
     }
     public void setCreeperLimit(int newLimit) {
         creeperRadiusLimit = newLimit;
+        config.set("creeperRadiusLimit", creeperRadiusLimit);
+        configManager.saveConfig();
     }
     public boolean getShowRemoval() {
         return showRemoval;
