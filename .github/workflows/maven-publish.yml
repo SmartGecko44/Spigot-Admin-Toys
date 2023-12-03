@@ -49,6 +49,7 @@ jobs:
     needs: build
     steps:
       - name: Create filtered-artifacts
+        working-directory: target
         run: mkdir -p filtered-artifacts
 
       - name: Filter and Upload JAR as an artifact
