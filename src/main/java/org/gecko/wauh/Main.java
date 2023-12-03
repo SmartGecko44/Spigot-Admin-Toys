@@ -24,9 +24,46 @@ public final class Main extends JavaPlugin {
     private TNTListener tntListener;
     private CreeperListener creeperListener;
     private ScaleReverse scaleReverse;
-    private final Main plugin = Main.getPlugin(Main.class);
-    private ConfigurationManager configManager = new ConfigurationManager(plugin);
-    private FileConfiguration config = configManager.getConfig();
+    private ConfigurationManager configManager;
+    private FileConfiguration config;
+
+    @Override
+    public void onEnable() {
+        // Plugin startup logic
+        Bukkit.getConsoleSender().sendMessage("");
+        Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "Yay");
+
+        // Create instances of the listeners
+        bucketListener = new BucketListener();
+        barrierListener = new BarrierListener();
+        bedrockListener = new BedrockListener();
+        waterBucketListener = new WaterBucketListener();
+        tntListener = new TNTListener();
+        creeperListener = new CreeperListener();
+        configManager = new ConfigurationManager(Main.getPlugin(Main.class));
+        config = configManager.getConfig();
+
+        // Register the listeners
+        getServer().getPluginManager().registerEvents(bucketListener, this);
+        getServer().getPluginManager().registerEvents(barrierListener, this);
+        getServer().getPluginManager().registerEvents(bedrockListener, this);
+        getServer().getPluginManager().registerEvents(waterBucketListener, this);
+        getServer().getPluginManager().registerEvents(tntListener, this);
+        getServer().getPluginManager().registerEvents(creeperListener, this);
+
+        // Register the StopWauh command with the listeners as arguments
+        this.getCommand("stopwauh").setExecutor(new StopWauh(bucketListener, barrierListener, bedrockListener, waterBucketListener));
+        this.getCommand("setradiuslimit").setExecutor(new SetRadiusLimitCommand(this));
+        this.getCommand("setradiuslimit").setTabCompleter(new SetRadiusLimitCommand(this));
+        this.getCommand("toggleremovalview").setExecutor(new ToggleRemovalView(this));
+    }
+
+    @Override
+    public void onDisable() {
+        // Plugin shutdown logic
+        Bukkit.getConsoleSender().sendMessage("");
+        Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "kys");
+    }
 
     public int getRadiusLimit() {
         return playerRadiusLimit + 2;
@@ -86,39 +123,4 @@ public final class Main extends JavaPlugin {
         return scaleReverse;
     }
 
-    @Override
-    public void onEnable() {
-        // Plugin startup logic
-        Bukkit.getConsoleSender().sendMessage("");
-        Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "Yay");
-
-        // Create instances of the listeners
-        bucketListener = new BucketListener();
-        barrierListener = new BarrierListener();
-        bedrockListener = new BedrockListener();
-        waterBucketListener = new WaterBucketListener();
-        tntListener = new TNTListener();
-        creeperListener = new CreeperListener();
-
-        // Register the listeners
-        getServer().getPluginManager().registerEvents(bucketListener, this);
-        getServer().getPluginManager().registerEvents(barrierListener, this);
-        getServer().getPluginManager().registerEvents(bedrockListener, this);
-        getServer().getPluginManager().registerEvents(waterBucketListener, this);
-        getServer().getPluginManager().registerEvents(tntListener, this);
-        getServer().getPluginManager().registerEvents(creeperListener, this);
-
-        // Register the StopWauh command with the listeners as arguments
-        this.getCommand("stopwauh").setExecutor(new StopWauh(bucketListener, barrierListener, bedrockListener, waterBucketListener));
-        this.getCommand("setradiuslimit").setExecutor(new SetRadiusLimitCommand(this));
-        this.getCommand("setradiuslimit").setTabCompleter(new SetRadiusLimitCommand(this));
-        this.getCommand("toggleremovalview").setExecutor(new ToggleRemovalView(this));
-    }
-
-    @Override
-    public void onDisable() {
-        // Plugin shutdown logic
-        Bukkit.getConsoleSender().sendMessage("");
-        Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "kys");
-    }
 }
