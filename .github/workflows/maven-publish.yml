@@ -46,6 +46,9 @@ jobs:
       - name: Print contents of the working directory
         run: ls -R
 
+      - name: Create filtered-artifacts
+        run: mkdir -p filtered-artifacts
+
       - name: Filter and Upload JAR as an artifact
         run: |
           # Filter out files that start with 'Wauh' and upload the rest
