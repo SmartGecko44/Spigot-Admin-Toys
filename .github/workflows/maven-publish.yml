@@ -46,6 +46,9 @@ jobs:
         run: mvn package --file ../pom.xml
         working-directory: target
 
+      - name: Test with Maven
+        run: mvn test --file ../pom.xml
+
       - name: Create filtered-artifacts
         run: mkdir -p filtered-artifacts
 
