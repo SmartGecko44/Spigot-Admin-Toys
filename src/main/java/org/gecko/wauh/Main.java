@@ -22,8 +22,8 @@ public final class Main extends JavaPlugin {
     private WaterBucketListener waterBucketListener;
     private TNTListener tntListener;
     private CreeperListener creeperListener;
-    private ConfigurationManager configManager;
-    private FileConfiguration config;
+    ConfigurationManager configManager;
+    FileConfiguration config;
 
     @Override
     public void onEnable() {
@@ -118,5 +118,8 @@ public final class Main extends JavaPlugin {
     }
     public CreeperListener getCreeperListener() {
         return creeperListener;
+    }
+    public ConfigurationManager getConfigManager() {
+        return configManager;
     }
 }
