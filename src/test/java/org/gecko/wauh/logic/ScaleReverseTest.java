@@ -23,20 +23,6 @@ class ScaleReverseTest {
     Block blockMock = Mockito.mock(Block.class);
     Set<Block> markedBlocks = new HashSet<>();
 
-  private static Iterator<Block> anyBlockIterator() {
-    return new Iterator<Block>() {
-      @Override
-      public boolean hasNext() {
-        return false;
-      }
-
-      @Override
-      public Block next() {
-        return null;
-      }
-    };
-  }
-
     @Test
     void testScaleReverseLogic_BucketSource() {
         try (MockedStatic<JavaPlugin> mocked = Mockito.mockStatic(JavaPlugin.class)) {
@@ -66,7 +52,7 @@ class ScaleReverseTest {
 
             // Assertions
             // Verify that CleanRemove() method of BucketListener is called once
-            verify(bucketListenerMock, times(1)).CleanRemove(anyInt(), anyBlockIterator());
+            verify(bucketListenerMock, times(1)).CleanRemove(anyInt(), any(Iterator.class));
         }
     }
 
@@ -99,7 +85,7 @@ class ScaleReverseTest {
 
             // Assertions
             // Verify that CleanRemove() method of BarrierListener is called once
-            verify(barrierListenerMock, times(1)).CleanRemove(anyInt(), anyBlockIterator());
+            verify(barrierListenerMock, times(1)).CleanRemove(anyInt(), any(Iterator.class));
         }
     }
 
@@ -132,7 +118,7 @@ class ScaleReverseTest {
 
             // Assertions
             // Verify that CleanRemove() method of BedrockListener is called once
-            verify(bedrockListenerMock, times(1)).CleanRemove(anyInt(), anyBlockIterator());
+            verify(bedrockListenerMock, times(1)).CleanRemove(anyInt(), any(Iterator.class));
         }
     }
 
@@ -165,7 +151,7 @@ class ScaleReverseTest {
 
             // Assertions
             // Verify that CleanRemove() method of WauhBucketListener is called once
-            verify(waterBucketListenerMock, times(1)).CleanRemove(anyInt(), anyBlockIterator());
+            verify(waterBucketListenerMock, times(1)).CleanRemove(anyInt(), any(Iterator.class));
         }
     }
 }
