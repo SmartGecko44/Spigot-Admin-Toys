@@ -12,7 +12,6 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import static org.mockito.Mockito.*;
@@ -52,7 +51,7 @@ class ScaleReverseTest {
 
             // Assertions
             // Verify that CleanRemove() method of BucketListener is called once
-            verify(bucketListenerMock, times(1)).CleanRemove(anyInt(), any(Iterator.class));
+            verify(bucketListenerMock, times(1)).CleanRemove(anyInt(), any());
         }
     }
 
@@ -85,7 +84,7 @@ class ScaleReverseTest {
 
             // Assertions
             // Verify that CleanRemove() method of BarrierListener is called once
-            verify(barrierListenerMock, times(1)).CleanRemove(anyInt(), any(Iterator.class));
+            verify(barrierListenerMock, times(1)).CleanRemove(anyInt(), any());
         }
     }
 
@@ -118,7 +117,7 @@ class ScaleReverseTest {
 
             // Assertions
             // Verify that CleanRemove() method of BedrockListener is called once
-            verify(bedrockListenerMock, times(1)).CleanRemove(anyInt(), any(Iterator.class));
+            verify(bedrockListenerMock, times(1)).CleanRemove(anyInt(), any());
         }
     }
 
@@ -151,7 +150,7 @@ class ScaleReverseTest {
 
             // Assertions
             // Verify that CleanRemove() method of WauhBucketListener is called once
-            verify(waterBucketListenerMock, times(1)).CleanRemove(anyInt(), any(Iterator.class));
+            verify(waterBucketListenerMock, times(1)).CleanRemove(anyInt(), any());
         }
     }
 }
