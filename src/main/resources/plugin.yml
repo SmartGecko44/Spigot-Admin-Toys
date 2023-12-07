@@ -2,6 +2,8 @@ name: Wauh
 version: '${project.version}'
 main: org.gecko.wauh.Main
 description: Bo o o wa uh
+depend:
+  - NBTAPI
 commands:
   stopwauh:
     description: Stop removing the wauh
@@ -12,3 +14,6 @@ commands:
   toggleremovalview:
     description: Toggle the visibility of the removal
     usage: /toggleremovalview
+  test:
+    description: test gui
+    usage: /test

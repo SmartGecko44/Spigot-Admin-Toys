@@ -2,8 +2,8 @@ package org.gecko.wauh.data;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.gecko.wauh.Main;
 
 import java.io.File;
@@ -40,7 +40,7 @@ public class ConfigurationManager {
                 } else {
                     Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "Config file created!");
                     FileWriter writer = new FileWriter(configFile);
-                    writer.write("playerRadiusLimit: 20 \n");
+                    writer.write("playerRadiusLimit: 20\n");
                     writer.write("tntRadiusLimit: 5\n");
                     writer.write("creeperRadiusLimit: 0\n");
                     writer.close();

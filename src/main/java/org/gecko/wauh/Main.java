@@ -4,7 +4,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.gecko.wauh.commands.test;
 import org.gecko.wauh.data.ConfigurationManager;
+import org.gecko.wauh.gui.ConfigGUI;
 import org.gecko.wauh.listeners.*;
 import org.gecko.wauh.commands.SetRadiusLimitCommand;
 import org.gecko.wauh.commands.StopWauh;
@@ -22,6 +24,7 @@ public final class Main extends JavaPlugin {
     private WaterBucketListener waterBucketListener;
     private TNTListener tntListener;
     private CreeperListener creeperListener;
+    private ConfigGUI configGUI;
     ConfigurationManager configManager;
     FileConfiguration config;
 
@@ -40,6 +43,7 @@ public final class Main extends JavaPlugin {
         creeperListener = new CreeperListener();
         configManager = new ConfigurationManager(Main.getPlugin(Main.class));
         config = configManager.getConfig();
+        configGUI = new ConfigGUI(this);
 
         // Register the listeners
         getServer().getPluginManager().registerEvents(bucketListener, this);
@@ -48,12 +52,14 @@ public final class Main extends JavaPlugin {
         getServer().getPluginManager().registerEvents(waterBucketListener, this);
         getServer().getPluginManager().registerEvents(tntListener, this);
         getServer().getPluginManager().registerEvents(creeperListener, this);
+        getServer().getPluginManager().registerEvents(configGUI, this);
 
         // Register the StopWauh command with the listeners as arguments
         this.getCommand("stopwauh").setExecutor(new StopWauh(bucketListener, barrierListener, bedrockListener, waterBucketListener));
         this.getCommand("setradiuslimit").setExecutor(new SetRadiusLimitCommand(this));
         this.getCommand("setradiuslimit").setTabCompleter(new SetRadiusLimitCommand(this));
         this.getCommand("toggleremovalview").setExecutor(new ToggleRemovalView(this));
+        this.getCommand("test").setExecutor(new test(configGUI));
     }
 
     @Override
@@ -121,5 +127,8 @@ public final class Main extends JavaPlugin {
     }
     public ConfigurationManager getConfigManager() {
         return configManager;
+    }
+    public ConfigGUI getConfigGUI() {
+        return configGUI;
     }
 }
