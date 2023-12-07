@@ -1,5 +1,6 @@
 package org.gecko.wauh.gui;
 
+import de.tr7zw.nbtapi.NBTItem;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -21,20 +22,6 @@ public class ConfigGUI implements Listener {
     private final int size = 45;
     private final int size9 = size / 9;
 
-    private ItemStack netNBTData(ItemStack item, String key, String value) {
-        ItemStack nmsItem = CraftItemStack.asNMSCopy(item);
-        NBTTagCompound tag = nmsItem.getTag();
-
-        if (tag == null) {
-            tag = new NBTTagCompound();
-        }
-
-        tag.setString(key, value);
-        nmsItem.setTag(tag);
-
-        return <CraftItemStack.asBukkitCopy(nmsItem);
-    }
-
     public ConfigGUI(JavaPlugin plugin) {
         this.plugin = plugin;
         this.gui = Bukkit.createInventory(null, size, "Test (WIP)");
@@ -53,7 +40,7 @@ public class ConfigGUI implements Listener {
         gui.setItem(9 + 4, createButtonItem(Material.WATER_BUCKET, "Tsunami", (short) 0, null)); // Gray dye for disable
         gui.setItem(9 + 5, createButtonItem(Material.SKULL_ITEM, "Custom creeper explosions", (short) 4, null)); // Gray dye for disable
         gui.setItem(9 + 6, createButtonItem(Material.TNT, "Custom TNT explosions", (short) 0, null)); // Gray dye for disable
-        gui.setItem(9 * 3 + 1, createButtonItem(Material.INK_SACK, "Enable", (short) 10, Collections.singletonList("Enable Bucket")));
+        gui.setItem(9 * 3 + 1, createButtonItem(Material.INK_SACK, "Enable", (short) 10, "Enable Bucket"));
     }
 
     private void fillBorders(ItemStack borderItem) {
@@ -74,13 +61,16 @@ public class ConfigGUI implements Listener {
     }
 
 
-    private ItemStack createButtonItem(Material material, String name, short data, List<String> lore) {
+    private ItemStack createButtonItem(Material material, String name, short data, String ident) {
         ItemStack item = new ItemStack(material, 1, data);
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(name);
-        meta.setLore(lore);
         item.setItemMeta(meta);
-        return item;
+
+        NBTItem nbtItem = new NBTItem(item);
+        nbtItem.setString("Ident:", ident);
+
+        return nbtItem.getItem();
     }
 
     public void openGUI(Player player) {
