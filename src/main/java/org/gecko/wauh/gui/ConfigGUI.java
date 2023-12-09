@@ -149,7 +149,7 @@ public class ConfigGUI implements Listener {
                         gui.setItem(9 * 3 + 2, createButtonItem(Material.INK_SACK, "Disable", (short) 10, "Enable Barrier"));
                         player.sendMessage("Surface removal enabled!");
                     } else if (identifier.equalsIgnoreCase("Enable Barrier") && data == 10) {
-                        config.set("Barrier Enabled", 0);
+                        config.set("Barrier enabled", 0);
                         configManager.saveConfig();
                         gui.setItem(9 * 3 + 2, createButtonItem(Material.INK_SACK, "Enable", (short) 8, "Enable Barrier"));
                         player.sendMessage("Surface removal disabled!");
