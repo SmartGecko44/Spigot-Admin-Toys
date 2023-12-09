@@ -134,7 +134,7 @@ public class BucketListener implements Listener {
             }
             // Remove the water block
             if (Main.getPlugin(Main.class).getShowRemoval()) {
-                block.setType(Material.BEDROCK);
+                block.setType(Material.STRUCTURE_VOID);
                 // Add the block to the list of replaced blocks
                 markedBlocks.add(block);
             } else if (!Main.getPlugin(Main.class).getShowRemoval()) {
@@ -257,14 +257,20 @@ public class BucketListener implements Listener {
         }
 
     public void CleanRemove(int scaledBlocksPerIteration, Iterator<Block> iterator) {
+        List<Block> blocksToRemove = new ArrayList<>();
         for (int i = 0; i < scaledBlocksPerIteration && iterator.hasNext(); i++) {
             Block block = iterator.next();
             currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "Cleaning up water"));
-            // Add debug output to indicate that a block is being removed
+            // Change the block to air
             block.setType(Material.AIR);
-            removedBlocks.add(block); // Add the block to the new set
+            // Add the block to the new set
+            removedBlocks.add(block);
+            // Add the block to the temporary list for removal later
+            blocksToRemove.add(block);
+        }
 
-            // Remove the block from the main markedBlocks set
+        // Remove all blocks from markedBlocks that are in the temporary list
+        for (Block block : blocksToRemove) {
             markedBlocks.remove(block);
         }
     }

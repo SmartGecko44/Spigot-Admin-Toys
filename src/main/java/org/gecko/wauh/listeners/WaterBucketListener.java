@@ -237,13 +237,20 @@ public class WaterBucketListener implements Listener {
     }
 
     public void CleanRemove(int scaledBlocksPerIteration, Iterator<Block> iterator) {
+        List<Block> blocksToRemove = new ArrayList<>();
         for (int i = 0; i < scaledBlocksPerIteration && iterator.hasNext(); i++) {
             Block block = iterator.next();
-            currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "Placing water blocks"));
+            currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR,
+                    new TextComponent(ChatColor.RED + "Placing water blocks"));
             block.setType(Material.STATIONARY_WATER);
-            removedBlocks.add(block); // Add the block to the new set
+            // Add the block to the new set
+            removedBlocks.add(block);
+            // Add the block to the temporary list for removal later
+            blocksToRemove.add(block);
+        }
 
-            // Remove the block from the main replacedBlocks set
+        // Remove all blocks from markedBlocks that are in the temporary list
+        for (Block block : blocksToRemove) {
             markedBlocks.remove(block);
         }
     }

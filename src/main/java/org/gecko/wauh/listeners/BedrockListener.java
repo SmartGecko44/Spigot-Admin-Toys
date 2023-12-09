@@ -20,9 +20,11 @@ import java.util.*;
 
 public class BedrockListener implements Listener {
 
+    private static final Set<Material> IMMUTABLE_MATERIALS = EnumSet.of(Material.AIR, Material.BEDROCK, Material.STATIONARY_WATER, Material.WATER, Material.LAVA, Material.STATIONARY_LAVA);
     private final Set<Block> markedBlocks = new HashSet<>();
     private final Set<Block> processedBlocks = new HashSet<>();
     private final Set<Block> removedBlocks = new HashSet<>();
+    private final Main mainPlugin = Main.getPlugin(Main.class);
     public Player currentRemovingPlayer;
     public boolean stopAllRemoval = false;
     public boolean allRemovalActive = false;
@@ -36,8 +38,6 @@ public class BedrockListener implements Listener {
     private int realRadiusLimit;
     private int repetitions = 3;
     private boolean repeated = false;
-    private static final Set<Material> IMMUTABLE_MATERIALS = EnumSet.of(Material.AIR, Material.BEDROCK, Material.STATIONARY_WATER, Material.WATER, Material.LAVA, Material.STATIONARY_LAVA);
-    private final Main mainPlugin = Main.getPlugin(Main.class);
 
     private void addIfValid(Block block, Set<Block> nextSet) {
         if (!IMMUTABLE_MATERIALS.contains(block.getType())) {
@@ -74,30 +74,27 @@ public class BedrockListener implements Listener {
         if (realRadiusLimit > 1) {
             if (!bucketListener.wauhRemovalActive && !barrierListener.blockRemovalActive && !allRemovalActive && !waterBucketListener.tsunamiActive) {
                 if (source.equalsIgnoreCase("TNT") || source.equalsIgnoreCase("creeper")) {
-                    if (!IMMUTABLE_MATERIALS.contains(event.getBlock().getType())) {
-                        allRemovalActive = true;
-                        limitReached = false;
+                    allRemovalActive = true;
+                    limitReached = false;
 
-                        if (tntListener.tntLocation != null) {
-                            clickedLocation = tntListener.tntLocation;
-                        } else {
-                            clickedLocation = creeperListener.creeperLocation;
-                        }
-
-                        highestDist = 0;
-                        allRemovedCount = 0;
-                        blocksToProcess.clear();
-                        if (tntListener.tntPlayer != null) {
-                            currentRemovingPlayer = tntListener.tntPlayer;
-                        } else {
-                            currentRemovingPlayer = null;
-                        }
-
-                        blocksToProcess.add(clickedLocation.getBlock());
-
-                        processAllRemoval();
-
+                    if (tntListener.tntLocation != null) {
+                        clickedLocation = tntListener.tntLocation;
+                    } else {
+                        clickedLocation = creeperListener.creeperLocation;
                     }
+
+                    highestDist = 0;
+                    allRemovedCount = 0;
+                    blocksToProcess.clear();
+                    if (tntListener.tntPlayer != null) {
+                        currentRemovingPlayer = tntListener.tntPlayer;
+                    } else {
+                        currentRemovingPlayer = null;
+                    }
+
+                    blocksToProcess.add(clickedLocation.getBlock());
+
+                    processAllRemoval();
                 } else {
                     Player player = event.getPlayer();
                     // Check if the bucket is filling with water
@@ -317,6 +314,8 @@ public class BedrockListener implements Listener {
     }
 
     public void CleanRemove(int scaledBlocksPerIteration, Iterator<Block> iterator) {
+        // Temporary list to store blocks to be removed
+        List<Block> blocksToRemove = new ArrayList<>();
         for (int i = 0; i < scaledBlocksPerIteration && iterator.hasNext(); i++) {
             Block block = iterator.next();
             if (repeated) {
@@ -325,20 +324,28 @@ public class BedrockListener implements Listener {
                 }
                 if (block.getType() == Material.SAND || block.getType() == Material.GRAVEL) {
                     block.setType(Material.AIR);
-                    removedBlocks.add(block); // Add the block to the new set
+                    // Add the block to the new set
+                    removedBlocks.add(block);
 
-                    // Remove the block from the main replacedBlocks set
-                    markedBlocks.remove(block);
+                    // Add the block to temporary list
+                    blocksToRemove.add(block);
                 } else {
-                    markedBlocks.remove(block);
+                    // Add the block to temporary list
+                    blocksToRemove.add(block);
                 }
             } else {
                 block.setType(Material.AIR);
-                removedBlocks.add(block); // Add the block to the new set
+                // Add the block to the new set
+                removedBlocks.add(block);
 
-                // Remove the block from the main replacedBlocks set
-                markedBlocks.remove(block);
+                // Add the block to temporary list
+                blocksToRemove.add(block);
             }
+        }
+
+        // Remove all blocks from markedBlocks that are in the temporary list
+        for (Block block : blocksToRemove) {
+            markedBlocks.remove(block);
         }
     }
 }
