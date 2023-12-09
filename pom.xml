@@ -43,7 +43,7 @@
                         <configuration>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <outputDirectory>${project.build.directory}</outputDirectory>
-                            <finalName>wauh-4.5.0-shaded</finalName>
+                            <finalName>wauh-4.5.0</finalName>
                             <filters>
                                 <filter>
                                     <artifact>*:*</artifact>

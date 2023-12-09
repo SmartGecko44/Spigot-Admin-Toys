@@ -34,8 +34,9 @@ public class SetRadiusLimitCommand implements CommandExecutor, TabCompleter {
                             player.sendMessage("The limit must be a positive value.");
                             return true;
                         }
-                        if (newLimit == 0 && !operation.equals("creeper")) {
-                            player.sendMessage("A radius limit of 0 is only applicable to the creeper limit right now.");
+
+                        if (newLimit == 0 || newLimit == 1) {
+                            player.sendMessage("Please specify a limit above 1");
                             return true;
                         }
 
@@ -47,11 +48,7 @@ public class SetRadiusLimitCommand implements CommandExecutor, TabCompleter {
                             player.sendMessage("Player operation limit set to " + newLimit);
                         } else {
                             plugin.setCreeperLimit(newLimit);
-                            if (newLimit == 0) {
-                                player.sendMessage("Custom creeper explosions disabled");
-                            } else {
-                                player.sendMessage("Creeper radius limit set to " + newLimit);
-                            }
+                            player.sendMessage("Creeper radius limit set to " + newLimit);
                         }
                     } catch (NumberFormatException e) {
                         player.sendMessage("Please specify a valid integer.");

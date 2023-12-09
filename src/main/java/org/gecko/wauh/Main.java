@@ -65,7 +65,6 @@ public final class Main extends JavaPlugin {
     @Override
     public void onDisable() {
         // Plugin shutdown logic
-        configManager.saveConfig();
     }
 
     public int getRadiusLimit() {
