@@ -134,7 +134,7 @@ public class BucketListener implements Listener {
             }
             // Remove the water block
             if (Main.getPlugin(Main.class).getShowRemoval()) {
-                block.setType(Material.STRUCTURE_VOID);
+                block.setType(Material.BEDROCK);
                 // Add the block to the list of replaced blocks
                 markedBlocks.add(block);
             } else if (!Main.getPlugin(Main.class).getShowRemoval()) {

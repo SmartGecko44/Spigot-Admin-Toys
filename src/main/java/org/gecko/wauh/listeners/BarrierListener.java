@@ -12,7 +12,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.inventory.CraftingInventory;
 import org.gecko.wauh.Main;
 import org.gecko.wauh.data.ConfigurationManager;
 import org.gecko.wauh.logic.ScaleReverse;
@@ -37,7 +36,7 @@ public class BarrierListener implements Listener {
     private int dist;
     private int radiusLimit;
     private int realRadiusLimit;
-    private static final Set<Material> IMMUTABLE_MATERIALS = EnumSet.of(Material.GRASS, Material.DIRT, Material.BARRIER);
+    private static final Set<Material> IMMUTABLE_MATERIALS = EnumSet.of(Material.GRASS, Material.DIRT, Material.BARRIER, Material.STRUCTURE_VOID);
 
     private void addIfValid(Block block, Set<Block> nextSet) {
         if (IMMUTABLE_MATERIALS.contains(block.getType())) {
@@ -62,7 +61,7 @@ public class BarrierListener implements Listener {
         if (realRadiusLimit > 1) {
             if (!bucketListener.wauhRemovalActive && !blockRemovalActive && !bedrockListener.allRemovalActive && !waterBucketListener.tsunamiActive) {
                 Player player = event.getPlayer();
-                if (event.getBlock().getType() == Material.GRASS || event.getBlock().getType() == Material.DIRT || event.getBlock().getType() == Material.BARRIER) {
+                if (IMMUTABLE_MATERIALS.contains(event.getBlock().getType())) {
                     // Check if the bucket is filling with water
                     if (player.getInventory().getItemInMainHand().getType() == Material.BARRIER) {
                         blockRemovalActive = true;

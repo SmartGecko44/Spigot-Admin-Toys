@@ -30,11 +30,6 @@ public class CreeperListener implements Listener {
         if (entity instanceof Creeper) {
             int creeperLimit = Main.getPlugin(Main.class).getCreeperRadiusLimit() - 2;
 
-            if (creeperLimit == 0) {
-                return;
-            }
-
-
             event.setCancelled(true); // Cancel the normal explosion
 
             // Get the location of the TNT explosion

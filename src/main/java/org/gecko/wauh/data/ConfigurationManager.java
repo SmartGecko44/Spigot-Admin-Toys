@@ -42,7 +42,7 @@ public class ConfigurationManager {
                     FileWriter writer = new FileWriter(configFile);
                     writer.write("playerRadiusLimit: 20\n");
                     writer.write("tntRadiusLimit: 5\n");
-                    writer.write("creeperRadiusLimit: 0\n");
+                    writer.write("creeperRadiusLimit: 5\n");
                     writer.write("Bucket enabled: 1\n");
                     writer.write("Barrier enabled: 1\n");
                     writer.write("Bedrock enabled: 1\n");
