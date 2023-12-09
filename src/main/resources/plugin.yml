@@ -2,8 +2,6 @@ name: Wauh
 version: '${project.version}'
 main: org.gecko.wauh.Main
 description: Bo o o wa uh
-depend:
-  - NBTAPI
 commands:
   stopwauh:
     description: Stop removing the wauh
