@@ -61,7 +61,7 @@ public class BucketListener implements Listener {
         if (realRadiusLimit > 1) {
             if (!wauhRemovalActive && !barrierListener.blockRemovalActive && !bedrockListener.allRemovalActive && !waterBucketListener.tsunamiActive) {
                 // Check if the bucket is filling with water
-                if (event.getBlockClicked().getType() == Material.WATER || event.getBlockClicked().getType() == Material.STATIONARY_WATER || event.getBlockClicked().getType() == Material.LAVA || event.getBlockClicked().getType() == Material.STATIONARY_LAVA) {
+                if (IMMUTABLE_MATERIALS.contains(event.getBlockClicked().getType())) {
                     if (event.getBucket() == Material.BUCKET) {
                         wauhRemovalActive = true;
                         Player player = event.getPlayer();
