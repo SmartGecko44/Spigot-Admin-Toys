@@ -98,7 +98,7 @@ public class BedrockListener implements Listener {
                         processAllRemoval();
 
                     }
-                }else {
+                } else {
                     Player player = event.getPlayer();
                     // Check if the bucket is filling with water
                     if (player.getInventory().getItemInMainHand().getType() == Material.BEDROCK) {
