@@ -7,11 +7,13 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.gecko.wauh.Main;
+import org.gecko.wauh.data.ConfigurationManager;
 import org.gecko.wauh.logic.ScaleReverse;
 
 import java.util.*;
@@ -34,9 +36,23 @@ public class BucketListener implements Listener {
     private int radiusLimit;
     private int realRadiusLimit;
     private int repetitions = 1;
+    private static final Set<Material> IMMUTABLE_MATERIALS = EnumSet.of(Material.WATER, Material.STATIONARY_WATER, Material.LAVA, Material.STATIONARY_LAVA);
+
+    private void addIfValid(Block block, Set<Block> nextSet) {
+        if (IMMUTABLE_MATERIALS.contains(block.getType())) {
+            nextSet.add(block);
+        }
+    }
 
     @EventHandler
     public void onBucketFill(PlayerBucketFillEvent event) {
+        ConfigurationManager configManager;
+        FileConfiguration config;
+        configManager = new ConfigurationManager(Main.getPlugin(Main.class));
+        config = configManager.getConfig();
+        if (config.getInt("Bucket enabled") == 0) {
+            return;
+        }
         BarrierListener barrierListener = Main.getPlugin(Main.class).getBarrierListener();
         BedrockListener bedrockListener = Main.getPlugin(Main.class).getBedrockListener();
         WaterBucketListener waterBucketListener = Main.getPlugin(Main.class).getWaterBucketListener();
@@ -128,19 +144,9 @@ public class BucketListener implements Listener {
             // Iterate through neighboring blocks and add them to the next set
             for (int i = -1; i <= 1; i++) {
                 if (i == 0) continue; // Skip the current block
-                Block neighboringBlockX = block.getRelative(i, 0, 0);
-                Block neighboringBlockY = block.getRelative(0, i, 0);
-                Block neighboringBlockZ = block.getRelative(0, 0, i);
-
-                if ((neighboringBlockX.getType() == Material.WATER || neighboringBlockX.getType() == Material.STATIONARY_WATER || neighboringBlockX.getType() == Material.LAVA || neighboringBlockX.getType() == Material.STATIONARY_LAVA)) {
-                    nextSet.add(neighboringBlockX);
-                }
-                if ((neighboringBlockY.getType() == Material.WATER || neighboringBlockY.getType() == Material.STATIONARY_WATER || neighboringBlockY.getType() == Material.LAVA || neighboringBlockY.getType() == Material.STATIONARY_LAVA)) {
-                    nextSet.add(neighboringBlockY);
-                }
-                if ((neighboringBlockZ.getType() == Material.WATER || neighboringBlockZ.getType() == Material.STATIONARY_WATER || neighboringBlockZ.getType() == Material.LAVA || neighboringBlockZ.getType() == Material.STATIONARY_LAVA)) {
-                    nextSet.add(neighboringBlockZ);
-                }
+                addIfValid(block.getRelative(i, 0, 0), nextSet);
+                addIfValid(block.getRelative(0, i, 0), nextSet);
+                addIfValid(block.getRelative(0, 0, i), nextSet);
             }
             processedBlocks.add(block);
         }

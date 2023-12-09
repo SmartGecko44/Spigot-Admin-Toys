@@ -7,11 +7,13 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.gecko.wauh.Main;
+import org.gecko.wauh.data.ConfigurationManager;
 import org.gecko.wauh.logic.ScaleReverse;
 
 import java.util.*;
@@ -49,6 +51,13 @@ public class BedrockListener implements Listener {
     }
 
     public void bedrockValueAssignHandler(BlockBreakEvent event, String source) {
+        ConfigurationManager configManager;
+        FileConfiguration config;
+        configManager = new ConfigurationManager(Main.getPlugin(Main.class));
+        config = configManager.getConfig();
+        if (config.getInt("Bedrock enabled") == 0) {
+            return;
+        }
         BucketListener bucketListener = mainPlugin.getBucketListener();
         BarrierListener barrierListener = mainPlugin.getBarrierListener();
         WaterBucketListener waterBucketListener = mainPlugin.getWaterBucketListener();

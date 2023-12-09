@@ -7,11 +7,13 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.gecko.wauh.Main;
+import org.gecko.wauh.data.ConfigurationManager;
 import org.gecko.wauh.logic.ScaleReverse;
 
 import java.util.*;
@@ -32,9 +34,25 @@ public class WaterBucketListener implements Listener {
     private int dist;
     private int radiusLimit;
     private int realRadiusLimit;
+    private static final Set<Material> IMMUTABLE_MATERIALS = EnumSet.of(Material.AIR);
+
+    private void addIfValid(Block block, Set<Block> nextSet) {
+        if (IMMUTABLE_MATERIALS.contains(block.getType())) {
+            nextSet.add(block);
+        }
+    }
 
     @EventHandler
     public void TsunamiClick(PlayerBucketEmptyEvent event) {
+        ConfigurationManager configManager;
+        FileConfiguration config;
+        configManager = new ConfigurationManager(Main.getPlugin(Main.class));
+        config = configManager.getConfig();
+
+        if (config.getInt("Tsunami enabled") == 0) {
+            return;
+        }
+
         BucketListener bucketListener = Main.getPlugin(Main.class).getBucketListener();
         BarrierListener barrierListener = Main.getPlugin(Main.class).getBarrierListener();
         BedrockListener bedrockListener = Main.getPlugin(Main.class).getBedrockListener();
@@ -111,19 +129,9 @@ public class WaterBucketListener implements Listener {
             // Iterate through neighboring blocks and add them to the next set
             for (int i = -1; i <= 1; i++) {
                 if (i == 0) continue; // Skip the current block
-                Block neighboringBlockX = block.getRelative(i, 0, 0);
-                Block neighboringBlockY = block.getRelative(0, -1, 0);
-                Block neighboringBlockZ = block.getRelative(0, 0, i);
-
-                if ((neighboringBlockX.getType() == Material.AIR)) {
-                    nextSet.add(neighboringBlockX);
-                }
-                if ((neighboringBlockY.getType() == Material.AIR)) {
-                    nextSet.add(neighboringBlockY);
-                }
-                if ((neighboringBlockZ.getType() == Material.AIR)) {
-                    nextSet.add(neighboringBlockZ);
-                }
+                addIfValid(block.getRelative(i, 0, 0), nextSet);
+                addIfValid(block.getRelative(0, -1, 0), nextSet);
+                addIfValid(block.getRelative(0, 0, i), nextSet);
             }
             processedBlocks.add(block);
         }
