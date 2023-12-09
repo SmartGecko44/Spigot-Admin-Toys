@@ -43,6 +43,12 @@ public class ConfigurationManager {
                     writer.write("playerRadiusLimit: 20\n");
                     writer.write("tntRadiusLimit: 5\n");
                     writer.write("creeperRadiusLimit: 0\n");
+                    writer.write("Bucket enabled: 1\n");
+                    writer.write("Barrier enabled: 1\n");
+                    writer.write("Bedrock enabled: 1\n");
+                    writer.write("Tsunami enabled: 1\n");
+                    writer.write("Creeper enabled: 0\n");
+                    writer.write("TNT enabled: 1\n");
                     writer.close();
                 }
             }

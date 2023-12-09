@@ -4,16 +4,18 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.gecko.wauh.commands.SetRadiusLimitCommand;
+import org.gecko.wauh.commands.StopWauh;
+import org.gecko.wauh.commands.ToggleRemovalView;
 import org.gecko.wauh.commands.test;
 import org.gecko.wauh.data.ConfigurationManager;
 import org.gecko.wauh.gui.ConfigGUI;
 import org.gecko.wauh.listeners.*;
-import org.gecko.wauh.commands.SetRadiusLimitCommand;
-import org.gecko.wauh.commands.StopWauh;
-import org.gecko.wauh.commands.ToggleRemovalView;
 
 public final class Main extends JavaPlugin {
 
+    ConfigurationManager configManager;
+    FileConfiguration config;
     private int playerRadiusLimit;
     private int tntRadiusLimit;
     private int creeperRadiusLimit;
@@ -25,8 +27,6 @@ public final class Main extends JavaPlugin {
     private TNTListener tntListener;
     private CreeperListener creeperListener;
     private ConfigGUI configGUI;
-    ConfigurationManager configManager;
-    FileConfiguration config;
 
     @Override
     public void onEnable() {
@@ -74,28 +74,33 @@ public final class Main extends JavaPlugin {
     }
 
     public void setRadiusLimit(int newLimit) {
-         playerRadiusLimit = newLimit;
-         config.set("playerRadiusLimit", playerRadiusLimit);
-         configManager.saveConfig();
+        playerRadiusLimit = newLimit;
+        config.set("playerRadiusLimit", playerRadiusLimit);
+        configManager.saveConfig();
     }
+
     public int getTntRadiusLimit() {
         tntRadiusLimit = config.getInt("tntRadiusLimit", tntRadiusLimit);
         return tntRadiusLimit + 2;
     }
+
     public void setTntRadiusLimit(int newLimit) {
         tntRadiusLimit = newLimit;
         config.set("tntRadiusLimit", tntRadiusLimit);
         configManager.saveConfig();
     }
+
     public int getCreeperRadiusLimit() {
         creeperRadiusLimit = config.getInt("creeperRadiusLimit", creeperRadiusLimit);
         return creeperRadiusLimit + 2;
     }
+
     public void setCreeperLimit(int newLimit) {
         creeperRadiusLimit = newLimit;
         config.set("creeperRadiusLimit", creeperRadiusLimit);
         configManager.saveConfig();
     }
+
     public boolean getShowRemoval() {
         return showRemoval;
     }
@@ -119,15 +124,19 @@ public final class Main extends JavaPlugin {
     public WaterBucketListener getWaterBucketListener() {
         return waterBucketListener;
     }
+
     public TNTListener getTntListener() {
         return tntListener;
     }
+
     public CreeperListener getCreeperListener() {
         return creeperListener;
     }
+
     public ConfigurationManager getConfigManager() {
         return configManager;
     }
+
     public ConfigGUI getConfigGUI() {
         return configGUI;
     }
