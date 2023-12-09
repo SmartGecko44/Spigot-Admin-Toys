@@ -4,14 +4,18 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.gecko.wauh.data.ConfigurationManager;
-import org.gecko.wauh.listeners.*;
 import org.gecko.wauh.commands.SetRadiusLimitCommand;
 import org.gecko.wauh.commands.StopWauh;
 import org.gecko.wauh.commands.ToggleRemovalView;
+import org.gecko.wauh.commands.test;
+import org.gecko.wauh.data.ConfigurationManager;
+import org.gecko.wauh.gui.ConfigGUI;
+import org.gecko.wauh.listeners.*;
 
 public final class Main extends JavaPlugin {
 
+    ConfigurationManager configManager;
+    FileConfiguration config;
     private int playerRadiusLimit;
     private int tntRadiusLimit;
     private int creeperRadiusLimit;
@@ -22,8 +26,6 @@ public final class Main extends JavaPlugin {
     private WaterBucketListener waterBucketListener;
     private TNTListener tntListener;
     private CreeperListener creeperListener;
-    private ConfigurationManager configManager;
-    private FileConfiguration config;
 
     @Override
     public void onEnable() {
@@ -40,6 +42,7 @@ public final class Main extends JavaPlugin {
         creeperListener = new CreeperListener();
         configManager = new ConfigurationManager(Main.getPlugin(Main.class));
         config = configManager.getConfig();
+        ConfigGUI configGUI = new ConfigGUI();
 
         // Register the listeners
         getServer().getPluginManager().registerEvents(bucketListener, this);
@@ -48,12 +51,14 @@ public final class Main extends JavaPlugin {
         getServer().getPluginManager().registerEvents(waterBucketListener, this);
         getServer().getPluginManager().registerEvents(tntListener, this);
         getServer().getPluginManager().registerEvents(creeperListener, this);
+        getServer().getPluginManager().registerEvents(configGUI, this);
 
         // Register the StopWauh command with the listeners as arguments
         this.getCommand("stopwauh").setExecutor(new StopWauh(bucketListener, barrierListener, bedrockListener, waterBucketListener));
         this.getCommand("setradiuslimit").setExecutor(new SetRadiusLimitCommand(this));
         this.getCommand("setradiuslimit").setTabCompleter(new SetRadiusLimitCommand(this));
         this.getCommand("toggleremovalview").setExecutor(new ToggleRemovalView(this));
+        this.getCommand("test").setExecutor(new test(configGUI));
     }
 
     @Override
@@ -67,28 +72,33 @@ public final class Main extends JavaPlugin {
     }
 
     public void setRadiusLimit(int newLimit) {
-         playerRadiusLimit = newLimit;
-         config.set("playerRadiusLimit", playerRadiusLimit);
-         configManager.saveConfig();
+        playerRadiusLimit = newLimit;
+        config.set("playerRadiusLimit", playerRadiusLimit);
+        configManager.saveConfig();
     }
+
     public int getTntRadiusLimit() {
         tntRadiusLimit = config.getInt("tntRadiusLimit", tntRadiusLimit);
         return tntRadiusLimit + 2;
     }
+
     public void setTntRadiusLimit(int newLimit) {
         tntRadiusLimit = newLimit;
         config.set("tntRadiusLimit", tntRadiusLimit);
         configManager.saveConfig();
     }
+
     public int getCreeperRadiusLimit() {
         creeperRadiusLimit = config.getInt("creeperRadiusLimit", creeperRadiusLimit);
         return creeperRadiusLimit + 2;
     }
+
     public void setCreeperLimit(int newLimit) {
         creeperRadiusLimit = newLimit;
         config.set("creeperRadiusLimit", creeperRadiusLimit);
         configManager.saveConfig();
     }
+
     public boolean getShowRemoval() {
         return showRemoval;
     }
@@ -112,9 +122,11 @@ public final class Main extends JavaPlugin {
     public WaterBucketListener getWaterBucketListener() {
         return waterBucketListener;
     }
+
     public TNTListener getTntListener() {
         return tntListener;
     }
+
     public CreeperListener getCreeperListener() {
         return creeperListener;
     }

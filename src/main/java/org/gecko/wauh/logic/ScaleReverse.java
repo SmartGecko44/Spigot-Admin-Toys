@@ -21,7 +21,7 @@ public class ScaleReverse {
 
         // Set BLOCKS_PER_ITERATION dynamically based on the total count
         //TODO: Fix this stuff
-        int sqrtTotalBlocks = (int) (Math.sqrt(totalRemovedCount) * radiusLimit) / (2 ^ (int) Math.sqrt(radiusLimit));
+        int sqrtTotalBlocks = (int) (Math.sqrt(totalRemovedCount) * (Math.sqrt(radiusLimit) * 1.25));
         int scaledBlocksPerIteration = Math.max(1, sqrtTotalBlocks);
         // Update BLOCKS_PER_ITERATION based on the scaled value
 
@@ -42,3 +42,4 @@ public class ScaleReverse {
 
     }
 }
+

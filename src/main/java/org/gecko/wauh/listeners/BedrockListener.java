@@ -7,20 +7,24 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.gecko.wauh.Main;
+import org.gecko.wauh.data.ConfigurationManager;
 import org.gecko.wauh.logic.ScaleReverse;
 
 import java.util.*;
 
 public class BedrockListener implements Listener {
 
+    private static final Set<Material> IMMUTABLE_MATERIALS = EnumSet.of(Material.AIR, Material.BEDROCK, Material.STATIONARY_WATER, Material.WATER, Material.LAVA, Material.STATIONARY_LAVA);
     private final Set<Block> markedBlocks = new HashSet<>();
     private final Set<Block> processedBlocks = new HashSet<>();
     private final Set<Block> removedBlocks = new HashSet<>();
+    private final Main mainPlugin = Main.getPlugin(Main.class);
     public Player currentRemovingPlayer;
     public boolean stopAllRemoval = false;
     public boolean allRemovalActive = false;
@@ -34,8 +38,6 @@ public class BedrockListener implements Listener {
     private int realRadiusLimit;
     private int repetitions = 3;
     private boolean repeated = false;
-    private static final Set<Material> IMMUTABLE_MATERIALS = EnumSet.of(Material.AIR, Material.BEDROCK, Material.STATIONARY_WATER, Material.WATER, Material.LAVA, Material.STATIONARY_LAVA);
-    private final Main mainPlugin = Main.getPlugin(Main.class);
 
     private void addIfValid(Block block, Set<Block> nextSet) {
         if (!IMMUTABLE_MATERIALS.contains(block.getType())) {
@@ -49,6 +51,13 @@ public class BedrockListener implements Listener {
     }
 
     public void bedrockValueAssignHandler(BlockBreakEvent event, String source) {
+        ConfigurationManager configManager;
+        FileConfiguration config;
+        configManager = new ConfigurationManager(Main.getPlugin(Main.class));
+        config = configManager.getConfig();
+        if (config.getInt("Bedrock enabled") == 0) {
+            return;
+        }
         BucketListener bucketListener = mainPlugin.getBucketListener();
         BarrierListener barrierListener = mainPlugin.getBarrierListener();
         WaterBucketListener waterBucketListener = mainPlugin.getWaterBucketListener();
@@ -86,12 +95,11 @@ public class BedrockListener implements Listener {
                     blocksToProcess.add(clickedLocation.getBlock());
 
                     processAllRemoval();
-
                 } else {
                     Player player = event.getPlayer();
                     // Check if the bucket is filling with water
                     if (player.getInventory().getItemInMainHand().getType() == Material.BEDROCK) {
-                        if (event.getBlock().getType() != Material.BEDROCK) {
+                        if (!IMMUTABLE_MATERIALS.contains(event.getBlock().getType())) {
                             allRemovalActive = true;
                             limitReached = false;
                             clickedLocation = event.getBlock().getLocation();
@@ -306,6 +314,8 @@ public class BedrockListener implements Listener {
     }
 
     public void CleanRemove(int scaledBlocksPerIteration, Iterator<Block> iterator) {
+        // Temporary list to store blocks to be removed
+        List<Block> blocksToRemove = new ArrayList<>();
         for (int i = 0; i < scaledBlocksPerIteration && iterator.hasNext(); i++) {
             Block block = iterator.next();
             if (repeated) {
@@ -314,20 +324,28 @@ public class BedrockListener implements Listener {
                 }
                 if (block.getType() == Material.SAND || block.getType() == Material.GRAVEL) {
                     block.setType(Material.AIR);
-                    removedBlocks.add(block); // Add the block to the new set
+                    // Add the block to the new set
+                    removedBlocks.add(block);
 
-                    // Remove the block from the main replacedBlocks set
-                    markedBlocks.remove(block);
+                    // Add the block to temporary list
+                    blocksToRemove.add(block);
                 } else {
-                    markedBlocks.remove(block);
+                    // Add the block to temporary list
+                    blocksToRemove.add(block);
                 }
             } else {
                 block.setType(Material.AIR);
-                removedBlocks.add(block); // Add the block to the new set
+                // Add the block to the new set
+                removedBlocks.add(block);
 
-                // Remove the block from the main replacedBlocks set
-                markedBlocks.remove(block);
+                // Add the block to temporary list
+                blocksToRemove.add(block);
             }
+        }
+
+        // Remove all blocks from markedBlocks that are in the temporary list
+        for (Block block : blocksToRemove) {
+            markedBlocks.remove(block);
         }
     }
 }

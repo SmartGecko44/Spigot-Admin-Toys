@@ -4,15 +4,21 @@ on:
   push:
     branches:
       - master
-      - experimental
   pull_request:
     branches:
       - master
       - experimental
+  release:
+    types:
+      - prereleased
+      - created
+      - published
+      - edited
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on:
+      - ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
@@ -36,7 +42,7 @@ jobs:
         run: mkdir -p target
 
       - name: Build with Maven
-        run: mvn package --file ../pom.xml
+        run: mvn verify --file ../pom.xml
         working-directory: target
 
       - name: Create filtered-artifacts
@@ -45,7 +51,7 @@ jobs:
       - name: Filter and Upload JAR as an artifact
         run: |
           # Filter out files that start with 'Wauh' and upload the rest
-          find -type f -name Wauh*.jar -exec cp {} filtered-artifacts/ \;
+          find target -type f -name Wauh*.jar -exec cp {} filtered-artifacts/ \;
 
       - name: Upload JAR as an artifact
         uses: actions/upload-artifact@v3

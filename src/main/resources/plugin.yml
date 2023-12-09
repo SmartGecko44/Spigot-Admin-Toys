@@ -12,3 +12,6 @@ commands:
   toggleremovalview:
     description: Toggle the visibility of the removal
     usage: /toggleremovalview
+  test:
+    description: test gui
+    usage: /test
