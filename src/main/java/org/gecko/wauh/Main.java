@@ -26,7 +26,6 @@ public final class Main extends JavaPlugin {
     private WaterBucketListener waterBucketListener;
     private TNTListener tntListener;
     private CreeperListener creeperListener;
-    private ConfigGUI configGUI;
 
     @Override
     public void onEnable() {
@@ -43,7 +42,7 @@ public final class Main extends JavaPlugin {
         creeperListener = new CreeperListener();
         configManager = new ConfigurationManager(Main.getPlugin(Main.class));
         config = configManager.getConfig();
-        configGUI = new ConfigGUI(this);
+        ConfigGUI configGUI = new ConfigGUI();
 
         // Register the listeners
         getServer().getPluginManager().registerEvents(bucketListener, this);
@@ -130,13 +129,5 @@ public final class Main extends JavaPlugin {
 
     public CreeperListener getCreeperListener() {
         return creeperListener;
-    }
-
-    public ConfigurationManager getConfigManager() {
-        return configManager;
-    }
-
-    public ConfigGUI getConfigGUI() {
-        return configGUI;
     }
 }

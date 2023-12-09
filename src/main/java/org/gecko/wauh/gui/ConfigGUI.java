@@ -11,20 +11,17 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.gecko.wauh.Main;
 import org.gecko.wauh.data.ConfigurationManager;
 
 public class ConfigGUI implements Listener {
 
-    private final JavaPlugin plugin;
     private final Inventory gui;
     private final int size = 45;
     ConfigurationManager configManager;
     FileConfiguration config;
 
-    public ConfigGUI(JavaPlugin plugin) {
-        this.plugin = plugin;
+    public ConfigGUI() {
         configManager = new ConfigurationManager(Main.getPlugin(Main.class));
         config = configManager.getConfig();
         this.gui = Bukkit.createInventory(null, size, "Test (WIP)");
