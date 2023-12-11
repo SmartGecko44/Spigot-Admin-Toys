@@ -42,7 +42,7 @@ public final class Main extends JavaPlugin {
         creeperListener = new CreeperListener();
         configManager = new ConfigurationManager(Main.getPlugin(Main.class));
         config = configManager.getConfig();
-        ConfigGUI configGUI = new ConfigGUI();
+        ConfigGUI configGUI = new ConfigGUI(this);
 
         // Register the listeners
         getServer().getPluginManager().registerEvents(bucketListener, this);

@@ -6,7 +6,7 @@
 
     <groupId>org.gecko</groupId>
     <artifactId>Wauh</artifactId>
-    <version>5.0.0</version>
+    <version>5.1.0</version>
     <packaging>jar</packaging>
 
     <name>Wauh</name>
@@ -43,7 +43,7 @@
                         <configuration>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <outputDirectory>${project.build.directory}</outputDirectory>
-                            <finalName>wauh-4.5.0</finalName>
+                            <finalName>wauh-${project.version}</finalName>
                             <filters>
                                 <filter>
                                     <artifact>*:*</artifact>
@@ -110,7 +110,7 @@
                                     <createDependencyReducedPom>false</createDependencyReducedPom>
                                     <!-- Adjust the output directory for local builds -->
                                     <outputDirectory>/Users/gecko/Server 1.12.2 Spigot/plugins</outputDirectory>
-                                    <finalName>wauh-4.5.0</finalName>
+                                    <finalName>wauh-${project.version}</finalName>
                                 </configuration>
                             </execution>
                         </executions>
