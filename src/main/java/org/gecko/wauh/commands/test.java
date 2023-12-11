@@ -6,10 +6,6 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.gecko.wauh.gui.ConfigGUI;
-import org.gecko.wauh.listeners.BarrierListener;
-import org.gecko.wauh.listeners.BedrockListener;
-import org.gecko.wauh.listeners.BucketListener;
-import org.gecko.wauh.listeners.WaterBucketListener;
 
 public class test implements CommandExecutor {
     ConfigGUI configGUI;
