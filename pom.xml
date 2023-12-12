@@ -6,7 +6,7 @@
 
     <groupId>org.gecko</groupId>
     <artifactId>Wauh</artifactId>
-    <version>5.2.0</version>
+    <version>5.4.0</version>
     <packaging>jar</packaging>
 
     <name>wauh</name>
