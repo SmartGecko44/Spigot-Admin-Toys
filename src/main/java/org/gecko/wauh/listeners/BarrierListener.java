@@ -46,6 +46,9 @@ public class BarrierListener implements Listener {
 
     @EventHandler
     public void barrierBreakEventHandler(BlockBreakEvent event) {
+        if (!event.getPlayer().isOp()) {
+            return;
+        }
         ConfigurationManager configManager;
         FileConfiguration config;
         configManager = new ConfigurationManager(Main.getPlugin(Main.class));

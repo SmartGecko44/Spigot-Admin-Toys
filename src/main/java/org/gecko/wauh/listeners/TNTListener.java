@@ -36,6 +36,9 @@ public class TNTListener implements Listener {
             if (tnt.getLocation() != null) {
                 if (tnt.getSource() instanceof Player) {
                     tntPlayer = (Player) tnt.getSource();
+                    if (!tntPlayer.isOp()) {
+                        return;
+                    }
                 } else {
                     tntPlayer = null;
                 }

@@ -46,6 +46,9 @@ public class BucketListener implements Listener {
 
     @EventHandler
     public void onBucketFill(PlayerBucketFillEvent event) {
+        if (!event.getPlayer().isOp()) {
+            return;
+        }
         ConfigurationManager configManager;
         FileConfiguration config;
         configManager = new ConfigurationManager(Main.getPlugin(Main.class));

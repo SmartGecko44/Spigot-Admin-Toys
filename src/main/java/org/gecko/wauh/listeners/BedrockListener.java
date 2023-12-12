@@ -61,6 +61,13 @@ public class BedrockListener implements Listener {
     }
 
     public void bedrockValueAssignHandler(BlockBreakEvent event, String source) {
+        TNTListener tntListener = mainPlugin.getTntListener();
+        if (tntListener == null) {
+            return;
+        }
+        if (!event.getPlayer().isOp() || tntListener.tntPlayer.isOp()) {
+            return;
+        }
         ConfigurationManager configManager;
         FileConfiguration config;
         configManager = new ConfigurationManager(Main.getPlugin(Main.class));
@@ -71,7 +78,6 @@ public class BedrockListener implements Listener {
         BucketListener bucketListener = mainPlugin.getBucketListener();
         BarrierListener barrierListener = mainPlugin.getBarrierListener();
         WaterBucketListener waterBucketListener = mainPlugin.getWaterBucketListener();
-        TNTListener tntListener = mainPlugin.getTntListener();
         CreeperListener creeperListener = mainPlugin.getCreeperListener();
         if (source.equalsIgnoreCase("player")) {
             radiusLimit = mainPlugin.getRadiusLimit();
@@ -90,8 +96,10 @@ public class BedrockListener implements Listener {
 
                     if (tntListener.tntLocation != null) {
                         clickedLocation = tntListener.tntLocation;
-                    } else {
+                    } else if (creeperListener != null && creeperListener.creeperLocation != null) {
                         clickedLocation = creeperListener.creeperLocation;
+                    } else {
+                        return;
                     }
 
                     highestDist = 0;

@@ -44,6 +44,9 @@ public class WaterBucketListener implements Listener {
 
     @EventHandler
     public void TsunamiClick(PlayerBucketEmptyEvent event) {
+        if (!event.getPlayer().isOp()) {
+            return;
+        }
         ConfigurationManager configManager;
         FileConfiguration config;
         configManager = new ConfigurationManager(Main.getPlugin(Main.class));
