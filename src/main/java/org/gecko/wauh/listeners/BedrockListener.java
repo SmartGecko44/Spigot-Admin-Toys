@@ -8,7 +8,9 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -20,7 +22,8 @@ import java.util.*;
 
 public class BedrockListener implements Listener {
 
-    private static final Set<Material> IMMUTABLE_MATERIALS = EnumSet.of(Material.AIR, Material.BEDROCK, Material.STATIONARY_WATER, Material.WATER, Material.LAVA, Material.STATIONARY_LAVA);
+    private static final Set<Material> IMMUTABLE_MATERIALS = EnumSet.of(Material.AIR, Material.BEDROCK, Material.STATIONARY_WATER, Material.WATER, Material.LAVA, Material.STATIONARY_LAVA, Material.TNT);
+    private static final Set<Material> ORES = EnumSet.of(Material.COAL_ORE, Material.DIAMOND_ORE, Material.EMERALD_ORE, Material.GOLD_ORE, Material.IRON_ORE, Material.LAPIS_ORE, Material.QUARTZ_ORE, Material.REDSTONE_ORE);
     private final Set<Block> markedBlocks = new HashSet<>();
     private final Set<Block> processedBlocks = new HashSet<>();
     private final Set<Block> removedBlocks = new HashSet<>();
@@ -38,9 +41,16 @@ public class BedrockListener implements Listener {
     private int realRadiusLimit;
     private int repetitions = 3;
     private boolean repeated = false;
+    private boolean explosionTrigger = false;
 
     private void addIfValid(Block block, Set<Block> nextSet) {
         if (!IMMUTABLE_MATERIALS.contains(block.getType())) {
+            nextSet.add(block);
+        } else if (block.getType() == Material.TNT) {
+            Location location = block.getLocation();
+            block.setType(Material.AIR);
+            TNTPrimed tntPrimed = (TNTPrimed) location.getWorld().spawnEntity(location.add(0.5, 0.5, 0.5), EntityType.PRIMED_TNT);
+            tntPrimed.setFuseTicks(40);
             nextSet.add(block);
         }
     }
@@ -72,9 +82,10 @@ public class BedrockListener implements Listener {
         }
         realRadiusLimit = radiusLimit - 2;
         if (realRadiusLimit > 1) {
-            if (!bucketListener.wauhRemovalActive && !barrierListener.blockRemovalActive && !allRemovalActive && !waterBucketListener.tsunamiActive) {
+            if (!bucketListener.wauhRemovalActive && !barrierListener.blockRemovalActive && !allRemovalActive && !waterBucketListener.tsunamiActive || explosionTrigger) {
                 if (source.equalsIgnoreCase("TNT") || source.equalsIgnoreCase("creeper")) {
                     allRemovalActive = true;
+                    explosionTrigger = true;
                     limitReached = false;
 
                     if (tntListener.tntLocation != null) {
@@ -221,6 +232,7 @@ public class BedrockListener implements Listener {
                 removeMarkedBlocks();
             } else {
                 allRemovalActive = false;
+                explosionTrigger = false;
                 currentRemovingPlayer = null;
                 clickedLocation = null;
                 tntListener.tntLocation = null;
@@ -234,6 +246,7 @@ public class BedrockListener implements Listener {
             }
         } else {
             allRemovalActive = false;
+            explosionTrigger = false;
             currentRemovingPlayer = null;
             clickedLocation = null;
             tntListener.tntLocation = null;
@@ -268,6 +281,7 @@ public class BedrockListener implements Listener {
                 block.setType(Material.AIR);
             }
             allRemovalActive = false;
+            explosionTrigger = false;
             currentRemovingPlayer = null;
             clickedLocation = null;
             tntListener.tntLocation = null;
@@ -299,6 +313,7 @@ public class BedrockListener implements Listener {
                     currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Falling block cleanup finished"));
                 }
                 allRemovalActive = false;
+                explosionTrigger = false;
                 currentRemovingPlayer = null;
                 clickedLocation = null;
                 tntListener.tntLocation = null;
