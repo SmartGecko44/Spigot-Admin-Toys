@@ -6,12 +6,20 @@ commands:
   stopwauh:
     description: Stop removing the wauh
     usage: /stopwauhremoval
+    permission: op
+    permission-message: §cYou need to have operator permissions to run this command!
   setradiuslimit:
     description: Set the radius limit
     usage: /setradiuslimit <radius>
+    permission: op
+    permission-message: §cYou need to have operator permissions to run this command!
   toggleremovalview:
     description: Toggle the visibility of the removal
     usage: /toggleremovalview
+    permission: op
+    permission-message: §cYou need to have operator permissions to run this command!
   test:
     description: test gui
     usage: /test
+    permission: op
+    permission-message: §cYou need to have operator permissions to run this command!
