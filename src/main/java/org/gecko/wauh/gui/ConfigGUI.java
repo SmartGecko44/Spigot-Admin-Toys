@@ -111,11 +111,12 @@ public class ConfigGUI implements Listener {
     }
 
 
-    private ItemStack createButtonItem(Material material, String name, short data, List<String> lore, String ident) {
+    private ItemStack createButtonItem(Material material, String name, short data, String lore, String ident) {
+        List<String> loreToString = Collections.singletonList(lore);
         ItemStack item = new ItemStack(material, 1, data);
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(name);
-        meta.setLore(lore);
+        meta.setLore(loreToString);
         item.setItemMeta(meta);
 
         NBTItem nbtItem = new NBTItem(item);
@@ -129,17 +130,17 @@ public class ConfigGUI implements Listener {
         int creeperLimit = plugin.getCreeperRadiusLimit() - 2;
         int tntLimit = plugin.getTntRadiusLimit() - 2;
         gui.setItem(9 + 1, createButtonItem(Material.BUCKET, ChatColor.RESET + "Liquid removal", (short) 0, null, null));
-        gui.setItem(9 * 2 + 1, createButtonItem(Material.ENDER_PEARL, ChatColor.RESET + String.valueOf(playerLimit), (short) 0, Collections.singletonList(ChatColor.RESET + "" + ChatColor.DARK_PURPLE + "This value is managed by the player radius limit."), null));
+        gui.setItem(9 * 2 + 1, createButtonItem(Material.ENDER_PEARL, ChatColor.RESET + String.valueOf(playerLimit), (short) 0, ChatColor.RESET + "" + ChatColor.DARK_PURPLE + "This value is managed by the player radius limit.", null));
         gui.setItem(9 + 2, createButtonItem(Material.BARRIER, ChatColor.RESET + "Surface removal", (short) 0, null, null));
-        gui.setItem(9 * 2 + 2, createButtonItem(Material.ENDER_PEARL, ChatColor.RESET + String.valueOf(playerLimit), (short) 0, Collections.singletonList(ChatColor.RESET + "" + ChatColor.DARK_PURPLE + "This value is managed by the player radius limit."), null));
+        gui.setItem(9 * 2 + 2, createButtonItem(Material.ENDER_PEARL, ChatColor.RESET + String.valueOf(playerLimit), (short) 0, ChatColor.RESET + "" + ChatColor.DARK_PURPLE + "This value is managed by the player radius limit.", null));
         gui.setItem(9 + 3, createButtonItem(Material.BEDROCK, ChatColor.RESET + "All block removal", (short) 0, null, null));
-        gui.setItem(9 * 2 + 3, createButtonItem(Material.ENDER_PEARL, ChatColor.RESET + String.valueOf(playerLimit), (short) 0, Collections.singletonList(ChatColor.RESET + "" + ChatColor.DARK_PURPLE + "This value is managed by the player radius limit."), null));
+        gui.setItem(9 * 2 + 3, createButtonItem(Material.ENDER_PEARL, ChatColor.RESET + String.valueOf(playerLimit), (short) 0, ChatColor.RESET + "" + ChatColor.DARK_PURPLE + "This value is managed by the player radius limit.", null));
         gui.setItem(9 + 4, createButtonItem(Material.WATER_BUCKET, ChatColor.RESET + "Tsunami", (short) 0, null, null));
-        gui.setItem(9 * 2 + 4, createButtonItem(Material.ENDER_PEARL, ChatColor.RESET + String.valueOf(playerLimit), (short) 0, Collections.singletonList(ChatColor.RESET + "" + ChatColor.DARK_PURPLE + "This value is managed by the player radius limit."), null));
+        gui.setItem(9 * 2 + 4, createButtonItem(Material.ENDER_PEARL, ChatColor.RESET + String.valueOf(playerLimit), (short) 0, ChatColor.RESET + "" + ChatColor.DARK_PURPLE + "This value is managed by the player radius limit.", null));
         gui.setItem(9 + 5, createButtonItem(Material.SKULL_ITEM, ChatColor.RESET + "Custom creeper explosions", (short) 4, null, null));
-        gui.setItem(9 * 2 + 5, createButtonItem(Material.ENDER_PEARL, ChatColor.RESET + String.valueOf(creeperLimit), (short) 0, Collections.singletonList(ChatColor.RESET + "" + ChatColor.DARK_PURPLE + "This value is managed by the creeper radius limit."), null));
+        gui.setItem(9 * 2 + 5, createButtonItem(Material.ENDER_PEARL, ChatColor.RESET + String.valueOf(creeperLimit), (short) 0, ChatColor.RESET + "" + ChatColor.DARK_PURPLE + "This value is managed by the creeper radius limit.", null));
         gui.setItem(9 + 6, createButtonItem(Material.TNT, ChatColor.RESET + "Custom TNT explosions", (short) 0, null, null));
-        gui.setItem(9 * 2 + 6, createButtonItem(Material.ENDER_PEARL, ChatColor.RESET + String.valueOf(tntLimit), (short) 0, Collections.singletonList(ChatColor.RESET + "" + ChatColor.DARK_PURPLE + "This value is managed by the TNT radius limit."), null));
+        gui.setItem(9 * 2 + 6, createButtonItem(Material.ENDER_PEARL, ChatColor.RESET + String.valueOf(tntLimit), (short) 0, ChatColor.RESET + "" + ChatColor.DARK_PURPLE + "This value is managed by the TNT radius limit.", null));
         player.openInventory(gui);
     }
 
