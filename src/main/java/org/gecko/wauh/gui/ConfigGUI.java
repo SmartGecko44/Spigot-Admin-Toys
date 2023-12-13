@@ -112,7 +112,12 @@ public class ConfigGUI implements Listener {
 
 
     private ItemStack createButtonItem(Material material, String name, short data, String lore, String ident) {
-        List<String> loreToString = Collections.singletonList(lore);
+        List<String> loreToString;
+        if (lore != null) {
+            loreToString = Collections.singletonList(lore);
+        } else {
+            loreToString = null;
+        }
         ItemStack item = new ItemStack(material, 1, data);
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(name);
@@ -247,7 +252,7 @@ public class ConfigGUI implements Listener {
 
                 if (clickedItem.getType() == Material.PAPER) {
                     if (identifier.equalsIgnoreCase("Reset")) {
-                        resetConfig(plugin, player);
+                        resetConfig(player);
                     }
                 }
 
@@ -255,7 +260,7 @@ public class ConfigGUI implements Listener {
         }
     }
 
-    private void resetConfig(Main plugin, Player player) {
+    private void resetConfig(Player player) {
         try {
             // Create the data.yml file if it doesn't exist
             if (!configFile.exists()) {
@@ -289,7 +294,7 @@ public class ConfigGUI implements Listener {
 
             this.config = YamlConfiguration.loadConfiguration(configFile);
         } catch (IOException ex) {
-            plugin.getLogger().log(Level.SEVERE, "Could not reset config file", ex);
+            logger.log(Level.SEVERE, "Could not reset config file", ex);
         }
     }
 

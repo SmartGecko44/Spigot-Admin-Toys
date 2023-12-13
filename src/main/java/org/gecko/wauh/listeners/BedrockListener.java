@@ -20,10 +20,12 @@ import org.gecko.wauh.data.ConfigurationManager;
 import org.gecko.wauh.logic.ScaleReverse;
 
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class BedrockListener implements Listener {
 
-    private static final Set<Material> IMMUTABLE_MATERIALS = EnumSet.of(Material.AIR, Material.BEDROCK, Material.STATIONARY_WATER, Material.WATER, Material.LAVA, Material.STATIONARY_LAVA, Material.TNT);
+    private static final Set<Material> IMMUTABLE_MATERIALS = EnumSet.of(Material.BEDROCK, Material.STATIONARY_WATER, Material.WATER, Material.LAVA, Material.STATIONARY_LAVA, Material.TNT);
     private final Set<Block> markedBlocks = new HashSet<>();
     private final Set<Block> processedBlocks = new HashSet<>();
     private final Set<Block> removedBlocks = new HashSet<>();
@@ -42,15 +44,28 @@ public class BedrockListener implements Listener {
     private int repetitions = 3;
     private boolean repeated = false;
     private boolean explosionTrigger = false;
+    private String realSource;
+    private final java.util.logging.Logger logger = Logger.getLogger(Main.class.getName());
 
     private void addIfValid(Block block, Set<Block> nextSet) {
-        if (!IMMUTABLE_MATERIALS.contains(block.getType())) {
+        if (realSource.equalsIgnoreCase("TNT") || realSource.equalsIgnoreCase("creeper")) {
+            if (!IMMUTABLE_MATERIALS.contains(block.getType())) {
+                nextSet.add(block);
+            } else if (block.getType() == Material.TNT) {
+                Location location = block.getLocation();
+                block.setType(Material.AIR);
+                TNTPrimed tntPrimed = (TNTPrimed) location.getWorld().spawnEntity(location.add(0.5, 0.5, 0.5), EntityType.PRIMED_TNT);
+                tntPrimed.setFuseTicks(20);
+                nextSet.add(block);
+            }
+        }
+        if (!IMMUTABLE_MATERIALS.contains(block.getType()) || block.getType() == Material.AIR) {
             nextSet.add(block);
         } else if (block.getType() == Material.TNT) {
             Location location = block.getLocation();
             block.setType(Material.AIR);
             TNTPrimed tntPrimed = (TNTPrimed) location.getWorld().spawnEntity(location.add(0.5, 0.5, 0.5), EntityType.PRIMED_TNT);
-            tntPrimed.setFuseTicks(40);
+            tntPrimed.setFuseTicks(20);
             nextSet.add(block);
         }
     }
@@ -61,12 +76,22 @@ public class BedrockListener implements Listener {
     }
 
     public void bedrockValueAssignHandler(BlockBreakEvent event, String source) {
+        realSource = source;
         TNTListener tntListener = mainPlugin.getTntListener();
         if (tntListener == null) {
             return;
         }
-        if (!event.getPlayer().isOp() || tntListener.tntPlayer.isOp()) {
-            return;
+        if (event == null && source.equalsIgnoreCase("TNT")) {
+            if (tntListener.tntPlayer != null) {
+                if (!tntListener.tntPlayer.isOp()) {
+                    return;
+                }
+            }
+        }
+        if (event != null) {
+            if (!event.getPlayer().isOp()) {
+                return;
+            }
         }
         ConfigurationManager configManager;
         FileConfiguration config;
@@ -79,8 +104,6 @@ public class BedrockListener implements Listener {
         BarrierListener barrierListener = mainPlugin.getBarrierListener();
         WaterBucketListener waterBucketListener = mainPlugin.getWaterBucketListener();
         CreeperListener creeperListener = mainPlugin.getCreeperListener();
-        NBTItem nbtItem = new NBTItem(event.getPlayer().getInventory().getItemInMainHand());
-        String identifier = nbtItem.getString("Ident");
         if (source.equalsIgnoreCase("player")) {
             radiusLimit = mainPlugin.getRadiusLimit();
         } else if (source.equalsIgnoreCase("TNT")) {
@@ -91,7 +114,7 @@ public class BedrockListener implements Listener {
         realRadiusLimit = radiusLimit - 2;
         if (realRadiusLimit > 1) {
             if (!bucketListener.wauhRemovalActive && !barrierListener.blockRemovalActive && !allRemovalActive && !waterBucketListener.tsunamiActive || explosionTrigger) {
-                if (source.equalsIgnoreCase("TNT") || source.equalsIgnoreCase("creeper")) {
+                if (event == null && source.equalsIgnoreCase("TNT") || source.equalsIgnoreCase("creeper")) {
                     allRemovalActive = true;
                     explosionTrigger = true;
                     limitReached = false;
@@ -116,8 +139,10 @@ public class BedrockListener implements Listener {
                     blocksToProcess.add(clickedLocation.getBlock());
 
                     processAllRemoval();
-                } else {
+                } else if (event != null) {
                     Player player = event.getPlayer();
+                    NBTItem nbtItem = new NBTItem(event.getPlayer().getInventory().getItemInMainHand());
+                    String identifier = nbtItem.getString("Ident");
                     // Check if the bucket is filling with water
                     if (player.getInventory().getItemInMainHand().getType() == Material.BEDROCK && identifier.equalsIgnoreCase("Custom Bedrock")) {
                         if (!IMMUTABLE_MATERIALS.contains(event.getBlock().getType())) {
@@ -139,6 +164,8 @@ public class BedrockListener implements Listener {
                         }
                     }
                 }
+            } else {
+                logger.log(Level.WARNING, "Too many explosions");
             }
         }
     }
@@ -248,6 +275,7 @@ public class BedrockListener implements Listener {
                 tntListener.tntLocation = null;
                 tntListener.tntPlayer = null;
                 creeperListener.creeperLocation = null;
+                realSource = null;
                 stopAllRemoval = false;
                 blocksToProcess.clear();
                 markedBlocks.clear();
@@ -262,6 +290,7 @@ public class BedrockListener implements Listener {
             tntListener.tntLocation = null;
             tntListener.tntPlayer = null;
             creeperListener.creeperLocation = null;
+            realSource = null;
             stopAllRemoval = false;
             blocksToProcess.clear();
             markedBlocks.clear();
@@ -297,6 +326,7 @@ public class BedrockListener implements Listener {
             tntListener.tntLocation = null;
             tntListener.tntPlayer = null;
             creeperListener.creeperLocation = null;
+            realSource = null;
             stopAllRemoval = false;
             blocksToProcess.clear();
             markedBlocks.clear();
@@ -329,6 +359,7 @@ public class BedrockListener implements Listener {
                 tntListener.tntLocation = null;
                 tntListener.tntPlayer = null;
                 creeperListener.creeperLocation = null;
+                realSource = null;
                 stopAllRemoval = false;
                 blocksToProcess.clear();
                 markedBlocks.clear();
