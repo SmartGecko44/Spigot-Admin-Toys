@@ -69,7 +69,7 @@ public class BarrierListener implements Listener {
                 Player player = event.getPlayer();
                 if (IMMUTABLE_MATERIALS.contains(event.getBlock().getType())) {
                     // Check if the bucket is filling with water
-                    if (player.getInventory().getItemInMainHand().getType() == Material.BARRIER && identifier.equalsIgnoreCase("Barrier Item")) {
+                    if (player.getInventory().getItemInMainHand().getType() == Material.BARRIER && identifier.equalsIgnoreCase("Custom Barrier")) {
                         blockRemovalActive = true;
                         limitReached = false;
                         clickedLocation = event.getBlock().getLocation();

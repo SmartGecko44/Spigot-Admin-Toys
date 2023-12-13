@@ -1,5 +1,6 @@
 package org.gecko.wauh.listeners;
 
+import de.tr7zw.changeme.nbtapi.NBTItem;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
@@ -59,13 +60,15 @@ public class WaterBucketListener implements Listener {
         BucketListener bucketListener = Main.getPlugin(Main.class).getBucketListener();
         BarrierListener barrierListener = Main.getPlugin(Main.class).getBarrierListener();
         BedrockListener bedrockListener = Main.getPlugin(Main.class).getBedrockListener();
+        NBTItem nbtItem = new NBTItem(event.getPlayer().getInventory().getItemInMainHand());
+        String identifier = nbtItem.getString("Ident");
         radiusLimit = Main.getPlugin(Main.class).getRadiusLimit();
         realRadiusLimit = radiusLimit - 2;
         if (realRadiusLimit > 1) {
             if (!bucketListener.wauhRemovalActive && !barrierListener.blockRemovalActive && !bedrockListener.allRemovalActive && !tsunamiActive) {
                 Player player = event.getPlayer();
                 // Check if the bucket is filling with water
-                if (player.getInventory().getItemInMainHand().getType() == Material.WATER_BUCKET) {
+                if (player.getInventory().getItemInMainHand().getType() == Material.WATER_BUCKET && identifier.equalsIgnoreCase("Custom Tsunami")) {
                     if (player.isSneaking()) {
                         tsunamiActive = true;
                         limitReached = false;
