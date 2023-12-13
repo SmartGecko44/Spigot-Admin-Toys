@@ -28,7 +28,7 @@ public class ConfigGUI implements Listener {
 
     private final Inventory gui;
     private final int size = 45;
-    ConfigurationManager configManager;
+    final ConfigurationManager configManager;
     FileConfiguration config;
     private final File configFile;
     private final Logger logger = Logger.getLogger(Main.class.getName());
@@ -264,16 +264,7 @@ public class ConfigGUI implements Listener {
                     logger.log(Level.SEVERE, "Config file could not be created");
                 } else {
                     Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "Config file created!");
-                    FileWriter writer = new FileWriter(configFile);
-                    writer.write("playerRadiusLimit: 20\n");
-                    writer.write("tntRadiusLimit: 5\n");
-                    writer.write("creeperRadiusLimit: 5\n");
-                    writer.write("Bucket enabled: 1\n");
-                    writer.write("Barrier enabled: 1\n");
-                    writer.write("Bedrock enabled: 1\n");
-                    writer.write("Tsunami enabled: 1\n");
-                    writer.write("Creeper enabled: 0\n");
-                    writer.write("TNT enabled: 1\n");
+                    FileWriter writer = getFileWriter();
                     writer.close();
                 }
             } else {
@@ -289,16 +280,7 @@ public class ConfigGUI implements Listener {
                         player.sendMessage(ChatColor.RED + "Config file could not be reset");
                     } else {
                         Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "Config file created!");
-                        FileWriter writer = new FileWriter(configFile);
-                        writer.write("playerRadiusLimit: 20\n");
-                        writer.write("tntRadiusLimit: 5\n");
-                        writer.write("creeperRadiusLimit: 5\n");
-                        writer.write("Bucket enabled: 1\n");
-                        writer.write("Barrier enabled: 1\n");
-                        writer.write("Bedrock enabled: 1\n");
-                        writer.write("Tsunami enabled: 1\n");
-                        writer.write("Creeper enabled: 0\n");
-                        writer.write("TNT enabled: 1\n");
+                        FileWriter writer = getFileWriter();
                         writer.close();
                         player.sendMessage(ChatColor.GREEN + "Config reset!");
                     }
@@ -309,6 +291,20 @@ public class ConfigGUI implements Listener {
         } catch (IOException ex) {
             plugin.getLogger().log(Level.SEVERE, "Could not reset config file", ex);
         }
+    }
+
+    private FileWriter getFileWriter() throws IOException {
+        FileWriter writer = new FileWriter(configFile);
+        writer.write("playerRadiusLimit: 20\n");
+        writer.write("tntRadiusLimit: 5\n");
+        writer.write("creeperRadiusLimit: 5\n");
+        writer.write("Bucket enabled: 1\n");
+        writer.write("Barrier enabled: 1\n");
+        writer.write("Bedrock enabled: 1\n");
+        writer.write("Tsunami enabled: 1\n");
+        writer.write("Creeper enabled: 0\n");
+        writer.write("TNT enabled: 1\n");
+        return writer;
     }
 
 }
