@@ -4,10 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.gecko.wauh.commands.SetRadiusLimitCommand;
-import org.gecko.wauh.commands.StopWauh;
-import org.gecko.wauh.commands.ToggleRemovalView;
-import org.gecko.wauh.commands.test;
+import org.gecko.wauh.commands.*;
 import org.gecko.wauh.data.ConfigurationManager;
 import org.gecko.wauh.gui.ConfigGUI;
 import org.gecko.wauh.listeners.*;
@@ -59,6 +56,8 @@ public final class Main extends JavaPlugin {
         this.getCommand("setradiuslimit").setTabCompleter(new SetRadiusLimitCommand(this));
         this.getCommand("toggleremovalview").setExecutor(new ToggleRemovalView(this));
         this.getCommand("test").setExecutor(new test(configGUI));
+        this.getCommand("givecustomitems").setExecutor(new GiveCustomItems());
+        this.getCommand("givecustomitems").setTabCompleter(new SetRadiusLimitCommand(this));
     }
 
     @Override
