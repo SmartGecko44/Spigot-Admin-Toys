@@ -13,6 +13,7 @@ public class TriggerItems {
 
     public ItemStack createCustomItem(Material material, String name, short data, String lore, String ident) {
         ItemStack item = new ItemStack(material, 1, data);
+        name = ChatColor.RESET + name;
         lore = ChatColor.RESET + "" + ChatColor.DARK_PURPLE + lore;
         List<String> loreToList = Collections.singletonList(lore);
         ItemMeta meta = item.getItemMeta();
