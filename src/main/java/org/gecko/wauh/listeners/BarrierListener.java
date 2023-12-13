@@ -1,5 +1,6 @@
 package org.gecko.wauh.listeners;
 
+import de.tr7zw.changeme.nbtapi.NBTItem;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
@@ -59,6 +60,8 @@ public class BarrierListener implements Listener {
         BucketListener bucketListener = Main.getPlugin(Main.class).getBucketListener();
         BedrockListener bedrockListener = Main.getPlugin(Main.class).getBedrockListener();
         WaterBucketListener waterBucketListener = Main.getPlugin(Main.class).getWaterBucketListener();
+        NBTItem nbtItem = new NBTItem(event.getPlayer().getInventory().getItemInMainHand());
+        String identifier = nbtItem.getString("Ident");
         radiusLimit = Main.getPlugin(Main.class).getRadiusLimit();
         realRadiusLimit = radiusLimit - 2;
         if (realRadiusLimit > 1) {
@@ -66,7 +69,7 @@ public class BarrierListener implements Listener {
                 Player player = event.getPlayer();
                 if (IMMUTABLE_MATERIALS.contains(event.getBlock().getType())) {
                     // Check if the bucket is filling with water
-                    if (player.getInventory().getItemInMainHand().getType() == Material.BARRIER) {
+                    if (player.getInventory().getItemInMainHand().getType() == Material.BARRIER && identifier.equalsIgnoreCase("Custom Barrier")) {
                         blockRemovalActive = true;
                         limitReached = false;
                         clickedLocation = event.getBlock().getLocation();

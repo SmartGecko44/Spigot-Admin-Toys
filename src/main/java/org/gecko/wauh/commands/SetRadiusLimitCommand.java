@@ -82,7 +82,6 @@ public class SetRadiusLimitCommand implements CommandExecutor, TabCompleter {
                 completions.add("creeper");
             }
         }
-
         return completions;
     }
 }

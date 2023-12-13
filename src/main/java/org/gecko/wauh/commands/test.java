@@ -8,7 +8,7 @@ import org.bukkit.entity.Player;
 import org.gecko.wauh.gui.ConfigGUI;
 
 public class test implements CommandExecutor {
-    ConfigGUI configGUI;
+    final ConfigGUI configGUI;
 
     public test(ConfigGUI configGUI) {
         this.configGUI = configGUI;

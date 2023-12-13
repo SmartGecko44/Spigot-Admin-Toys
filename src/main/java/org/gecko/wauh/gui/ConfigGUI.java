@@ -28,7 +28,7 @@ public class ConfigGUI implements Listener {
 
     private final Inventory gui;
     private final int size = 45;
-    ConfigurationManager configManager;
+    final ConfigurationManager configManager;
     FileConfiguration config;
     private final File configFile;
     private final Logger logger = Logger.getLogger(Main.class.getName());
@@ -111,11 +111,17 @@ public class ConfigGUI implements Listener {
     }
 
 
-    private ItemStack createButtonItem(Material material, String name, short data, List<String> lore, String ident) {
+    private ItemStack createButtonItem(Material material, String name, short data, String lore, String ident) {
+        List<String> loreToString;
+        if (lore != null) {
+            loreToString = Collections.singletonList(lore);
+        } else {
+            loreToString = null;
+        }
         ItemStack item = new ItemStack(material, 1, data);
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(name);
-        meta.setLore(lore);
+        meta.setLore(loreToString);
         item.setItemMeta(meta);
 
         NBTItem nbtItem = new NBTItem(item);
@@ -129,17 +135,17 @@ public class ConfigGUI implements Listener {
         int creeperLimit = plugin.getCreeperRadiusLimit() - 2;
         int tntLimit = plugin.getTntRadiusLimit() - 2;
         gui.setItem(9 + 1, createButtonItem(Material.BUCKET, ChatColor.RESET + "Liquid removal", (short) 0, null, null));
-        gui.setItem(9 * 2 + 1, createButtonItem(Material.ENDER_PEARL, ChatColor.RESET + String.valueOf(playerLimit), (short) 0, Collections.singletonList(ChatColor.RESET + "" + ChatColor.DARK_PURPLE + "This value is managed by the player radius limit."), null));
+        gui.setItem(9 * 2 + 1, createButtonItem(Material.ENDER_PEARL, ChatColor.RESET + String.valueOf(playerLimit), (short) 0, ChatColor.RESET + "" + ChatColor.DARK_PURPLE + "This value is managed by the player radius limit.", null));
         gui.setItem(9 + 2, createButtonItem(Material.BARRIER, ChatColor.RESET + "Surface removal", (short) 0, null, null));
-        gui.setItem(9 * 2 + 2, createButtonItem(Material.ENDER_PEARL, ChatColor.RESET + String.valueOf(playerLimit), (short) 0, Collections.singletonList(ChatColor.RESET + "" + ChatColor.DARK_PURPLE + "This value is managed by the player radius limit."), null));
+        gui.setItem(9 * 2 + 2, createButtonItem(Material.ENDER_PEARL, ChatColor.RESET + String.valueOf(playerLimit), (short) 0, ChatColor.RESET + "" + ChatColor.DARK_PURPLE + "This value is managed by the player radius limit.", null));
         gui.setItem(9 + 3, createButtonItem(Material.BEDROCK, ChatColor.RESET + "All block removal", (short) 0, null, null));
-        gui.setItem(9 * 2 + 3, createButtonItem(Material.ENDER_PEARL, ChatColor.RESET + String.valueOf(playerLimit), (short) 0, Collections.singletonList(ChatColor.RESET + "" + ChatColor.DARK_PURPLE + "This value is managed by the player radius limit."), null));
+        gui.setItem(9 * 2 + 3, createButtonItem(Material.ENDER_PEARL, ChatColor.RESET + String.valueOf(playerLimit), (short) 0, ChatColor.RESET + "" + ChatColor.DARK_PURPLE + "This value is managed by the player radius limit.", null));
         gui.setItem(9 + 4, createButtonItem(Material.WATER_BUCKET, ChatColor.RESET + "Tsunami", (short) 0, null, null));
-        gui.setItem(9 * 2 + 4, createButtonItem(Material.ENDER_PEARL, ChatColor.RESET + String.valueOf(playerLimit), (short) 0, Collections.singletonList(ChatColor.RESET + "" + ChatColor.DARK_PURPLE + "This value is managed by the player radius limit."), null));
+        gui.setItem(9 * 2 + 4, createButtonItem(Material.ENDER_PEARL, ChatColor.RESET + String.valueOf(playerLimit), (short) 0, ChatColor.RESET + "" + ChatColor.DARK_PURPLE + "This value is managed by the player radius limit.", null));
         gui.setItem(9 + 5, createButtonItem(Material.SKULL_ITEM, ChatColor.RESET + "Custom creeper explosions", (short) 4, null, null));
-        gui.setItem(9 * 2 + 5, createButtonItem(Material.ENDER_PEARL, ChatColor.RESET + String.valueOf(creeperLimit), (short) 0, Collections.singletonList(ChatColor.RESET + "" + ChatColor.DARK_PURPLE + "This value is managed by the creeper radius limit."), null));
+        gui.setItem(9 * 2 + 5, createButtonItem(Material.ENDER_PEARL, ChatColor.RESET + String.valueOf(creeperLimit), (short) 0, ChatColor.RESET + "" + ChatColor.DARK_PURPLE + "This value is managed by the creeper radius limit.", null));
         gui.setItem(9 + 6, createButtonItem(Material.TNT, ChatColor.RESET + "Custom TNT explosions", (short) 0, null, null));
-        gui.setItem(9 * 2 + 6, createButtonItem(Material.ENDER_PEARL, ChatColor.RESET + String.valueOf(tntLimit), (short) 0, Collections.singletonList(ChatColor.RESET + "" + ChatColor.DARK_PURPLE + "This value is managed by the TNT radius limit."), null));
+        gui.setItem(9 * 2 + 6, createButtonItem(Material.ENDER_PEARL, ChatColor.RESET + String.valueOf(tntLimit), (short) 0, ChatColor.RESET + "" + ChatColor.DARK_PURPLE + "This value is managed by the TNT radius limit.", null));
         player.openInventory(gui);
     }
 
@@ -246,7 +252,7 @@ public class ConfigGUI implements Listener {
 
                 if (clickedItem.getType() == Material.PAPER) {
                     if (identifier.equalsIgnoreCase("Reset")) {
-                        resetConfig(plugin, player);
+                        resetConfig(player);
                     }
                 }
 
@@ -254,7 +260,7 @@ public class ConfigGUI implements Listener {
         }
     }
 
-    private void resetConfig(Main plugin, Player player) {
+    private void resetConfig(Player player) {
         try {
             // Create the data.yml file if it doesn't exist
             if (!configFile.exists()) {
@@ -263,16 +269,7 @@ public class ConfigGUI implements Listener {
                     logger.log(Level.SEVERE, "Config file could not be created");
                 } else {
                     Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "Config file created!");
-                    FileWriter writer = new FileWriter(configFile);
-                    writer.write("playerRadiusLimit: 20\n");
-                    writer.write("tntRadiusLimit: 5\n");
-                    writer.write("creeperRadiusLimit: 5\n");
-                    writer.write("Bucket enabled: 1\n");
-                    writer.write("Barrier enabled: 1\n");
-                    writer.write("Bedrock enabled: 1\n");
-                    writer.write("Tsunami enabled: 1\n");
-                    writer.write("Creeper enabled: 0\n");
-                    writer.write("TNT enabled: 1\n");
+                    FileWriter writer = getFileWriter();
                     writer.close();
                 }
             } else {
@@ -288,16 +285,7 @@ public class ConfigGUI implements Listener {
                         player.sendMessage(ChatColor.RED + "Config file could not be reset");
                     } else {
                         Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "Config file created!");
-                        FileWriter writer = new FileWriter(configFile);
-                        writer.write("playerRadiusLimit: 20\n");
-                        writer.write("tntRadiusLimit: 5\n");
-                        writer.write("creeperRadiusLimit: 5\n");
-                        writer.write("Bucket enabled: 1\n");
-                        writer.write("Barrier enabled: 1\n");
-                        writer.write("Bedrock enabled: 1\n");
-                        writer.write("Tsunami enabled: 1\n");
-                        writer.write("Creeper enabled: 0\n");
-                        writer.write("TNT enabled: 1\n");
+                        FileWriter writer = getFileWriter();
                         writer.close();
                         player.sendMessage(ChatColor.GREEN + "Config reset!");
                     }
@@ -306,8 +294,22 @@ public class ConfigGUI implements Listener {
 
             this.config = YamlConfiguration.loadConfiguration(configFile);
         } catch (IOException ex) {
-            plugin.getLogger().log(Level.SEVERE, "Could not reset config file", ex);
+            logger.log(Level.SEVERE, "Could not reset config file", ex);
         }
+    }
+
+    private FileWriter getFileWriter() throws IOException {
+        FileWriter writer = new FileWriter(configFile);
+        writer.write("playerRadiusLimit: 20\n");
+        writer.write("tntRadiusLimit: 5\n");
+        writer.write("creeperRadiusLimit: 5\n");
+        writer.write("Bucket enabled: 1\n");
+        writer.write("Barrier enabled: 1\n");
+        writer.write("Bedrock enabled: 1\n");
+        writer.write("Tsunami enabled: 1\n");
+        writer.write("Creeper enabled: 0\n");
+        writer.write("TNT enabled: 1\n");
+        return writer;
     }
 
 }
