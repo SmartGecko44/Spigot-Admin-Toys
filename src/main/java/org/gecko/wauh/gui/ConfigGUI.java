@@ -49,39 +49,39 @@ public class ConfigGUI implements Listener {
 
     private void initializeGUI() {
         if (config.getInt("Bucket enabled") == 1) {
-            gui.setItem(9 * 3 + 1, createButtonItem(Material.INK_SACK, "§rDisable", (short) 10, null, "Enable Bucket"));
+            gui.setItem(9 * 3 + 1, createButtonItem(Material.INK_SACK, "Disable", (short) 10, null, "Enable Bucket"));
         } else {
-            gui.setItem(9 * 3 + 1, createButtonItem(Material.INK_SACK, "§rEnable", (short) 8, null, "Enable Bucket"));
+            gui.setItem(9 * 3 + 1, createButtonItem(Material.INK_SACK, "Enable", (short) 8, null, "Enable Bucket"));
         }
 
         if (config.getInt("Barrier enabled") == 1) {
-            gui.setItem(9 * 3 + 2, createButtonItem(Material.INK_SACK, "§rDisable", (short) 10, null, "Enable Barrier"));
+            gui.setItem(9 * 3 + 2, createButtonItem(Material.INK_SACK, "Disable", (short) 10, null, "Enable Barrier"));
         } else {
-            gui.setItem(9 * 3 + 2, createButtonItem(Material.INK_SACK, "§rEnable", (short) 8, null, "Enable Barrier"));
+            gui.setItem(9 * 3 + 2, createButtonItem(Material.INK_SACK, "Enable", (short) 8, null, "Enable Barrier"));
         }
 
         if (config.getInt("Bedrock enabled") == 1) {
-            gui.setItem(9 * 3 + 3, createButtonItem(Material.INK_SACK, "§rDisable", (short) 10, null, "Enable Bedrock"));
+            gui.setItem(9 * 3 + 3, createButtonItem(Material.INK_SACK, "Disable", (short) 10, null, "Enable Bedrock"));
         } else {
-            gui.setItem(9 * 3 + 3, createButtonItem(Material.INK_SACK, "§rEnable", (short) 8, null, "Enable Bedrock"));
+            gui.setItem(9 * 3 + 3, createButtonItem(Material.INK_SACK, "Enable", (short) 8, null, "Enable Bedrock"));
         }
 
         if (config.getInt("Tsunami enabled") == 1) {
-            gui.setItem(9 * 3 + 4, createButtonItem(Material.INK_SACK, "§rDisable", (short) 10, null, "Enable Tsunami"));
+            gui.setItem(9 * 3 + 4, createButtonItem(Material.INK_SACK, "Disable", (short) 10, null, "Enable Tsunami"));
         } else {
-            gui.setItem(9 * 3 + 4, createButtonItem(Material.INK_SACK, "§rEnable", (short) 8, null, "Enable Tsunami"));
+            gui.setItem(9 * 3 + 4, createButtonItem(Material.INK_SACK, "Enable", (short) 8, null, "Enable Tsunami"));
         }
 
         if (config.getInt("Creeper enabled") == 1) {
-            gui.setItem(9 * 3 + 5, createButtonItem(Material.INK_SACK, "§rDisable", (short) 10, null, "Enable Creeper"));
+            gui.setItem(9 * 3 + 5, createButtonItem(Material.INK_SACK, "Disable", (short) 10, null, "Enable Creeper"));
         } else {
-            gui.setItem(9 * 3 + 5, createButtonItem(Material.INK_SACK, "§rEnable", (short) 8, null, "Enable Creeper"));
+            gui.setItem(9 * 3 + 5, createButtonItem(Material.INK_SACK, "Enable", (short) 8, null, "Enable Creeper"));
         }
 
         if (config.getInt("TNT enabled") == 1) {
-            gui.setItem(9 * 3 + 6, createButtonItem(Material.INK_SACK, "§rDisable", (short) 10, null, "Enable TNT"));
+            gui.setItem(9 * 3 + 6, createButtonItem(Material.INK_SACK, "Disable", (short) 10, null, "Enable TNT"));
         } else {
-            gui.setItem(9 * 3 + 6, createButtonItem(Material.INK_SACK, "§rEnable", (short) 8, null, "Enable TNT"));
+            gui.setItem(9 * 3 + 6, createButtonItem(Material.INK_SACK, "Enable", (short) 8, null, "Enable TNT"));
         }
 
         gui.setItem(9 * 4 + 8, createButtonItem(Material.PAPER, ChatColor.RESET + "" + ChatColor.RED + "Reset config", (short) 0, null, "Reset"));
@@ -114,9 +114,13 @@ public class ConfigGUI implements Listener {
     private ItemStack createButtonItem(Material material, String name, short data, String lore, String ident) {
         List<String> loreToString;
         if (lore != null) {
+            lore = ChatColor.RESET + lore;
             loreToString = Collections.singletonList(lore);
         } else {
             loreToString = null;
+        }
+        if (name != null) {
+            name = ChatColor.RESET + name;
         }
         ItemStack item = new ItemStack(material, 1, data);
         ItemMeta meta = item.getItemMeta();
@@ -168,13 +172,13 @@ public class ConfigGUI implements Listener {
                     if (identifier.equalsIgnoreCase("Enable Bucket") && data == 8) {
                         config.set("Bucket enabled", 1);
                         configManager.saveConfig();
-                        gui.setItem(9 * 3 + 1, createButtonItem(Material.INK_SACK, "§rDisable", (short) 10, null, "Enable Bucket"));
+                        gui.setItem(9 * 3 + 1, createButtonItem(Material.INK_SACK, "Disable", (short) 10, null, "Enable Bucket"));
                         player.sendMessage("Liquid removal enabled!");
                         return;
                     } else if (identifier.equalsIgnoreCase("Enable Bucket") && data == 10) {
                         config.set("Bucket enabled", 0);
                         configManager.saveConfig();
-                        gui.setItem(9 * 3 + 1, createButtonItem(Material.INK_SACK, "§rEnable", (short) 8, null, "Enable Bucket"));
+                        gui.setItem(9 * 3 + 1, createButtonItem(Material.INK_SACK, "Enable", (short) 8, null, "Enable Bucket"));
                         player.sendMessage("Liquid removal disabled!");
                         return;
                     }
@@ -182,13 +186,13 @@ public class ConfigGUI implements Listener {
                     if (identifier.equalsIgnoreCase("Enable Barrier") && data == 8) {
                         config.set("Barrier enabled", 1);
                         configManager.saveConfig();
-                        gui.setItem(9 * 3 + 2, createButtonItem(Material.INK_SACK, "§rDisable", (short) 10, null, "Enable Barrier"));
+                        gui.setItem(9 * 3 + 2, createButtonItem(Material.INK_SACK, "Disable", (short) 10, null, "Enable Barrier"));
                         player.sendMessage("Surface removal enabled!");
                         return;
                     } else if (identifier.equalsIgnoreCase("Enable Barrier") && data == 10) {
                         config.set("Barrier enabled", 0);
                         configManager.saveConfig();
-                        gui.setItem(9 * 3 + 2, createButtonItem(Material.INK_SACK, "§rEnable", (short) 8, null, "Enable Barrier"));
+                        gui.setItem(9 * 3 + 2, createButtonItem(Material.INK_SACK, "Enable", (short) 8, null, "Enable Barrier"));
                         player.sendMessage("Surface removal disabled!");
                         return;
                     }
@@ -196,13 +200,13 @@ public class ConfigGUI implements Listener {
                     if (identifier.equalsIgnoreCase("Enable Bedrock") && data == 8) {
                         config.set("Bedrock enabled", 1);
                         configManager.saveConfig();
-                        gui.setItem(9 * 3 + 3, createButtonItem(Material.INK_SACK, "§rDisable", (short) 10, null, "Enable Bedrock"));
+                        gui.setItem(9 * 3 + 3, createButtonItem(Material.INK_SACK, "Disable", (short) 10, null, "Enable Bedrock"));
                         player.sendMessage("All block removal enabled!");
                         return;
                     } else if (identifier.equalsIgnoreCase("Enable Bedrock") && data == 10) {
                         config.set("Bedrock enabled", 0);
                         configManager.saveConfig();
-                        gui.setItem(9 * 3 + 3, createButtonItem(Material.INK_SACK, "§rEnable", (short) 8, null, "Enable Bedrock"));
+                        gui.setItem(9 * 3 + 3, createButtonItem(Material.INK_SACK, "Enable", (short) 8, null, "Enable Bedrock"));
                         player.sendMessage("All block removal disabled!");
                         return;
                     }
@@ -210,13 +214,13 @@ public class ConfigGUI implements Listener {
                     if (identifier.equalsIgnoreCase("Enable Tsunami") && data == 8) {
                         config.set("Tsunami enabled", 1);
                         configManager.saveConfig();
-                        gui.setItem(9 * 3 + 4, createButtonItem(Material.INK_SACK, "§rDisable", (short) 10, null, "Enable Tsunami"));
+                        gui.setItem(9 * 3 + 4, createButtonItem(Material.INK_SACK, "Disable", (short) 10, null, "Enable Tsunami"));
                         player.sendMessage("Tsunami enabled!");
                         return;
                     } else if (identifier.equalsIgnoreCase("Enable Tsunami") && data == 10) {
                         config.set("Tsunami enabled", 0);
                         configManager.saveConfig();
-                        gui.setItem(9 * 3 + 4, createButtonItem(Material.INK_SACK, "§rEnable", (short) 8, null, "Enable Tsunami"));
+                        gui.setItem(9 * 3 + 4, createButtonItem(Material.INK_SACK, "Enable", (short) 8, null, "Enable Tsunami"));
                         player.sendMessage("Tsunami disabled!");
                         return;
                     }
@@ -224,13 +228,13 @@ public class ConfigGUI implements Listener {
                     if (identifier.equalsIgnoreCase("Enable Creeper") && data == 8) {
                         config.set("Creeper enabled", 1);
                         configManager.saveConfig();
-                        gui.setItem(9 * 3 + 5, createButtonItem(Material.INK_SACK, "§rDisable", (short) 10, null, "Enable Creeper"));
+                        gui.setItem(9 * 3 + 5, createButtonItem(Material.INK_SACK, "Disable", (short) 10, null, "Enable Creeper"));
                         player.sendMessage("Custom creeper explosions enabled!");
                         return;
                     } else if (identifier.equalsIgnoreCase("Enable Creeper") && data == 10) {
                         config.set("Creeper enabled", 0);
                         configManager.saveConfig();
-                        gui.setItem(9 * 3 + 5, createButtonItem(Material.INK_SACK, "§rEnable", (short) 8, null, "Enable Creeper"));
+                        gui.setItem(9 * 3 + 5, createButtonItem(Material.INK_SACK, "Enable", (short) 8, null, "Enable Creeper"));
                         player.sendMessage("Custom creeper explosions disabled!");
                         return;
                     }
@@ -238,13 +242,13 @@ public class ConfigGUI implements Listener {
                     if (identifier.equalsIgnoreCase("Enable TNT") && data == 8) {
                         config.set("TNT enabled", 1);
                         configManager.saveConfig();
-                        gui.setItem(9 * 3 + 6, createButtonItem(Material.INK_SACK, "§rDisable", (short) 10, null, "Enable TNT"));
+                        gui.setItem(9 * 3 + 6, createButtonItem(Material.INK_SACK, "Disable", (short) 10, null, "Enable TNT"));
                         player.sendMessage("Custom TNT explosions enabled!");
                         return;
                     } else if (identifier.equalsIgnoreCase("Enable TNT") && data == 10) {
                         config.set("TNT enabled", 0);
                         configManager.saveConfig();
-                        gui.setItem(9 * 3 + 6, createButtonItem(Material.INK_SACK, "§rEnable", (short) 8, null, "Enable TNT"));
+                        gui.setItem(9 * 3 + 6, createButtonItem(Material.INK_SACK, "Enable", (short) 8, null, "Enable TNT"));
                         player.sendMessage("Custom TNT explosions disabled!");
                         return;
                     }

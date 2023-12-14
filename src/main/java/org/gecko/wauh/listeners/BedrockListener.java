@@ -44,7 +44,7 @@ public class BedrockListener implements Listener {
     private int repetitions = 3;
     private boolean repeated = false;
     private boolean explosionTrigger = false;
-    private String realSource;
+    private String realSource = null;
     private final java.util.logging.Logger logger = Logger.getLogger(Main.class.getName());
 
     private void addIfValid(Block block, Set<Block> nextSet) {
@@ -58,8 +58,7 @@ public class BedrockListener implements Listener {
                 tntPrimed.setFuseTicks(20);
                 nextSet.add(block);
             }
-        }
-        if (!IMMUTABLE_MATERIALS.contains(block.getType()) || block.getType() == Material.AIR) {
+        } else if (!IMMUTABLE_MATERIALS.contains(block.getType()) && !(block.getType() == Material.AIR)) {
             nextSet.add(block);
         } else if (block.getType() == Material.TNT) {
             Location location = block.getLocation();
