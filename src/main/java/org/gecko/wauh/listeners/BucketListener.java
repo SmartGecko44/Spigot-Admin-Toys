@@ -15,7 +15,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.gecko.wauh.Main;
 import org.gecko.wauh.data.ConfigurationManager;
-import org.gecko.wauh.logic.ScaleReverse;
+import org.gecko.wauh.logic.Scale;
 
 import java.util.*;
 
@@ -47,7 +47,7 @@ public class BucketListener implements Listener {
 
     @EventHandler
     public void onBucketFill(PlayerBucketFillEvent event) {
-        if (!event.getPlayer().isOp()) {
+        if (!event.getPlayer().isOp() || event.getPlayer().getInventory().getItemInMainHand() == null || event.getPlayer().getInventory().getItemInMainHand().getAmount() == 0 || event.getPlayer().getInventory().getItemInMainHand().getType() == Material.AIR) {
             return;
         }
         ConfigurationManager configManager;
@@ -205,8 +205,8 @@ public class BucketListener implements Listener {
     }
 
     private void removeReplacedBlocks() {
-        ScaleReverse scaleReverse;
-        scaleReverse = new ScaleReverse();
+        Scale scale;
+        scale = new Scale();
 
         // Add this variable
         int totalRemovedCount = waterRemovedCount + stationaryWaterRemovedCount + lave;
@@ -221,7 +221,7 @@ public class BucketListener implements Listener {
             markedBlocks.clear();
             processedBlocks.clear();
         } else {
-            scaleReverse.ScaleReverseLogic(totalRemovedCount, radiusLimit, markedBlocks, "bucket");
+            scale.ScaleReverseLogic(totalRemovedCount, radiusLimit, markedBlocks, "bucket");
         }
 
         // If there are more blocks to remove, schedule the next batch

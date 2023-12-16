@@ -9,7 +9,7 @@ import org.gecko.wauh.listeners.WaterBucketListener;
 
 import java.util.*;
 
-public class ScaleReverse {
+public class Scale {
 
     public void ScaleReverseLogic(int totalRemovedCount, int radiusLimit, Set<Block> markedBlocks, String source) {
         Main mainPlugin = Main.getPlugin(Main.class);
@@ -20,7 +20,6 @@ public class ScaleReverse {
         WaterBucketListener waterBucketListener = mainPlugin.getWaterBucketListener();
 
         // Set BLOCKS_PER_ITERATION dynamically based on the total count
-        //TODO: Fix this stuff
         int sqrtTotalBlocks = (int) (Math.sqrt(totalRemovedCount) * (Math.sqrt(radiusLimit) * 1.25));
         int scaledBlocksPerIteration = Math.max(1, sqrtTotalBlocks);
         // Update BLOCKS_PER_ITERATION based on the scaled value
