@@ -15,7 +15,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.gecko.wauh.Main;
 import org.gecko.wauh.data.ConfigurationManager;
-import org.gecko.wauh.logic.ScaleReverse;
+import org.gecko.wauh.logic.Scale;
 
 import java.util.*;
 
@@ -205,8 +205,8 @@ public class WaterBucketListener implements Listener {
     }
 
     private void removeMarkedBlocks() {
-        ScaleReverse scaleReverse;
-        scaleReverse = new ScaleReverse();
+        Scale scale;
+        scale = new Scale();
 
         int totalRemovedCount = waterPlacedCount;
         if (totalRemovedCount < 50000) {
@@ -221,7 +221,7 @@ public class WaterBucketListener implements Listener {
             processedBlocks.clear();
             removedBlocks.clear();
         } else {
-            scaleReverse.ScaleReverseLogic(totalRemovedCount, radiusLimit, markedBlocks, "wauh");
+            scale.ScaleReverseLogic(totalRemovedCount, radiusLimit, markedBlocks, "wauh");
         }
 
         // If there are more blocks to remove, schedule the next batch

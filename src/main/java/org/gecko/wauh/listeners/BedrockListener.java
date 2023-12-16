@@ -17,7 +17,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.gecko.wauh.Main;
 import org.gecko.wauh.data.ConfigurationManager;
-import org.gecko.wauh.logic.ScaleReverse;
+import org.gecko.wauh.logic.Scale;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -313,8 +313,8 @@ public class BedrockListener implements Listener {
     private void removeMarkedBlocks() {
         TNTListener tntListener = mainPlugin.getTntListener();
         CreeperListener creeperListener = mainPlugin.getCreeperListener();
-        ScaleReverse scaleReverse;
-        scaleReverse = new ScaleReverse();
+        Scale scale;
+        scale = new Scale();
 
         int totalRemovedCount = allRemovedCount;
         if (totalRemovedCount < 50000) {
@@ -335,7 +335,7 @@ public class BedrockListener implements Listener {
             processedBlocks.clear();
             removedBlocks.clear();
         } else {
-            scaleReverse.ScaleReverseLogic(totalRemovedCount, radiusLimit, markedBlocks, "bedrock");
+            scale.ScaleReverseLogic(totalRemovedCount, radiusLimit, markedBlocks, "bedrock");
         }
 
         // If there are more blocks to remove, schedule the next batch
