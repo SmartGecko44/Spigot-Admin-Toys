@@ -139,6 +139,9 @@ public class BedrockListener implements Listener {
 
                     processAllRemoval();
                 } else if (event != null) {
+                    if (event.getPlayer().getInventory().getItemInMainHand() == null || event.getPlayer().getInventory().getItemInMainHand().getAmount() == 0 || event.getPlayer().getInventory().getItemInMainHand().getType() == Material.AIR) {
+                        return;
+                    }
                     Player player = event.getPlayer();
                     NBTItem nbtItem = new NBTItem(event.getPlayer().getInventory().getItemInMainHand());
                     String identifier = nbtItem.getString("Ident");
