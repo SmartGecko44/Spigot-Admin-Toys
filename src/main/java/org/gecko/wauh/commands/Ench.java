@@ -31,7 +31,7 @@ public class Ench implements CommandExecutor {
                         try {
                             String level = args[1];
                             int maxLevel = Main.getPlugin(Main.class).getDisarm().getMaxLevel();
-                            if (Integer.parseInt(level) <= maxLevel && Integer.parseInt(level) > 0) {
+                            if (Integer.parseInt(level) <= maxLevel && Integer.parseInt(level) > -1) {
                                 // Add or update the lore to include enchantment information
                                 level = convertToRomanNumerals(Integer.parseInt(level));
                                 updateItemLore(enchItem, "Disarm", level);
@@ -65,10 +65,15 @@ public class Ench implements CommandExecutor {
         }
 
         // Clear existing lore related to the enchantment
-        lore.removeIf(line -> line.startsWith(ChatColor.GRAY + enchantmentName));
+
+        if (Integer.parseInt(enchantmentLevel) == 0) {
+            lore.removeIf(line -> line.startsWith(ChatColor.GRAY + enchantmentName));
+        } else {
+            lore.removeIf(line -> line.startsWith(ChatColor.GRAY + enchantmentName));
+            lore.add(ChatColor.GRAY + enchantmentName + " " + enchantmentLevel);
+        }
 
         // Add or update the lore to include enchantment information
-        lore.add(ChatColor.GRAY + enchantmentName + " " + enchantmentLevel);
 
         meta.setLore(lore);
         item.setItemMeta(meta);
