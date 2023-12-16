@@ -28,3 +28,8 @@ commands:
     usage: /givecustomitems [bucket/barrier/bedrock/tsunami/all]
     permission: op
     permission-message: §cYou need to have operator permissions to run this command!
+  ench:
+    description: enchant the item in your hand
+    usage: /ench [enchantment] <level>
+    permission: op
+    permission-message: §cYou need to have operator permissions to run this command!

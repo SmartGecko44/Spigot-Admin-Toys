@@ -3,11 +3,17 @@ package org.gecko.wauh;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.gecko.wauh.commands.*;
 import org.gecko.wauh.data.ConfigurationManager;
+import org.gecko.wauh.enchantments.weapons.swords.Disarm;
 import org.gecko.wauh.gui.ConfigGUI;
 import org.gecko.wauh.listeners.*;
+
+import java.lang.reflect.Field;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public final class Main extends JavaPlugin {
 
@@ -23,6 +29,9 @@ public final class Main extends JavaPlugin {
     private WaterBucketListener waterBucketListener;
     private TNTListener tntListener;
     private CreeperListener creeperListener;
+    public static Enchantment disarm = new Disarm(100);
+    private static final Logger logger = Logger.getLogger(Main.class.getName());
+    private final Disarm disarmListener = new Disarm(100);
 
     @Override
     public void onEnable() {
@@ -49,6 +58,10 @@ public final class Main extends JavaPlugin {
         getServer().getPluginManager().registerEvents(tntListener, this);
         getServer().getPluginManager().registerEvents(creeperListener, this);
         getServer().getPluginManager().registerEvents(configGUI, this);
+        getServer().getPluginManager().registerEvents(disarmListener, this);
+
+        // Register Enchantments
+        registerEnchantment(disarm);
 
         // Register the StopWauh command with the listeners as arguments
         this.getCommand("stopwauh").setExecutor(new StopWauh(bucketListener, barrierListener, bedrockListener, waterBucketListener));
@@ -58,11 +71,13 @@ public final class Main extends JavaPlugin {
         this.getCommand("test").setExecutor(new test(configGUI));
         this.getCommand("givecustomitems").setExecutor(new GiveCustomItems());
         this.getCommand("givecustomitems").setTabCompleter(new SetRadiusLimitCommand(this));
+        this.getCommand("ench").setExecutor(new Ench());
     }
 
     @Override
     public void onDisable() {
         // Plugin shutdown logic
+        Enchantment.stopAcceptingRegistrations();
     }
 
     public int getRadiusLimit() {
@@ -128,5 +143,27 @@ public final class Main extends JavaPlugin {
 
     public CreeperListener getCreeperListener() {
         return creeperListener;
+    }
+
+    public Disarm getDisarm() {
+        return disarmListener;
+    }
+
+    public static void registerEnchantment(Enchantment enchantment) {
+        boolean registered = true;
+        try {
+            Field f = Enchantment.class.getDeclaredField("acceptingNew");
+            f.setAccessible(true);
+            f.set(null, true);
+            Enchantment.registerEnchantment(enchantment);
+        } catch (Exception e) {
+            registered = false;
+            logger.log(Level.SEVERE, "Error while registering enchantment " + enchantment + " Error:" + e);
+
+        }
+        if (registered){
+            // It's been registered!
+            Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "" + enchantment + "Registered");
+        }
     }
 }
