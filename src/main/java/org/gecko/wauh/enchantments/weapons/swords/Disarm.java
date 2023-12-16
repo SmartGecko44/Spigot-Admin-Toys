@@ -1,6 +1,5 @@
 package org.gecko.wauh.enchantments.weapons.swords;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.enchantments.EnchantmentTarget;
@@ -11,10 +10,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class Disarm extends Enchantment implements Listener {
 
@@ -75,27 +70,9 @@ public class Disarm extends Enchantment implements Listener {
                 if (Math.random() < chanceForOne) {
                     LivingEntity target = (LivingEntity) event.getEntity();
                     removeRandomArmorPiece(target);
-
-                    // Add enchantment information to the item's lore
-                    updateItemLore(weapon, "Disarm", level);
                 }
             }
         }
-    }
-
-    private void updateItemLore(ItemStack item, String enchantmentName, int enchantmentLevel) {
-        ItemMeta meta = item.getItemMeta();
-        List<String> lore = meta.getLore();
-
-        if (lore == null) {
-            lore = new ArrayList<>();
-        }
-
-        // Add or update the lore to include enchantment information
-        lore.add(ChatColor.GRAY + enchantmentName + " " + enchantmentLevel);
-
-        meta.setLore(lore);
-        item.setItemMeta(meta);
     }
 
     private void removeRandomArmorPiece(LivingEntity target) {
