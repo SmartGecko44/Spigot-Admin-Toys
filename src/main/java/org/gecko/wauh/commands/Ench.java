@@ -1,7 +1,6 @@
 package org.gecko.wauh.commands;
 
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -25,17 +24,21 @@ public class Ench implements CommandExecutor {
             if (args.length == 2) {
                 String operation = args[0].toLowerCase();
 
-                if (operation.equalsIgnoreCase("disarm")) {
                     ItemStack enchItem = ((Player) sender).getInventory().getItemInMainHand();
-                    if (enchItem.getType() == Material.DIAMOND_SWORD) {
+                    if (Main.getPlugin(Main.class).getEnchantmentHandler().getCanEnchant(operation, ((Player) sender).getInventory().getItemInMainHand())) {
                         try {
                             String level = args[1];
-                            int maxLevel = Main.getPlugin(Main.class).getDisarm().getMaxLevel();
-                            if (Integer.parseInt(level) <= maxLevel && Integer.parseInt(level) > -1) {
+                            int maxLevel = Main.getPlugin(Main.class).getEnchantmentHandler().getMaxLevelEnch(operation.toLowerCase());
+                            int minLevel = Main.getPlugin(Main.class).getEnchantmentHandler().getMinLevelEnch(operation.toLowerCase());
+                            if (Integer.parseInt(level) <= maxLevel && Integer.parseInt(level) > minLevel) {
+                                if ((minLevel & maxLevel) == -1) {
+                                    sender.sendMessage("Enchantment not found.");
+                                    return true;
+                                }
                                 // Add or update the lore to include enchantment information
                                 level = convertToRomanNumerals(Integer.parseInt(level));
-                                updateItemLore(enchItem, "Disarm", level);
-                                sender.sendMessage("Success! Your sword now has Disarm " + level);
+                                updateItemLore(enchItem, operation.toUpperCase(), level);
+                                sender.sendMessage("Success! Your item now has " + operation.toUpperCase() + " " + level);
                             } else {
                                 sender.sendMessage(ChatColor.RED + "Level too high, max is " + maxLevel);
                             }
@@ -45,7 +48,6 @@ public class Ench implements CommandExecutor {
                             logger.log(Level.SEVERE, "Error:" + e);
                         }
                     }
-                }
             } else {
                 sender.sendMessage("Usage: /ench [enchantment] <level>");
                 return true;

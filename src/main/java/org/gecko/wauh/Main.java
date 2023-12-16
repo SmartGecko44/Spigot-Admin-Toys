@@ -7,6 +7,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.gecko.wauh.commands.*;
 import org.gecko.wauh.data.ConfigurationManager;
+import org.gecko.wauh.enchantments.EnchantmentHandler;
 import org.gecko.wauh.enchantments.weapons.swords.Disarm;
 import org.gecko.wauh.gui.ConfigGUI;
 import org.gecko.wauh.listeners.*;
@@ -31,7 +32,7 @@ public final class Main extends JavaPlugin {
     private CreeperListener creeperListener;
     public static Enchantment disarm = new Disarm(100);
     private static final Logger logger = Logger.getLogger(Main.class.getName());
-    private final Disarm disarmListener = new Disarm(100);
+    private final EnchantmentHandler enchantmentHandler = new EnchantmentHandler();
 
     @Override
     public void onEnable() {
@@ -49,6 +50,7 @@ public final class Main extends JavaPlugin {
         configManager = new ConfigurationManager(Main.getPlugin(Main.class));
         config = configManager.getConfig();
         ConfigGUI configGUI = new ConfigGUI(this);
+        Disarm disarmListener = new Disarm(100);
 
         // Register the listeners
         getServer().getPluginManager().registerEvents(bucketListener, this);
@@ -58,12 +60,14 @@ public final class Main extends JavaPlugin {
         getServer().getPluginManager().registerEvents(tntListener, this);
         getServer().getPluginManager().registerEvents(creeperListener, this);
         getServer().getPluginManager().registerEvents(configGUI, this);
+
+        // Enchantment listeners
         getServer().getPluginManager().registerEvents(disarmListener, this);
 
         // Register Enchantments
         registerEnchantment(disarm);
 
-        // Register the StopWauh command with the listeners as arguments
+        // Register commands
         this.getCommand("stopwauh").setExecutor(new StopWauh(bucketListener, barrierListener, bedrockListener, waterBucketListener));
         this.getCommand("setradiuslimit").setExecutor(new SetRadiusLimitCommand(this));
         this.getCommand("setradiuslimit").setTabCompleter(new SetRadiusLimitCommand(this));
@@ -145,8 +149,8 @@ public final class Main extends JavaPlugin {
         return creeperListener;
     }
 
-    public Disarm getDisarm() {
-        return disarmListener;
+    public EnchantmentHandler getEnchantmentHandler() {
+        return enchantmentHandler;
     }
 
     public static void registerEnchantment(Enchantment enchantment) {
