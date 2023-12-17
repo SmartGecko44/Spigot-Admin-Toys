@@ -7,10 +7,9 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.gecko.wauh.commands.*;
 import org.gecko.wauh.data.ConfigurationManager;
+import org.gecko.wauh.enchantments.enchants.weapons.bows.Aim;
 import org.gecko.wauh.enchantments.logic.EnchantmentHandler;
 import org.gecko.wauh.enchantments.enchants.weapons.swords.Disarm;
-import org.gecko.wauh.enchantments.logic.EnchantmentListener;
-import org.gecko.wauh.enchantments.logic.EnchantmentManager;
 import org.gecko.wauh.gui.ConfigGUI;
 import org.gecko.wauh.listeners.*;
 
@@ -33,6 +32,7 @@ public final class Main extends JavaPlugin {
     private TNTListener tntListener;
     private CreeperListener creeperListener;
     public static Enchantment disarm = new Disarm(100);
+    public static Enchantment aim = new Aim(101);
     private static final Logger logger = Logger.getLogger(Main.class.getName());
     private final EnchantmentHandler enchantmentHandler = new EnchantmentHandler();
 
@@ -41,9 +41,6 @@ public final class Main extends JavaPlugin {
         // Plugin startup logic
         Bukkit.getConsoleSender().sendMessage("");
         Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "Yay");
-
-        EnchantmentManager enchantmentManager = new EnchantmentManager("org.gecko.wauh.enchantments.enchants");
-        enchantmentManager.registerEnchantments(this);
 
         // Create instances of the listeners
         bucketListener = new BucketListener();
@@ -55,7 +52,6 @@ public final class Main extends JavaPlugin {
         configManager = new ConfigurationManager(Main.getPlugin(Main.class));
         config = configManager.getConfig();
         ConfigGUI configGUI = new ConfigGUI(this);
-        Disarm disarmListener = new Disarm(100);
 
         // Register the listeners
         getServer().getPluginManager().registerEvents(bucketListener, this);
@@ -66,11 +62,17 @@ public final class Main extends JavaPlugin {
         getServer().getPluginManager().registerEvents(creeperListener, this);
         getServer().getPluginManager().registerEvents(configGUI, this);
 
+        // Create enchant instances
+        Disarm disarmListener = new Disarm(100);
+        Aim aimListener = new Aim(101);
+
         // Enchantment listeners
         getServer().getPluginManager().registerEvents(disarmListener, this);
+        getServer().getPluginManager().registerEvents(aimListener, this);
 
         // Register Enchantments
         registerEnchantment(disarm);
+        registerEnchantment(aim);
 
         // Register commands
         this.getCommand("stopwauh").setExecutor(new StopWauh(bucketListener, barrierListener, bedrockListener, waterBucketListener));

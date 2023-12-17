@@ -1,34 +1,49 @@
 package org.gecko.wauh.enchantments.logic;
 
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
+import org.gecko.wauh.enchantments.enchants.weapons.bows.Aim;
 import org.gecko.wauh.enchantments.enchants.weapons.swords.Disarm;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class EnchantmentHandler {
 
+    private final List<Enchantment> enchantments;
+
+    public EnchantmentHandler() {
+        enchantments = new ArrayList<>();
+        enchantments.add(new Disarm(100));
+        enchantments.add(new Aim(101));
+    }
+
+    public boolean getEnchantmentExists(String name) {
+        return getEnchantmentByName(name) != null;
+    }
+
     public int getMaxLevelEnch(String name) {
-        Disarm disarm = new Disarm(100);
-        if (name.equalsIgnoreCase("disarm")) {
-            return disarm.getMaxLevel();
-        } else {
-            return -1;
-        }
+        Enchantment enchantment = getEnchantmentByName(name);
+        return enchantment != null ? enchantment.getMaxLevel() : -1;
     }
 
     public int getMinLevelEnch(String name) {
-        Disarm disarm = new Disarm(100);
-        if (name.equalsIgnoreCase("disarm")) {
-            return disarm.getStartLevel();
-        } else {
-            return -1;
-        }
+        Enchantment enchantment = getEnchantmentByName(name);
+        return enchantment != null ? enchantment.getStartLevel() : -1;
     }
 
-    public boolean getCanEnchant(String name, ItemStack item) {
-        Disarm disarm = new Disarm(100);
-        if (name.equalsIgnoreCase("disarm")) {
-            return disarm.canEnchantItem(item);
-        } else {
-            return false;
-        }
+    public boolean getCanEnchant(String enchantmentName, ItemStack item) {
+        Enchantment enchantment = getEnchantmentByName(enchantmentName);
+        return enchantment != null && enchantment.canEnchantItem(item);
     }
+
+    private Enchantment getEnchantmentByName(String enchantmentName) {
+        for (Enchantment enchantment : enchantments) {
+            if (enchantment.getName().equalsIgnoreCase(enchantmentName)) {
+                return enchantment;
+            }
+        }
+        return null;
+    }
+
 }

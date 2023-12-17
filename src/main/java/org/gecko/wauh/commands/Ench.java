@@ -26,8 +26,10 @@ public class Ench implements CommandExecutor, TabCompleter {
             if (args.length == 2) {
                 String operation = args[0].toLowerCase();
 
-                    ItemStack enchItem = ((Player) sender).getInventory().getItemInMainHand();
-                    if (Main.getPlugin(Main.class).getEnchantmentHandler().getCanEnchant(operation, ((Player) sender).getInventory().getItemInMainHand())) {
+                ItemStack enchItem = ((Player) sender).getInventory().getItemInMainHand();
+                String enchantmentNameFinal = operation.substring(0, 1).toUpperCase() + operation.substring(1).toLowerCase();
+                if (Main.getPlugin(Main.class).getEnchantmentHandler().getEnchantmentExists(enchantmentNameFinal)) {
+                    if (Main.getPlugin(Main.class).getEnchantmentHandler().getCanEnchant(operation, enchItem)) {
                         try {
                             int level = Integer.parseInt(args[1]);
                             int maxLevel = Main.getPlugin(Main.class).getEnchantmentHandler().getMaxLevelEnch(operation.toLowerCase());
@@ -38,7 +40,6 @@ public class Ench implements CommandExecutor, TabCompleter {
                                     return true;
                                 }
                                 // Add or update the lore to include enchantment information
-                                String enchantmentNameFinal = operation.substring(0,1).toUpperCase() + operation.substring(1).toLowerCase();
                                 if (level > 0) {
                                     String levelRoman = convertToRomanNumerals(level);
                                     enchItem.addEnchantment(Enchantment.getByName(enchantmentNameFinal), level);
@@ -57,13 +58,21 @@ public class Ench implements CommandExecutor, TabCompleter {
                             sender.sendMessage("Please specify a valid integer.");
                             logger.log(Level.SEVERE, "Error:" + e);
                         }
+                    } else {
+                        sender.sendMessage("You cannot enchant this item with this enchantment");
+                        return true;
                     }
+                } else {
+                    sender.sendMessage("This enchantment does not exist");
+                    return true;
+                }
             } else {
                 sender.sendMessage("Usage: /ench [enchantment] <level>");
                 return true;
             }
         } else {
             sender.sendMessage("Only players can execute this command");
+            return true;
         }
         return true;
     }
@@ -76,7 +85,7 @@ public class Ench implements CommandExecutor, TabCompleter {
             lore = new ArrayList<>();
         }
 
-        String enchantmentNameFinal = enchantmentName.substring(0,1).toUpperCase() + enchantmentName.substring(1).toLowerCase();
+        String enchantmentNameFinal = enchantmentName.substring(0, 1).toUpperCase() + enchantmentName.substring(1).toLowerCase();
 
         // Clear existing lore related to the enchantment
         if (level == 0) {
@@ -133,5 +142,4 @@ public class Ench implements CommandExecutor, TabCompleter {
         }
         return completions;
     }
-
 }
