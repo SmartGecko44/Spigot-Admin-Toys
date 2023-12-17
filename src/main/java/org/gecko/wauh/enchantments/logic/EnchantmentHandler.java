@@ -1,7 +1,7 @@
-package org.gecko.wauh.enchantments;
+package org.gecko.wauh.enchantments.logic;
 
 import org.bukkit.inventory.ItemStack;
-import org.gecko.wauh.enchantments.weapons.swords.Disarm;
+import org.gecko.wauh.enchantments.enchants.weapons.swords.Disarm;
 
 public class EnchantmentHandler {
 

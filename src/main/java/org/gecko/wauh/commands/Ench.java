@@ -4,6 +4,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -14,7 +16,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class Ench implements CommandExecutor {
+public class Ench implements CommandExecutor, TabCompleter {
 
     private final Logger logger = Logger.getLogger(Main.class.getName());
 
@@ -27,18 +29,26 @@ public class Ench implements CommandExecutor {
                     ItemStack enchItem = ((Player) sender).getInventory().getItemInMainHand();
                     if (Main.getPlugin(Main.class).getEnchantmentHandler().getCanEnchant(operation, ((Player) sender).getInventory().getItemInMainHand())) {
                         try {
-                            String level = args[1];
+                            int level = Integer.parseInt(args[1]);
                             int maxLevel = Main.getPlugin(Main.class).getEnchantmentHandler().getMaxLevelEnch(operation.toLowerCase());
                             int minLevel = Main.getPlugin(Main.class).getEnchantmentHandler().getMinLevelEnch(operation.toLowerCase());
-                            if (Integer.parseInt(level) <= maxLevel && Integer.parseInt(level) > minLevel) {
+                            if (level <= maxLevel && level >= minLevel || level == 0 || (minLevel == -1 && maxLevel == -1)) {
                                 if ((minLevel & maxLevel) == -1) {
                                     sender.sendMessage("Enchantment not found.");
                                     return true;
                                 }
                                 // Add or update the lore to include enchantment information
-                                level = convertToRomanNumerals(Integer.parseInt(level));
-                                updateItemLore(enchItem, operation.toUpperCase(), level);
-                                sender.sendMessage("Success! Your item now has " + operation.toUpperCase() + " " + level);
+                                String enchantmentNameFinal = operation.substring(0,1).toUpperCase() + operation.substring(1).toLowerCase();
+                                if (level > 0) {
+                                    String levelRoman = convertToRomanNumerals(level);
+                                    enchItem.addEnchantment(Enchantment.getByName(enchantmentNameFinal), level);
+                                    updateItemLore(enchItem, operation, levelRoman, level);
+                                    sender.sendMessage("Success! Your item now has " + enchantmentNameFinal + " " + levelRoman);
+                                } else if (level == 0) {
+                                    enchItem.removeEnchantment(Enchantment.getByName(enchantmentNameFinal));
+                                    updateItemLore(enchItem, operation, null, level);
+                                    sender.sendMessage("Success! " + enchantmentNameFinal + " has been removed from your item");
+                                }
                             } else {
                                 sender.sendMessage(ChatColor.RED + "Level too high, max is " + maxLevel);
                             }
@@ -58,7 +68,7 @@ public class Ench implements CommandExecutor {
         return true;
     }
 
-    private void updateItemLore(ItemStack item, String enchantmentName, String enchantmentLevel) {
+    private void updateItemLore(ItemStack item, String enchantmentName, String enchantmentLevel, int level) {
         ItemMeta meta = item.getItemMeta();
         List<String> lore = meta.getLore();
 
@@ -66,13 +76,14 @@ public class Ench implements CommandExecutor {
             lore = new ArrayList<>();
         }
 
-        // Clear existing lore related to the enchantment
+        String enchantmentNameFinal = enchantmentName.substring(0,1).toUpperCase() + enchantmentName.substring(1).toLowerCase();
 
-        if (Integer.parseInt(enchantmentLevel) == 0) {
-            lore.removeIf(line -> line.startsWith(ChatColor.GRAY + enchantmentName));
+        // Clear existing lore related to the enchantment
+        if (level == 0) {
+            lore.removeIf(line -> line.startsWith(ChatColor.GRAY + enchantmentNameFinal));
         } else {
-            lore.removeIf(line -> line.startsWith(ChatColor.GRAY + enchantmentName));
-            lore.add(ChatColor.GRAY + enchantmentName + " " + enchantmentLevel);
+            lore.removeIf(line -> line.startsWith(ChatColor.GRAY + enchantmentNameFinal));
+            lore.add(ChatColor.GRAY + enchantmentNameFinal + " " + enchantmentLevel);
         }
 
         // Add or update the lore to include enchantment information
@@ -100,7 +111,27 @@ public class Ench implements CommandExecutor {
             }
         }
 
-        return String.valueOf(result);
+        return result.toString();
+    }
+
+    public List<String> onTabComplete(CommandSender sender, Command cmd, String alias, String[] args) {
+        List<String> completions = new ArrayList<>();
+
+        if (args.length == 1) {
+            String input = args[0].toLowerCase();
+
+            // Add completion suggestions based on the input
+            if ("tnt".startsWith(input)) {
+                completions.add("tnt");
+            }
+            if ("player".startsWith(input)) {
+                completions.add("player");
+            }
+            if ("creeper".startsWith(input)) {
+                completions.add("creeper");
+            }
+        }
+        return completions;
     }
 
 }

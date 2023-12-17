@@ -1,4 +1,4 @@
-package org.gecko.wauh.enchantments.weapons.swords;
+package org.gecko.wauh.enchantments.enchants.weapons.swords;
 
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;

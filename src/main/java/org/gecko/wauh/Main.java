@@ -7,8 +7,10 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.gecko.wauh.commands.*;
 import org.gecko.wauh.data.ConfigurationManager;
-import org.gecko.wauh.enchantments.EnchantmentHandler;
-import org.gecko.wauh.enchantments.weapons.swords.Disarm;
+import org.gecko.wauh.enchantments.logic.EnchantmentHandler;
+import org.gecko.wauh.enchantments.enchants.weapons.swords.Disarm;
+import org.gecko.wauh.enchantments.logic.EnchantmentListener;
+import org.gecko.wauh.enchantments.logic.EnchantmentManager;
 import org.gecko.wauh.gui.ConfigGUI;
 import org.gecko.wauh.listeners.*;
 
@@ -39,6 +41,9 @@ public final class Main extends JavaPlugin {
         // Plugin startup logic
         Bukkit.getConsoleSender().sendMessage("");
         Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "Yay");
+
+        EnchantmentManager enchantmentManager = new EnchantmentManager("org.gecko.wauh.enchantments.enchants");
+        enchantmentManager.registerEnchantments(this);
 
         // Create instances of the listeners
         bucketListener = new BucketListener();
