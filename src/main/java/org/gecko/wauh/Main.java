@@ -8,6 +8,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.gecko.wauh.commands.*;
 import org.gecko.wauh.data.ConfigurationManager;
 import org.gecko.wauh.enchantments.enchants.weapons.bows.Aim;
+import org.gecko.wauh.enchantments.enchants.weapons.bows.Multishot;
 import org.gecko.wauh.enchantments.logic.EnchantmentHandler;
 import org.gecko.wauh.enchantments.enchants.weapons.swords.Disarm;
 import org.gecko.wauh.gui.ConfigGUI;
@@ -31,10 +32,14 @@ public final class Main extends JavaPlugin {
     private WaterBucketListener waterBucketListener;
     private TNTListener tntListener;
     private CreeperListener creeperListener;
-    public static Enchantment disarm = new Disarm(100);
-    public static Enchantment aim = new Aim(101);
     private static final Logger logger = Logger.getLogger(Main.class.getName());
     private final EnchantmentHandler enchantmentHandler = new EnchantmentHandler();
+
+    // Enchantments
+    public static Enchantment disarm = new Disarm(100);
+    public static Enchantment aim = new Aim(101);
+    public static Enchantment multishot = new Multishot(102);
+
 
     @Override
     public void onEnable() {
@@ -65,14 +70,19 @@ public final class Main extends JavaPlugin {
         // Create enchant instances
         Disarm disarmListener = new Disarm(100);
         Aim aimListener = new Aim(101);
+        Multishot multishotListener = new Multishot(102);
 
         // Enchantment listeners
         getServer().getPluginManager().registerEvents(disarmListener, this);
         getServer().getPluginManager().registerEvents(aimListener, this);
+        getServer().getPluginManager().registerEvents(multishotListener, this);
 
         // Register Enchantments
-        registerEnchantment(disarm);
-        registerEnchantment(aim);
+        try {
+            registerEnchantment(disarm);
+            registerEnchantment(aim);
+            registerEnchantment(multishot);
+        } catch (IllegalArgumentException ignored) {}
 
         // Register commands
         this.getCommand("stopwauh").setExecutor(new StopWauh(bucketListener, barrierListener, bedrockListener, waterBucketListener));

@@ -3,6 +3,7 @@ package org.gecko.wauh.enchantments.logic;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.gecko.wauh.enchantments.enchants.weapons.bows.Aim;
+import org.gecko.wauh.enchantments.enchants.weapons.bows.Multishot;
 import org.gecko.wauh.enchantments.enchants.weapons.swords.Disarm;
 
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ public class EnchantmentHandler {
         enchantments = new ArrayList<>();
         enchantments.add(new Disarm(100));
         enchantments.add(new Aim(101));
+        enchantments.add(new Multishot(102));
     }
 
     public boolean getEnchantmentExists(String name) {
