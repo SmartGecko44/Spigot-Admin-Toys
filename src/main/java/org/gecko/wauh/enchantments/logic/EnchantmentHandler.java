@@ -5,6 +5,7 @@ import org.bukkit.inventory.ItemStack;
 import org.gecko.wauh.enchantments.enchants.weapons.bows.Aim;
 import org.gecko.wauh.enchantments.enchants.weapons.bows.Multishot;
 import org.gecko.wauh.enchantments.enchants.weapons.swords.Disarm;
+import org.gecko.wauh.enchantments.tools.Drill;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +19,7 @@ public class EnchantmentHandler {
         enchantments.add(new Disarm(100));
         enchantments.add(new Aim(101));
         enchantments.add(new Multishot(102));
+        enchantments.add(new Drill(103));
     }
 
     public boolean getEnchantmentExists(String name) {

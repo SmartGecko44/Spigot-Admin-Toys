@@ -1,6 +1,5 @@
 package org.gecko.wauh.enchantments.enchants.weapons.bows;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.enchantments.EnchantmentTarget;
@@ -11,12 +10,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
-import org.gecko.wauh.Main;
-
-import java.util.Random;
 
 public class Multishot extends Enchantment implements Listener {
-    private boolean multiProgress;
 
     public Multishot(int id) {
         super(id);
@@ -64,32 +59,23 @@ public class Multishot extends Enchantment implements Listener {
 
     @EventHandler
     public void onProjectileLaunch(ProjectileLaunchEvent event) {
-        if (!multiProgress) {
-            if (event.getEntity() instanceof Arrow) {
-                Arrow arrow = (Arrow) event.getEntity();
-                if (arrow.getShooter() instanceof Player) {
-                    Player shooter = (Player) arrow.getShooter();
-                    ItemStack bow = shooter.getInventory().getItemInMainHand();
+        if (event.getEntity() instanceof Arrow) {
+            Arrow arrow = (Arrow) event.getEntity();
+            if (arrow.getShooter() instanceof Player) {
+                Player shooter = (Player) arrow.getShooter();
+                ItemStack bow = shooter.getInventory().getItemInMainHand();
 
-                    if (bow.containsEnchantment(this)) {
-                        int level = bow.getEnchantmentLevel(this);
-                        int numArrows = level + 1; // Shoot one more arrow with each level
-                        multiProgress = true;
-                        for (int i = numArrows; i > 0; i--) {
-                            launchAdditionalArrow(arrow, i, numArrows);
-                        }
-                        Bukkit.getScheduler().runTaskLater(Main.getPlugin(Main.class), this::finishMultiArrow, 1);
+                if (bow.containsEnchantment(this) && arrow.isCritical()) {
+                    int level = bow.getEnchantmentLevel(this);
+                    for (int i = level; i > 0; i--) {
+                        spawnAdditionalArrow(arrow, i, level);
                     }
                 }
             }
         }
     }
 
-    private void finishMultiArrow() {
-        multiProgress = false;
-    }
-
-    private void launchAdditionalArrow(Arrow originalArrow, int arrowIndex, int totalArrows) {
+    private void spawnAdditionalArrow(Arrow originalArrow, int arrowIndex, int totalArrows) {
         Arrow additionalArrow = originalArrow.getWorld().spawnArrow(
                 originalArrow.getLocation(),
                 new Vector(0, 0, 0), // Initial velocity is zero
@@ -102,13 +88,20 @@ public class Multishot extends Enchantment implements Listener {
         additionalArrow.setCritical(originalArrow.isCritical());
 
         // Set velocity based on the arrowIndex and totalArrows
-        double angleBetweenArrows = Math.toRadians(10); // Adjust the angle between arrows as needed
+        double angleBetweenArrows = Math.toRadians(2); // Adjust the angle between arrows as needed
         double rotationAngle = arrowIndex * angleBetweenArrows - (angleBetweenArrows * (totalArrows - 1) / 2);
-        Vector direction = originalArrow.getVelocity().clone();
+
+        // Use the direction of the original arrow as the base direction
+        Vector baseDirection = originalArrow.getVelocity().clone().normalize();
+
+        // Rotate the base direction by the calculated angle
         double cos = Math.cos(rotationAngle);
         double sin = Math.sin(rotationAngle);
-        direction.setX(cos * direction.getX() - sin * direction.getZ());
-        direction.setZ(sin * direction.getX() + cos * direction.getZ());
-        additionalArrow.setVelocity(direction.multiply(originalArrow.getVelocity().length()));
+        double rotatedX = cos * baseDirection.getX() - sin * baseDirection.getZ();
+        double rotatedZ = sin * baseDirection.getX() + cos * baseDirection.getZ();
+
+        // Apply the rotated direction to the additional arrow
+        additionalArrow.setVelocity(new Vector(rotatedX, baseDirection.getY(), rotatedZ).multiply(originalArrow.getVelocity().length()));
+        originalArrow.remove();
     }
 }

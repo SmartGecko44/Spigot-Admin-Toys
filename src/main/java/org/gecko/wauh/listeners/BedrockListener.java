@@ -270,34 +270,10 @@ public class BedrockListener implements Listener {
             if (!Main.getPlugin(Main.class).getShowRemoval()) {
                 removeMarkedBlocks();
             } else {
-                allRemovalActive = false;
-                explosionTrigger = false;
-                currentRemovingPlayer = null;
-                clickedLocation = null;
-                tntListener.tntLocation = null;
-                tntListener.tntPlayer = null;
-                creeperListener.creeperLocation = null;
-                realSource = null;
-                stopAllRemoval = false;
-                blocksToProcess.clear();
-                markedBlocks.clear();
-                processedBlocks.clear();
-                removedBlocks.clear();
+                clearAll(tntListener, creeperListener);
             }
         } else {
-            allRemovalActive = false;
-            explosionTrigger = false;
-            currentRemovingPlayer = null;
-            clickedLocation = null;
-            tntListener.tntLocation = null;
-            tntListener.tntPlayer = null;
-            creeperListener.creeperLocation = null;
-            realSource = null;
-            stopAllRemoval = false;
-            blocksToProcess.clear();
-            markedBlocks.clear();
-            processedBlocks.clear();
-            removedBlocks.clear();
+            clearAll(tntListener, creeperListener);
         }
     }
 
@@ -321,19 +297,7 @@ public class BedrockListener implements Listener {
             for (Block block : markedBlocks) {
                 block.setType(Material.AIR);
             }
-            allRemovalActive = false;
-            explosionTrigger = false;
-            currentRemovingPlayer = null;
-            clickedLocation = null;
-            tntListener.tntLocation = null;
-            tntListener.tntPlayer = null;
-            creeperListener.creeperLocation = null;
-            realSource = null;
-            stopAllRemoval = false;
-            blocksToProcess.clear();
-            markedBlocks.clear();
-            processedBlocks.clear();
-            removedBlocks.clear();
+            clearAll(tntListener, creeperListener);
         } else {
             scale.ScaleReverseLogic(totalRemovedCount, radiusLimit, markedBlocks, "bedrock");
         }
@@ -354,21 +318,25 @@ public class BedrockListener implements Listener {
                 if (currentRemovingPlayer != null) {
                     currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Falling block cleanup finished"));
                 }
-                allRemovalActive = false;
-                explosionTrigger = false;
-                currentRemovingPlayer = null;
-                clickedLocation = null;
-                tntListener.tntLocation = null;
-                tntListener.tntPlayer = null;
-                creeperListener.creeperLocation = null;
-                realSource = null;
-                stopAllRemoval = false;
-                blocksToProcess.clear();
-                markedBlocks.clear();
-                processedBlocks.clear();
-                removedBlocks.clear();
+                clearAll(tntListener, creeperListener);
             }
         }
+    }
+
+    private void clearAll(TNTListener tntListener, CreeperListener creeperListener) {
+        allRemovalActive = false;
+        explosionTrigger = false;
+        currentRemovingPlayer = null;
+        clickedLocation = null;
+        tntListener.tntLocation = null;
+        tntListener.tntPlayer = null;
+        creeperListener.creeperLocation = null;
+        realSource = null;
+        stopAllRemoval = false;
+        blocksToProcess.clear();
+        markedBlocks.clear();
+        processedBlocks.clear();
+        removedBlocks.clear();
     }
 
     public void CleanRemove(int scaledBlocksPerIteration, Iterator<Block> iterator) {

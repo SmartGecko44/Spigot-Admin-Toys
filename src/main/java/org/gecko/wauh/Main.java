@@ -11,6 +11,7 @@ import org.gecko.wauh.enchantments.enchants.weapons.bows.Aim;
 import org.gecko.wauh.enchantments.enchants.weapons.bows.Multishot;
 import org.gecko.wauh.enchantments.logic.EnchantmentHandler;
 import org.gecko.wauh.enchantments.enchants.weapons.swords.Disarm;
+import org.gecko.wauh.enchantments.tools.Drill;
 import org.gecko.wauh.gui.ConfigGUI;
 import org.gecko.wauh.listeners.*;
 
@@ -39,6 +40,7 @@ public final class Main extends JavaPlugin {
     public static Enchantment disarm = new Disarm(100);
     public static Enchantment aim = new Aim(101);
     public static Enchantment multishot = new Multishot(102);
+    public static Enchantment drill = new Drill(103);
 
 
     @Override
@@ -71,17 +73,20 @@ public final class Main extends JavaPlugin {
         Disarm disarmListener = new Disarm(100);
         Aim aimListener = new Aim(101);
         Multishot multishotListener = new Multishot(102);
+        Drill drillListener = new Drill(103);
 
         // Enchantment listeners
         getServer().getPluginManager().registerEvents(disarmListener, this);
         getServer().getPluginManager().registerEvents(aimListener, this);
         getServer().getPluginManager().registerEvents(multishotListener, this);
+        getServer().getPluginManager().registerEvents(drillListener, this);
 
         // Register Enchantments
         try {
             registerEnchantment(disarm);
             registerEnchantment(aim);
             registerEnchantment(multishot);
+            registerEnchantment(drill);
         } catch (IllegalArgumentException ignored) {}
 
         // Register commands
