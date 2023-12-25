@@ -62,7 +62,11 @@ public class Ench implements CommandExecutor, TabCompleter {
                                     // Add or update the lore to include enchantment information
                                     if (level > 0) {
                                         String levelRoman = convertToRomanNumerals(level);
-                                        enchItem.addEnchantment(Enchantment.getByName(enchantmentNameFinal), level);
+                                        if (level <= 10) {
+                                            enchItem.addEnchantment(Enchantment.getByName(enchantmentNameFinal), level);
+                                        } else {
+                                            enchItem.addUnsafeEnchantment(Enchantment.getByName(enchantmentNameFinal), level);
+                                        }
                                         updateItemLore(enchItem, operation, levelRoman, level);
                                         sender.sendMessage("Success! Your item now has " + enchantmentNameFinal + " " + levelRoman);
                                     } else if (level == 0) {

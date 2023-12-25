@@ -1,5 +1,8 @@
 package org.gecko.wauh.enchantments.tools.pickaxes;
 
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.enchantments.EnchantmentTarget;
@@ -13,8 +16,6 @@ import java.util.Map;
 import java.util.Set;
 
 public class Smelt extends Enchantment implements Listener {
-
-    //FIXME
 
     private final Set<Material> SMELTABLE_MATERIALS = EnumSet.of(Material.IRON_ORE, Material.GOLD_ORE);
 
@@ -69,12 +70,17 @@ public class Smelt extends Enchantment implements Listener {
         if (itemEnch.containsKey(Enchantment.getByName("Smelt"))) {
             event.getBlock().getDrops().clear();
             if (SMELTABLE_MATERIALS.contains(event.getBlock().getType())) {
+                event.setCancelled(true);
                 switch (event.getBlock().getType()) {
                     case IRON_ORE:
-                        event.getBlock().getDrops().add(new ItemStack(Material.IRON_INGOT, 1));
+                        event.getBlock().setType(Material.AIR);
+                        event.getBlock().getWorld().dropItem(event.getBlock().getLocation(), new ItemStack(Material.IRON_INGOT, 1));
+                        event.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "You smelted iron ore!"));
                         break;
                     case GOLD_ORE:
-                        event.getBlock().getDrops().add(new ItemStack(Material.GOLD_INGOT, 1));
+                        event.getBlock().setType(Material.AIR);
+                        event.getBlock().getWorld().dropItem(event.getBlock().getLocation(), new ItemStack(Material.GOLD_INGOT, 1));
+                        event.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "You smelted gold ore!"));
                         break;
                 }
             } else {

@@ -24,7 +24,7 @@ public class Multishot extends Enchantment implements Listener {
 
     @Override
     public int getMaxLevel() {
-        return 10; // You can adjust the maximum level as needed
+        return 10;
     }
 
     @Override
