@@ -11,10 +11,12 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Map;
+
 public class Disarm extends Enchantment implements Listener {
 
-    public Disarm(int id) {
-        super(id);
+    public Disarm() {
+        super(100);
     }
 
     @Override
@@ -63,8 +65,10 @@ public class Disarm extends Enchantment implements Listener {
             Player player = (Player) event.getDamager();
             ItemStack weapon = player.getInventory().getItemInMainHand();
 
-            if (weapon.containsEnchantment(this)) {
-                int level = weapon.getEnchantmentLevel(this);
+            // This uses a map of all enchantments because for some reason, using the preexisting function doesn't work
+            Map<Enchantment, Integer> itemEnch = weapon.getEnchantments();
+            if (itemEnch.containsKey(Enchantment.getByName("Disarm"))) {
+                int level = itemEnch.get(Enchantment.getByName("Disarm"));
                 double chanceForOne = Math.min(1.0, 0.1 * level);
 
                 if (Math.random() < chanceForOne) {

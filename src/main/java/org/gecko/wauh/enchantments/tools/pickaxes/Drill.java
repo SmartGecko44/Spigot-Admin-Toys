@@ -1,4 +1,4 @@
-package org.gecko.wauh.enchantments.tools;
+package org.gecko.wauh.enchantments.tools.pickaxes;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -10,14 +10,15 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.EnumSet;
+import java.util.Map;
 import java.util.Set;
 
 public class Drill extends Enchantment implements Listener {
 
     private static final Set<Material> IMMUTABLE_MATERIALS = EnumSet.of(Material.BEDROCK, Material.STATIONARY_WATER, Material.WATER, Material.LAVA, Material.STATIONARY_LAVA);
 
-    public Drill(int id) {
-        super(id);
+    public Drill() {
+        super(103);
     }
 
     @Override
@@ -27,7 +28,7 @@ public class Drill extends Enchantment implements Listener {
 
     @Override
     public int getMaxLevel() {
-        return 1; // You can adjust the maximum level as needed
+        return 5; // You can adjust the maximum level as needed
     }
 
     @Override
@@ -52,7 +53,7 @@ public class Drill extends Enchantment implements Listener {
 
     @Override
     public boolean conflictsWith(Enchantment enchantment) {
-        return false;
+        return enchantment == Enchantment.getByName("Smelt");
     }
 
     @Override
@@ -62,15 +63,30 @@ public class Drill extends Enchantment implements Listener {
 
     @EventHandler
     public void onDrill(BlockBreakEvent event) {
-        if (event.getPlayer().getInventory().getItemInMainHand().containsEnchantment(this)) {
-            int range = 1 + getMaxLevel();
-            for (int x = -1; x <= range; x++) {
-                for (int y = -1; y <= range; y++) {
-                    for (int z = -1; z <= range; z++) {
-                        Block block = event.getBlock().getRelative(x, y, z);
+        ItemStack mainHandItem = event.getPlayer().getInventory().getItemInMainHand();
+
+        // This uses a map of all enchantments because for some reason, using the preexisting function doesn't work
+        Map<Enchantment, Integer> itemEnch = mainHandItem.getEnchantments();
+        if (itemEnch.containsKey(Enchantment.getByName("Drill"))) {
+            int level = itemEnch.get(Enchantment.getByName("Drill"));
+            int range = 2 * level + 1;
+
+            // Calculate middle position
+            int middleX = range / 2;
+            int middleY = range / 2;
+            int middleZ = range / 2;
+
+            for (int x = 0; x < range; x++) {
+                for (int y = 0; y < range; y++) {
+                    for (int z = 0; z < range; z++) {
+                        Block block = event.getBlock().getRelative(x - middleX, y - middleY, z - middleZ);
+
+                        // Check if the block is an immutable material
                         if (IMMUTABLE_MATERIALS.contains(block.getType())) {
                             continue;
                         }
+
+                        // Break the block naturally
                         block.breakNaturally();
                     }
                 }

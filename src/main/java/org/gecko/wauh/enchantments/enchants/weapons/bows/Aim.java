@@ -8,18 +8,25 @@ import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
+import org.gecko.wauh.Main;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Aim extends Enchantment implements Listener {
 
-    public Aim(int id) {
-        super(id);
+    private final Map<Entity, Long> lastArrowHitTimes = new HashMap<>();
+    private final Logger logger = Bukkit.getLogger();
+
+    public Aim() {
+        super(101);
     }
 
     @Override
@@ -62,21 +69,13 @@ public class Aim extends Enchantment implements Listener {
         return itemStack.getType().equals(Material.BOW);
     }
 
-    @EventHandler
-    public void onProjectileLaunch(ProjectileLaunchEvent event) {
-        if (event.getEntity() instanceof Arrow) {
-            Arrow arrow = (Arrow) event.getEntity();
-            if (arrow.getShooter() instanceof Player) {
-                Player shooter = (Player) arrow.getShooter();
-                ItemStack bow = shooter.getInventory().getItemInMainHand();
-
-                if (bow.containsEnchantment(this)) {
-                    int level = bow.getEnchantmentLevel(this);
-                    int range = level + 1; // Increase range by 1 block for each level
-
-                    scheduleTargetUpdate(arrow, shooter, range);
-                }
-            }
+    public void aimHandler(Player shooter, Arrow arrow, ItemStack bow) {
+        // This uses a map of all enchantments because for some reason, using the preexisting function doesn't work
+        Map<Enchantment, Integer> itemEnch = bow.getEnchantments();
+        if (itemEnch.containsKey(Enchantment.getByName("Aim"))) {
+            int level = itemEnch.get(Enchantment.getByName("Aim"));
+            int range = level + 1; // Increase range by 1 block for each level
+            scheduleTargetUpdate(arrow, shooter, range);
         }
     }
 
@@ -99,7 +98,7 @@ public class Aim extends Enchantment implements Listener {
 
         if (target != null) {
             // Adjust target location to the center of the entity
-            Vector targetLocation = target.getLocation().toVector().add(new Vector(0, (target.getHeight() - 0.2), 0));
+            Vector targetLocation = target.getLocation().toVector().add(new Vector(0, (target.getHeight() / 1.2), 0));
 
             Vector direction = targetLocation.subtract(arrow.getLocation().toVector());
             arrow.setVelocity(direction.normalize().multiply(arrow.getVelocity().length()));
@@ -127,5 +126,38 @@ public class Aim extends Enchantment implements Listener {
         }
 
         return nearestEntity;
+    }
+
+    public void onAimHitHandler(ItemStack bow, Entity entity) {
+        if (entity instanceof LivingEntity) {
+            Map<Enchantment, Integer> itemEnch = bow.getEnchantments();
+            if (itemEnch.containsKey(Enchantment.getByName("Aim"))) {
+                ((LivingEntity) entity).setNoDamageTicks(0);
+
+                // Update the last arrow hit time for this entity
+                lastArrowHitTimes.put(entity, System.currentTimeMillis());
+
+                // Schedule a task to check if 5 seconds have passed without a new arrow hit
+                scheduleResetTask(entity);
+            }
+        }
+    }
+
+    private void scheduleResetTask(Entity entity) {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                long lastHitTime = lastArrowHitTimes.getOrDefault(entity, 0L);
+                long currentTime = System.currentTimeMillis();
+
+                // Check if 5 seconds have passed since the last arrow hit
+                if (currentTime - lastHitTime >= 5000) {
+                    logger.log(Level.INFO, "Resetting no damage ticks for " + entity.getName());
+                    ((LivingEntity) entity).setNoDamageTicks(20); // Reset the no damage ticks
+                    // Remove the entity from the lastArrowHitTimes map
+                    lastArrowHitTimes.remove(entity);
+                }
+            }
+        }.runTaskLater(Main.getPlugin(Main.class), 100); // Run the task after 5 seconds (100 ticks = 5 seconds)
     }
 }

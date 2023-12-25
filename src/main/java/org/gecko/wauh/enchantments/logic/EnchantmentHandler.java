@@ -5,21 +5,23 @@ import org.bukkit.inventory.ItemStack;
 import org.gecko.wauh.enchantments.enchants.weapons.bows.Aim;
 import org.gecko.wauh.enchantments.enchants.weapons.bows.Multishot;
 import org.gecko.wauh.enchantments.enchants.weapons.swords.Disarm;
-import org.gecko.wauh.enchantments.tools.Drill;
+import org.gecko.wauh.enchantments.tools.pickaxes.Drill;
+import org.gecko.wauh.enchantments.tools.pickaxes.Smelt;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class EnchantmentHandler {
 
-    private final List<Enchantment> enchantments;
+    private static List<Enchantment> enchantments;
 
     public EnchantmentHandler() {
         enchantments = new ArrayList<>();
-        enchantments.add(new Disarm(100));
-        enchantments.add(new Aim(101));
-        enchantments.add(new Multishot(102));
-        enchantments.add(new Drill(103));
+        enchantments.add(new Disarm());
+        enchantments.add(new Aim());
+        enchantments.add(new Multishot());
+        enchantments.add(new Drill());
+        enchantments.add(new Smelt());
     }
 
     public boolean getEnchantmentExists(String name) {
@@ -48,6 +50,31 @@ public class EnchantmentHandler {
             }
         }
         return null;
+    }
+
+    public List<Enchantment> getConflicting(String enchantmentName, List<Enchantment> enchantments) {
+        Enchantment enchantment = getEnchantmentByName(enchantmentName);
+        List<Enchantment> conflictingEnchantments = new ArrayList<>();
+
+        if (enchantment == null) {
+            return null;
+        }
+
+        for (Enchantment conflictingEnchant : enchantments) {
+            if (enchantment.conflictsWith(conflictingEnchant)) {
+                conflictingEnchantments.add(conflictingEnchant);
+            }
+        }
+
+        if (conflictingEnchantments.isEmpty()) {
+            return null;
+        }
+
+        return conflictingEnchantments;
+    }
+
+    public static List<Enchantment> getAllEnchantments() {
+        return enchantments;
     }
 
 }

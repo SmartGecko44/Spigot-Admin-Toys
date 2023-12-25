@@ -8,10 +8,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.gecko.wauh.commands.*;
 import org.gecko.wauh.data.ConfigurationManager;
 import org.gecko.wauh.enchantments.enchants.weapons.bows.Aim;
+import org.gecko.wauh.enchantments.enchants.weapons.bows.BowListener;
 import org.gecko.wauh.enchantments.enchants.weapons.bows.Multishot;
 import org.gecko.wauh.enchantments.logic.EnchantmentHandler;
 import org.gecko.wauh.enchantments.enchants.weapons.swords.Disarm;
-import org.gecko.wauh.enchantments.tools.Drill;
+import org.gecko.wauh.enchantments.tools.pickaxes.Drill;
+import org.gecko.wauh.enchantments.tools.pickaxes.Smelt;
 import org.gecko.wauh.gui.ConfigGUI;
 import org.gecko.wauh.listeners.*;
 
@@ -37,10 +39,11 @@ public final class Main extends JavaPlugin {
     private final EnchantmentHandler enchantmentHandler = new EnchantmentHandler();
 
     // Enchantments
-    public static Enchantment disarm = new Disarm(100);
-    public static Enchantment aim = new Aim(101);
-    public static Enchantment multishot = new Multishot(102);
-    public static Enchantment drill = new Drill(103);
+    public static final Enchantment disarm = new Disarm();
+    public static final Enchantment aim = new Aim();
+    public static final Enchantment multishot = new Multishot();
+    public static final Enchantment drill = new Drill();
+    public static final Enchantment smelt = new Smelt();
 
 
     @Override
@@ -70,16 +73,16 @@ public final class Main extends JavaPlugin {
         getServer().getPluginManager().registerEvents(configGUI, this);
 
         // Create enchant instances
-        Disarm disarmListener = new Disarm(100);
-        Aim aimListener = new Aim(101);
-        Multishot multishotListener = new Multishot(102);
-        Drill drillListener = new Drill(103);
+        Disarm disarmListener = new Disarm();
+        BowListener bowListener = new BowListener();
+        Drill drillListener = new Drill();
+        Smelt smeltListener = new Smelt();
 
         // Enchantment listeners
         getServer().getPluginManager().registerEvents(disarmListener, this);
-        getServer().getPluginManager().registerEvents(aimListener, this);
-        getServer().getPluginManager().registerEvents(multishotListener, this);
+        getServer().getPluginManager().registerEvents(bowListener, this);
         getServer().getPluginManager().registerEvents(drillListener, this);
+        getServer().getPluginManager().registerEvents(smeltListener, this);
 
         // Register Enchantments
         try {
@@ -87,6 +90,7 @@ public final class Main extends JavaPlugin {
             registerEnchantment(aim);
             registerEnchantment(multishot);
             registerEnchantment(drill);
+            registerEnchantment(smelt);
         } catch (IllegalArgumentException ignored) {}
 
         // Register commands
@@ -180,16 +184,25 @@ public final class Main extends JavaPlugin {
         try {
             Field f = Enchantment.class.getDeclaredField("acceptingNew");
             f.setAccessible(true);
-            f.set(null, true);
+            f.set(null, true); // Allow enchantment registration temporarily
             Enchantment.registerEnchantment(enchantment);
         } catch (Exception e) {
             registered = false;
             logger.log(Level.SEVERE, "Error while registering enchantment " + enchantment + " Error:" + e);
-
+        } finally {
+            try {
+                // Set acceptingNew back to false to avoid potential issues
+                Field f = Enchantment.class.getDeclaredField("acceptingNew");
+                f.setAccessible(true);
+                f.set(null, false);
+            } catch (Exception ignored) {
+                // Ignore any exceptions during cleanup
+            }
         }
-        if (registered){
+
+        if (registered) {
             // It's been registered!
-            Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "" + enchantment + "Registered");
+            Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + enchantment.getName() + " Registered");
         }
     }
 }

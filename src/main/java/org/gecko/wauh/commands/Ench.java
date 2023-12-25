@@ -10,9 +10,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.gecko.wauh.Main;
+import org.gecko.wauh.enchantments.logic.EnchantmentHandler;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -22,6 +24,11 @@ public class Ench implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+        if (args[0].equalsIgnoreCase("view")) {
+            Map<Enchantment, Integer> enches = ((Player) sender).getInventory().getItemInMainHand().getEnchantments();
+            sender.sendMessage(enches.toString());
+            return true;
+        }
         if (sender instanceof Player) {
             if (args.length == 2) {
                 String operation = args[0].toLowerCase();
@@ -30,34 +37,47 @@ public class Ench implements CommandExecutor, TabCompleter {
                 String enchantmentNameFinal = operation.substring(0, 1).toUpperCase() + operation.substring(1).toLowerCase();
                 if (Main.getPlugin(Main.class).getEnchantmentHandler().getEnchantmentExists(enchantmentNameFinal)) {
                     if (Main.getPlugin(Main.class).getEnchantmentHandler().getCanEnchant(operation, enchItem)) {
-                        try {
-                            int level = Integer.parseInt(args[1]);
-                            int maxLevel = Main.getPlugin(Main.class).getEnchantmentHandler().getMaxLevelEnch(operation.toLowerCase());
-                            int minLevel = Main.getPlugin(Main.class).getEnchantmentHandler().getMinLevelEnch(operation.toLowerCase());
-                            if (level <= maxLevel && level >= minLevel || level == 0 || (minLevel == -1 && maxLevel == -1)) {
-                                if ((minLevel & maxLevel) == -1) {
-                                    sender.sendMessage("Enchantment not found.");
-                                    return true;
+                            try {
+                                ArrayList<Enchantment> currentEnchantments = new ArrayList<>(enchItem.getEnchantments().keySet());
+                                int level = Integer.parseInt(args[1]);
+                                int maxLevel = Main.getPlugin(Main.class).getEnchantmentHandler().getMaxLevelEnch(operation.toLowerCase());
+                                int minLevel = Main.getPlugin(Main.class).getEnchantmentHandler().getMinLevelEnch(operation.toLowerCase());
+                                if (level <= maxLevel && level >= minLevel || level == 0 || (minLevel == -1 && maxLevel == -1)) {
+                                    if ((minLevel & maxLevel) == -1) {
+                                        sender.sendMessage("Enchantment not found.");
+                                        return true;
+                                    }
+                                    if (Main.getPlugin(Main.class).getEnchantmentHandler().getConflicting(operation.toLowerCase(), currentEnchantments) != null) {
+                                        List<Enchantment> conflictingEnchants = Main.getPlugin(Main.class).getEnchantmentHandler().getConflicting(operation.toLowerCase(), currentEnchantments);
+                                        if (conflictingEnchants.size() == 1) {
+                                            sender.sendMessage("This enchantment conflicts with another enchantment on this item");
+                                            sender.sendMessage("Conflicting enchantment: " + conflictingEnchants);
+                                            return true;
+                                        } else if (conflictingEnchants.size() > 1) {
+                                            sender.sendMessage("This enchantment conflicts with multiple enchantments on this item");
+                                            sender.sendMessage("Conflicting enchantments: " + conflictingEnchants);
+                                            return true;
+                                        }
+                                    }
+                                    // Add or update the lore to include enchantment information
+                                    if (level > 0) {
+                                        String levelRoman = convertToRomanNumerals(level);
+                                        enchItem.addEnchantment(Enchantment.getByName(enchantmentNameFinal), level);
+                                        updateItemLore(enchItem, operation, levelRoman, level);
+                                        sender.sendMessage("Success! Your item now has " + enchantmentNameFinal + " " + levelRoman);
+                                    } else if (level == 0) {
+                                        enchItem.removeEnchantment(Enchantment.getByName(enchantmentNameFinal));
+                                        updateItemLore(enchItem, operation, null, level);
+                                        sender.sendMessage("Success! " + enchantmentNameFinal + " has been removed from your item");
+                                    }
+                                } else {
+                                    sender.sendMessage(ChatColor.RED + "Level too high, max is " + maxLevel);
                                 }
-                                // Add or update the lore to include enchantment information
-                                if (level > 0) {
-                                    String levelRoman = convertToRomanNumerals(level);
-                                    enchItem.addEnchantment(Enchantment.getByName(enchantmentNameFinal), level);
-                                    updateItemLore(enchItem, operation, levelRoman, level);
-                                    sender.sendMessage("Success! Your item now has " + enchantmentNameFinal + " " + levelRoman);
-                                } else if (level == 0) {
-                                    enchItem.removeEnchantment(Enchantment.getByName(enchantmentNameFinal));
-                                    updateItemLore(enchItem, operation, null, level);
-                                    sender.sendMessage("Success! " + enchantmentNameFinal + " has been removed from your item");
-                                }
-                            } else {
-                                sender.sendMessage(ChatColor.RED + "Level too high, max is " + maxLevel);
-                            }
 
-                        } catch (NumberFormatException e) {
-                            sender.sendMessage("Please specify a valid integer.");
-                            logger.log(Level.SEVERE, "Error:" + e);
-                        }
+                            } catch (NumberFormatException e) {
+                                sender.sendMessage("Please specify a valid integer.");
+                                logger.log(Level.SEVERE, "Error:" + e);
+                            }
                     } else {
                         sender.sendMessage("You cannot enchant this item with this enchantment");
                         return true;
@@ -76,7 +96,6 @@ public class Ench implements CommandExecutor, TabCompleter {
         }
         return true;
     }
-
     private void updateItemLore(ItemStack item, String enchantmentName, String enchantmentLevel, int level) {
         ItemMeta meta = item.getItemMeta();
         List<String> lore = meta.getLore();
@@ -129,15 +148,10 @@ public class Ench implements CommandExecutor, TabCompleter {
         if (args.length == 1) {
             String input = args[0].toLowerCase();
 
-            // Add completion suggestions based on the input
-            if ("tnt".startsWith(input)) {
-                completions.add("tnt");
-            }
-            if ("player".startsWith(input)) {
-                completions.add("player");
-            }
-            if ("creeper".startsWith(input)) {
-                completions.add("creeper");
+            for (Enchantment enchantment : EnchantmentHandler.getAllEnchantments()) {
+                if (enchantment.getName().toLowerCase().startsWith(input)) {
+                    completions.add(enchantment.getName());
+                }
             }
         }
         return completions;

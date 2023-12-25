@@ -5,16 +5,16 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.enchantments.EnchantmentTarget;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
+import java.util.Map;
+
 public class Multishot extends Enchantment implements Listener {
 
-    public Multishot(int id) {
-        super(id);
+    public Multishot() {
+        super(102);
     }
 
     @Override
@@ -57,20 +57,14 @@ public class Multishot extends Enchantment implements Listener {
         return itemStack.getType().equals(Material.BOW);
     }
 
-    @EventHandler
-    public void onProjectileLaunch(ProjectileLaunchEvent event) {
-        if (event.getEntity() instanceof Arrow) {
-            Arrow arrow = (Arrow) event.getEntity();
-            if (arrow.getShooter() instanceof Player) {
-                Player shooter = (Player) arrow.getShooter();
-                ItemStack bow = shooter.getInventory().getItemInMainHand();
+    public void multishotHandler(Arrow arrow, ItemStack bow) {
+        // This uses a map of all enchantments because for some reason, using the preexisting function doesn't work
+        Map<Enchantment, Integer> itemEnch = bow.getEnchantments();
+        if (itemEnch.containsKey(Enchantment.getByName("Multishot")) && arrow.isCritical()) {
+            int level = itemEnch.get(Enchantment.getByName("Multishot"));
 
-                if (bow.containsEnchantment(this) && arrow.isCritical()) {
-                    int level = bow.getEnchantmentLevel(this);
-                    for (int i = level; i > 0; i--) {
-                        spawnAdditionalArrow(arrow, i, level);
-                    }
-                }
+            for (int i = level; i > 0; i--) {
+                spawnAdditionalArrow(arrow, i, level);
             }
         }
     }
@@ -86,6 +80,7 @@ public class Multishot extends Enchantment implements Listener {
         // Copy relevant properties from the original arrow
         additionalArrow.setShooter(originalArrow.getShooter());
         additionalArrow.setCritical(originalArrow.isCritical());
+        additionalArrow.setPickupStatus(Arrow.PickupStatus.DISALLOWED);
 
         // Set velocity based on the arrowIndex and totalArrows
         double angleBetweenArrows = Math.toRadians(2); // Adjust the angle between arrows as needed
@@ -103,5 +98,12 @@ public class Multishot extends Enchantment implements Listener {
         // Apply the rotated direction to the additional arrow
         additionalArrow.setVelocity(new Vector(rotatedX, baseDirection.getY(), rotatedZ).multiply(originalArrow.getVelocity().length()));
         originalArrow.remove();
+        new Aim().aimHandler((Player) originalArrow.getShooter(), additionalArrow, ((Player) originalArrow.getShooter()).getInventory().getItemInMainHand());
+    }
+
+    public void onArrowHitHandler(Arrow arrow, ItemStack bow) {
+        if (bow.containsEnchantment(Enchantment.getByName("Multishot")) && arrow.isCritical()) {
+            arrow.remove();
+        }
     }
 }
