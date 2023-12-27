@@ -189,7 +189,7 @@
         <dependency>
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>
-            <version>0.9.12</version> <!-- Use the latest version available -->
+            <version>0.10.2</version> <!-- Use the latest version available -->
         </dependency>
     </dependencies>
 </project>
