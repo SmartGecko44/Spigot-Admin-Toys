@@ -8,11 +8,14 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.gecko.wauh.items.TriggerItems;
+import org.gecko.wauh.items.blocks.MirrorItem;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class GiveCustomItems implements CommandExecutor, TabCompleter {
+
+    private final MirrorItem mirror = new MirrorItem();
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
@@ -21,7 +24,7 @@ public class GiveCustomItems implements CommandExecutor, TabCompleter {
             if (args.length == 1) {
                 String operation = args[0].toLowerCase();
 
-                if (operation.equals("bucket") || operation.equals("barrier") || operation.equals("bedrock") || operation.equals("tsunami") || operation.equals("all")) {
+                if (operation.equals("bucket") || operation.equals("barrier") || operation.equals("bedrock") || operation.equals("tsunami") || operation.equals("mirror") || operation.equals("all")) {
                     ItemStack customBucket = items.createCustomItem(Material.BUCKET, "Water Drainer", (short) 0, "Removes all fluids", "Custom Bucket");
                     ItemStack customBarrier = items.createCustomItem(Material.BARRIER, "Surface Remover", (short) 0, "Removes grass and dirt blocks", "Custom Barrier");
                     ItemStack customBedrock = items.createCustomItem(Material.BEDROCK, "Block Obliterator", (short) 0, "Removes almost all blocks", "Custom Bedrock");
@@ -39,8 +42,10 @@ public class GiveCustomItems implements CommandExecutor, TabCompleter {
                         case "tsunami":
                             ((Player) sender).getInventory().addItem(customTsunami);
                             break;
+                        case "mirror":
+                            ((Player) sender).getInventory().addItem(mirror.createMirrorItem());
                         default:
-                            ((Player) sender).getInventory().addItem(customBucket, customBarrier, customBedrock, customTsunami);
+                            ((Player) sender).getInventory().addItem(customBucket, customBarrier, customBedrock, customTsunami, mirror.createMirrorItem());
                             break;
                     }
                 } else return true;
