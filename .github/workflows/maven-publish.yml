@@ -72,10 +72,9 @@ jobs:
       - name: Use Branch Name
         run: echo "Branch name is ${{ steps.extract_branch_name.outputs.branch_name }}"
 
-      - name: Qodana Scan
+      - name: 'Qodana Scan'
         uses: JetBrains/qodana-action@v2023.3
         env:
           QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          branch_name: ${{ steps.extract_branch_name.outputs.branch_name }}
+          BRANCH_NAME: ${{ steps.extract_branch_name.outputs.branch_name }}
