@@ -62,6 +62,8 @@ jobs:
           if-no-files-found: error
   qodana-scan:
     runs-on: ubuntu-latest
+    outputs:
+      id: branch_name
     steps:
       - name: Extract Branch Name
         id: extract_branch_name
