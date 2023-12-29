@@ -62,19 +62,12 @@ jobs:
           if-no-files-found: error
   qodana-scan:
     runs-on: ubuntu-latest
-    outputs:
-      id: branch_name
     steps:
-      - name: Extract Branch Name
-        id: extract_branch_name
-        run: echo "##[set-output name=branch_name;]${GITHUB_REF#refs/heads/}"
-
-      - name: Use Branch Name
-        run: echo "Branch name is ${{ steps.extract_branch_name.outputs.branch_name }}"
-
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - name: 'Qodana Scan'
         uses: JetBrains/qodana-action@v2023.3
         env:
           QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH_NAME: ${{ steps.extract_branch_name.outputs.branch_name }}
