@@ -4,3 +4,4 @@ profile:
 include:
   - name: UNUSED_IMPORT
   - name: CheckDependencyLicenses
+linter: jetbrains/qodana-jvm:2023.3
