@@ -63,10 +63,6 @@ jobs:
   qodana-scan:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          ref: ${{ github.event.ref }}
       - name: 'Qodana Scan'
         uses: JetBrains/qodana-action@v2023.3
         env:
