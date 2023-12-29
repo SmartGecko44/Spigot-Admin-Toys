@@ -44,6 +44,7 @@ public class GiveCustomItems implements CommandExecutor, TabCompleter {
                             break;
                         case "mirror":
                             ((Player) sender).getInventory().addItem(mirror.createMirrorItem());
+                            break;
                         default:
                             ((Player) sender).getInventory().addItem(customBucket, customBarrier, customBedrock, customTsunami, mirror.createMirrorItem());
                             break;
