@@ -60,7 +60,7 @@ jobs:
           name: Wauh-${{ github.run_number }}
           path: filtered-artifacts
           if-no-files-found: error
-  qodana:
+  qodana-scan:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -70,3 +70,4 @@ jobs:
         uses: JetBrains/qodana-action@v2023.3
         env:
           QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
