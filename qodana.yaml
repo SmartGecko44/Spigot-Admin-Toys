@@ -1,0 +1,7 @@
+version: "1.0"
+profile:
+  name: qodana.recommended
+include:
+  - name: UNUSED_IMPORT
+  - name: CheckDependencyLicenses
+linter: jetbrains/qodana-jvm:2023.3
