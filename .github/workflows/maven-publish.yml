@@ -75,14 +75,14 @@ jobs:
         uses: JetBrains/qodana-action@v2023.3
         with:
           pr-mode: false
-          args:
-            "--apply-fixes --baseline,qodana.sarif.json"
+          args: "--apply-fixes --baseline qodana.sarif.json"
           fail-threshold: 5
           push-fixes: pull-request
         env:
           QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           QODANA_BRANCH: ${GITHUB_REF_NAME}
+
       - uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: ${{ runner.temp }}/qodana/results/qodana.sarif.json
