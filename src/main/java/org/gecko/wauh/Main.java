@@ -5,6 +5,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.gecko.wauh.blocks.Mirror;
 import org.gecko.wauh.commands.*;
 import org.gecko.wauh.data.ConfigurationManager;
 import org.gecko.wauh.enchantments.enchants.weapons.bows.Aim;
@@ -62,6 +63,7 @@ public final class Main extends JavaPlugin {
         configManager = new ConfigurationManager(Main.getPlugin(Main.class));
         config = configManager.getConfig();
         ConfigGUI configGUI = new ConfigGUI(this);
+        Mirror mirror = new Mirror(this);
 
         // Register the listeners
         getServer().getPluginManager().registerEvents(bucketListener, this);
@@ -71,6 +73,7 @@ public final class Main extends JavaPlugin {
         getServer().getPluginManager().registerEvents(tntListener, this);
         getServer().getPluginManager().registerEvents(creeperListener, this);
         getServer().getPluginManager().registerEvents(configGUI, this);
+        getServer().getPluginManager().registerEvents(mirror, this);
 
         // Create enchant instances
         Disarm disarmListener = new Disarm();
