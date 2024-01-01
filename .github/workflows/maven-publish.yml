@@ -73,12 +73,12 @@ jobs:
         with:
           pr-mode: false
           args: --baseline,qodana.sarif.json
-          fail-threshold: 5
           push-fixes: pull-request
         env:
           QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           QODANA_BRANCH: ${GITHUB_REF_NAME}
+          fail-threshold: 5
 
       - name: Upload Qodana results to GitHub
         uses: github/codeql-action/upload-sarif@v2
