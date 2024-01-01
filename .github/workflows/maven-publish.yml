@@ -4,11 +4,9 @@ on:
   push:
     branches:
       - master
-      - mirror
   pull_request:
     branches:
       - master
-      - experimental
   release:
     types:
       - prereleased
@@ -60,28 +58,3 @@ jobs:
           name: Wauh-${{ github.run_number }}
           path: filtered-artifacts
           if-no-files-found: error
-
-  qodana-scan:
-    runs-on: ubuntu-latest
-    permissions: write-all
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Qodana Scan
-        uses: JetBrains/qodana-action@v2023.3
-        with:
-          pr-mode: false
-          args: --baseline,qodana.sarif.json,--apply-fixes
-          push-fixes: pull-request
-        env:
-          QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          QODANA_BRANCH: ${GITHUB_REF_NAME}
-
-      - name: Upload Qodana results to GitHub
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: ${{ runner.temp }}/qodana/results/qodana.sarif.json
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
