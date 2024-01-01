@@ -18,6 +18,7 @@ on:
 
 jobs:
   build:
+    needs: [qodana-scan]
     runs-on:
       - ubuntu-latest
 
