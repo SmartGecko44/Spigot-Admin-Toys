@@ -72,7 +72,7 @@ jobs:
         uses: JetBrains/qodana-action@v2023.3
         with:
           pr-mode: false
-          args: --baseline,qodana.sarif.json,--apply-fixes
+          args: --baseline,qodana.sarif.json,--apply-fixes,--cleanup
           push-fixes: pull-request
         env:
           QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
