@@ -1,4 +1,4 @@
-name: Qudana Code Check
+name: Qodana Code Check
 on:
   push:
     branches:
