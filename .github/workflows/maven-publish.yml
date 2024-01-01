@@ -76,8 +76,7 @@ jobs:
         with:
           pr-mode: false
           args:
-            --apply-fixes
-            --baseline,qodana.sarif.json
+            --apply-fixes --baseline,qodana.sarif.json
           fail-threshold: 5
           push-fixes: pull-request
         env:
