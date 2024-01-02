@@ -31,9 +31,9 @@ name: SonarCloud analysis
 on:
   push:
     branches: 
-    - 'branch/*'
-    - 'release/*'
-    - 'master'
+      - 'refs/heads/branch/*'
+      - 'refs/heads/release/*'
+      - 'refs/heads/master'
   pull_request:
     branches: [ "master" ]
   workflow_dispatch:
@@ -46,6 +46,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        
       - name: Analyze with SonarCloud
 
         # You can pin the exact commit or the version.
