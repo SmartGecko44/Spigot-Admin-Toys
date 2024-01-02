@@ -306,18 +306,21 @@ public class ConfigGUI implements Listener {
     }
 
     private FileWriter getFileWriter() throws IOException {
-        FileWriter writer = new FileWriter(configFile);
-        writer.write("playerRadiusLimit: 20\n");
-        writer.write("tntRadiusLimit: 5\n");
-        writer.write("creeperRadiusLimit: 5\n");
-        writer.write("Bucket enabled: 1\n");
-        writer.write("Barrier enabled: 1\n");
-        writer.write("Bedrock enabled: 1\n");
-        writer.write("Tsunami enabled: 1\n");
-        writer.write("Creeper enabled: 0\n");
-        writer.write("TNT enabled: 1\n");
-        writer.close();
-        return writer;
+        try (FileWriter writer = new FileWriter(configFile);
+                ) {
+            writer.write("playerRadiusLimit: 20\n");
+            writer.write("tntRadiusLimit: 5\n");
+            writer.write("creeperRadiusLimit: 5\n");
+            writer.write("Bucket enabled: 1\n");
+            writer.write("Barrier enabled: 1\n");
+            writer.write("Bedrock enabled: 1\n");
+            writer.write("Tsunami enabled: 1\n");
+            writer.write("Creeper enabled: 0\n");
+            writer.write("TNT enabled: 1\n");
+            return writer;
+        } catch (IOException e) {
+            throw new IOException("Unable to create FileWriter", e);
+        }
     }
 
 }

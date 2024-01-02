@@ -51,9 +51,7 @@ public class ConfigurationManager {
     }
 
     private FileWriter getFileWriter() throws IOException {
-        try (
-                FileWriter writer = new FileWriter(configFile)
-                ) {
+        try (FileWriter writer = new FileWriter(configFile)) {
             writer.write("playerRadiusLimit: 20\n");
             writer.write("tntRadiusLimit: 5\n");
             writer.write("creeperRadiusLimit: 5\n");
