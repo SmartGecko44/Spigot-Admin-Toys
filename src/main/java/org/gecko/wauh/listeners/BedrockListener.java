@@ -299,7 +299,7 @@ public class BedrockListener implements Listener {
             }
             clearAll(tntListener, creeperListener);
         } else {
-            scale.ScaleReverseLogic(totalRemovedCount, radiusLimit, markedBlocks, "bedrock");
+            scale.scaleReverseLogic(totalRemovedCount, radiusLimit, markedBlocks, "bedrock");
         }
 
         // If there are more blocks to remove, schedule the next batch

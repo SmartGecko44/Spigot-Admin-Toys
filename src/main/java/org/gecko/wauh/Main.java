@@ -19,8 +19,6 @@ import org.gecko.wauh.gui.ConfigGUI;
 import org.gecko.wauh.listeners.*;
 
 import java.lang.reflect.Field;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public final class Main extends JavaPlugin {
 
@@ -36,7 +34,6 @@ public final class Main extends JavaPlugin {
     private WaterBucketListener waterBucketListener;
     private TNTListener tntListener;
     private CreeperListener creeperListener;
-    private static final Logger logger = Logger.getLogger(Main.class.getName());
     private final EnchantmentHandler enchantmentHandler = new EnchantmentHandler();
 
     // Enchantments
@@ -193,7 +190,7 @@ public final class Main extends JavaPlugin {
             Enchantment.registerEnchantment(enchantment);
         } catch (Exception e) {
             registered = false;
-            logger.log(Level.SEVERE, "Error while registering enchantment " + enchantment + " Error:" + e);
+            throw new RuntimeException("Error while registering enchantment " + enchantment + " Error:" + e);
         } finally {
             try {
                 // Set acceptingNew back to false to avoid potential issues

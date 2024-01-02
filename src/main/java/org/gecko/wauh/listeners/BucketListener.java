@@ -21,7 +21,7 @@ import java.util.*;
 
 public class BucketListener implements Listener {
 
-    private static final Main plugin = Main.getPlugin(Main.class);
+    private static final Main plugin = new Main();
     private final Set<Block> markedBlocks = new HashSet<>();
     private final Set<Block> processedBlocks = new HashSet<>();
     private final Set<Block> removedBlocks = new HashSet<>(); // Create a new set to store removed blocks
@@ -216,7 +216,7 @@ public class BucketListener implements Listener {
             processedBlocks.clear();
             return;
         } else {
-            scale.ScaleReverseLogic(totalRemovedCount, radiusLimit, markedBlocks, "bucket");
+            scale.scaleReverseLogic(totalRemovedCount, radiusLimit, markedBlocks, "bucket");
         }
 
         // If there are more blocks to remove, schedule the next batch

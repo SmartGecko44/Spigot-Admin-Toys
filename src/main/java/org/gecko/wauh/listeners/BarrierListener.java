@@ -241,7 +241,7 @@ public class BarrierListener implements Listener {
             processedBlocks.clear();
             removedBlocks.clear();
         } else {
-            scale.ScaleReverseLogic(totalRemovedCount, radiusLimit, markedBlocks, "barrier");
+            scale.scaleReverseLogic(totalRemovedCount, radiusLimit, markedBlocks, "barrier");
 
             // If there are more blocks to remove, schedule the next batch
             if (!markedBlocks.isEmpty()) {
