@@ -17,13 +17,11 @@ import org.gecko.wauh.Main;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class Aim extends Enchantment implements Listener {
 
+    private final Main plugin = new Main();
     private final Map<Entity, Long> lastArrowHitTimes = new HashMap<>();
-    private final Logger logger = Bukkit.getLogger();
 
     public Aim() {
         super(101);
@@ -110,8 +108,7 @@ public class Aim extends Enchantment implements Listener {
         Entity nearestEntity = null;
 
         for (Entity entity : entities) {
-            if (entity instanceof LivingEntity && !entity.equals(shooter) && entity.isValid()) {
-                LivingEntity livingEntity = (LivingEntity) entity;
+            if (entity instanceof LivingEntity livingEntity && !entity.equals(shooter) && entity.isValid()) {
 
                 // Check line of sight
                 if (livingEntity.hasLineOfSight(arrow)) {
@@ -152,12 +149,11 @@ public class Aim extends Enchantment implements Listener {
 
                 // Check if 5 seconds have passed since the last arrow hit
                 if (currentTime - lastHitTime >= 5000) {
-                    logger.log(Level.INFO, "Resetting no damage ticks for " + entity.getName());
                     ((LivingEntity) entity).setNoDamageTicks(20); // Reset the no damage ticks
                     // Remove the entity from the lastArrowHitTimes map
                     lastArrowHitTimes.remove(entity);
                 }
             }
-        }.runTaskLater(Main.getPlugin(Main.class), 100); // Run the task after 5 seconds (100 ticks = 5 seconds)
+        }.runTaskLater(plugin, 100); // Run the task after 5 seconds (100 ticks = 5 seconds)
     }
 }

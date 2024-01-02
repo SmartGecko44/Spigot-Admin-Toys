@@ -28,11 +28,10 @@ public class TNTListener implements Listener {
         Entity entity = event.getEntity();
 
         // Check if the exploding entity is TNT
-        if (entity instanceof TNTPrimed) {
+        if (entity instanceof TNTPrimed tnt) {
             event.setCancelled(true); // Cancel the normal explosion
 
             // Get the location of the TNT explosion
-            TNTPrimed tnt = (TNTPrimed) entity;
             if (tnt.getLocation() != null) {
                 if (tnt.getSource() instanceof Player) {
                     tntPlayer = (Player) tnt.getSource();

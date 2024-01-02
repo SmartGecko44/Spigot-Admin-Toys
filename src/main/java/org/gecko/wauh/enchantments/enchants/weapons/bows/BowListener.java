@@ -12,10 +12,8 @@ public class BowListener implements Listener {
 
     @EventHandler
     public void onProjectileLaunch(ProjectileLaunchEvent event) {
-        if (event.getEntity() instanceof Arrow) {
-            Arrow arrow = (Arrow) event.getEntity();
-            if (arrow.getShooter() instanceof Player) {
-                Player shooter = (Player) arrow.getShooter();
+        if (event.getEntity() instanceof Arrow arrow) {
+            if (arrow.getShooter() instanceof Player shooter) {
                 ItemStack bow = shooter.getInventory().getItemInMainHand();
 
                 new Aim().aimHandler((Player) event.getEntity().getShooter(), arrow, bow);
@@ -27,10 +25,8 @@ public class BowListener implements Listener {
 
     @EventHandler
     public void onProjectileHit(ProjectileHitEvent event) {
-        if (event.getEntity() instanceof Arrow) {
-            Arrow arrow = (Arrow) event.getEntity();
-            if (arrow.getShooter() instanceof Player) {
-                Player shooter = (Player) arrow.getShooter();
+        if (event.getEntity() instanceof Arrow arrow) {
+            if (arrow.getShooter() instanceof Player shooter) {
                 ItemStack bow = shooter.getInventory().getItemInMainHand();
 
                 new Multishot().onArrowHitHandler(arrow, bow);
