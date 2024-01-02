@@ -21,6 +21,7 @@ import java.util.*;
 
 public class BucketListener implements Listener {
 
+    private static final Main plugin = Main.getPlugin(Main.class);
     private final Set<Block> markedBlocks = new HashSet<>();
     private final Set<Block> processedBlocks = new HashSet<>();
     private final Set<Block> removedBlocks = new HashSet<>(); // Create a new set to store removed blocks
@@ -52,7 +53,7 @@ public class BucketListener implements Listener {
         }
         ConfigurationManager configManager;
         FileConfiguration config;
-        configManager = new ConfigurationManager(Main.getPlugin(Main.class));
+        configManager = new ConfigurationManager(plugin);
         config = configManager.getConfig();
         if (config.getInt("Bucket enabled") == 0) {
             return;
@@ -220,16 +221,16 @@ public class BucketListener implements Listener {
 
         // If there are more blocks to remove, schedule the next batch
             if (!markedBlocks.isEmpty()) {
-                Bukkit.getScheduler().runTaskLater(Main.getPlugin(Main.class), this::removeReplacedBlocks, 1L); // Schedule the next batch after 1 tick
+                Bukkit.getScheduler().runTaskLater(plugin, this::removeReplacedBlocks, 1L); // Schedule the next batch after 1 tick
             } else if (!removedBlocks.isEmpty()) {
                 // If all blocks have been processed, but there are blocks in the removedBlocks set,
                 // process those in the next iteration.
-                if (!Main.getPlugin(Main.class).getShowRemoval()) {
+                if (plugin.getShowRemoval()) {
                     if (repetitions > 0) {
                         repetitions--;
                         markedBlocks.addAll(removedBlocks);
                         removedBlocks.clear();
-                        Bukkit.getScheduler().runTaskLater(Main.getPlugin(Main.class), this::removeReplacedBlocks, 1L);
+                        Bukkit.getScheduler().runTaskLater(plugin, this::removeReplacedBlocks, 1L);
                     } else {
                         currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Water block cleanup finished"));
                         // Reset repetitions to stop further repetitions
