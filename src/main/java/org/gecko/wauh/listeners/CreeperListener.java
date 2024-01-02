@@ -25,12 +25,11 @@ public class CreeperListener implements Listener {
         }
         Entity entity = event.getEntity();
         // Check if the exploding entity is TNT
-        if (entity instanceof Creeper) {
+        if (entity instanceof Creeper creeper) {
 
             event.setCancelled(true); // Cancel the normal explosion
 
             // Get the location of the TNT explosion
-            Creeper creeper = (Creeper) entity;
             if (creeper.getLocation() != null) {
                 creeperLocation = creeper.getLocation();
                 BedrockListener bedrockListener = new BedrockListener();

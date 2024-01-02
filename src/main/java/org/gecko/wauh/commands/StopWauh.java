@@ -25,12 +25,10 @@ public class StopWauh implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof Player player)) {
             sender.sendMessage(ChatColor.RED + "Only players can use this command.");
             return true;
         }
-
-        Player player = (Player) sender;
 
         if (bucketListener.wauhRemovalActive) {
             bucketListener.stopWaterRemoval = true;

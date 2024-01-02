@@ -61,8 +61,7 @@ public class Disarm extends Enchantment implements Listener {
 
     @EventHandler
     public void OnPlayerHit(EntityDamageByEntityEvent event) {
-        if (event.getDamager() instanceof Player && event.getEntity() instanceof LivingEntity) {
-            Player player = (Player) event.getDamager();
+        if (event.getDamager() instanceof Player player && event.getEntity() instanceof LivingEntity) {
             ItemStack weapon = player.getInventory().getItemInMainHand();
 
             // This uses a map of all enchantments because for some reason, using the preexisting function doesn't work

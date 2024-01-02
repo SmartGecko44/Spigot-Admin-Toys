@@ -108,8 +108,7 @@ public class Aim extends Enchantment implements Listener {
         Entity nearestEntity = null;
 
         for (Entity entity : entities) {
-            if (entity instanceof LivingEntity && !entity.equals(shooter) && entity.isValid()) {
-                LivingEntity livingEntity = (LivingEntity) entity;
+            if (entity instanceof LivingEntity livingEntity && !entity.equals(shooter) && entity.isValid()) {
 
                 // Check line of sight
                 if (livingEntity.hasLineOfSight(arrow)) {

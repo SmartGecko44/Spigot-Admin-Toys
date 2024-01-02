@@ -19,8 +19,7 @@ public class SetRadiusLimitCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (sender instanceof Player) {
-            Player player = (Player) sender;
+        if (sender instanceof Player player) {
 
             if (args.length == 2) {
                 String operation = args[0].toLowerCase(); // Convert to lowercase for case-insensitivity
