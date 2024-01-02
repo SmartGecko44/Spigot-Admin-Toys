@@ -60,7 +60,7 @@ public final class Main extends JavaPlugin {
         waterBucketListener = new WaterBucketListener();
         tntListener = new TNTListener();
         creeperListener = new CreeperListener();
-        configManager = new ConfigurationManager(Main.getPlugin(Main.class));
+        configManager = new ConfigurationManager(this);
         config = configManager.getConfig();
         ConfigGUI configGUI = new ConfigGUI(this);
         Mirror mirror = new Mirror(this);
@@ -94,7 +94,9 @@ public final class Main extends JavaPlugin {
             registerEnchantment(multishot);
             registerEnchantment(drill);
             registerEnchantment(smelt);
-        } catch (IllegalArgumentException ignored) {}
+        } catch (IllegalArgumentException ignored) {
+            // Ignore any exceptions during enchantment registration
+        }
 
         // Register commands
         this.getCommand("stopwauh").setExecutor(new StopWauh(bucketListener, barrierListener, bedrockListener, waterBucketListener));
