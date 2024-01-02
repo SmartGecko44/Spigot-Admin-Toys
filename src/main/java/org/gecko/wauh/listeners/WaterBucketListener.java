@@ -220,6 +220,7 @@ public class WaterBucketListener implements Listener {
             markedBlocks.clear();
             processedBlocks.clear();
             removedBlocks.clear();
+            return;
         } else {
             scale.ScaleReverseLogic(totalRemovedCount, radiusLimit, markedBlocks, "wauh");
         }

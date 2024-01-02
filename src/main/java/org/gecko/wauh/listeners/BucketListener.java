@@ -220,6 +220,7 @@ public class BucketListener implements Listener {
             blocksToProcess.clear();
             markedBlocks.clear();
             processedBlocks.clear();
+            return;
         } else {
             scale.ScaleReverseLogic(totalRemovedCount, radiusLimit, markedBlocks, "bucket");
         }
