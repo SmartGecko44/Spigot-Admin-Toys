@@ -1,2 +1,3 @@
 [![Maven Package](https://github.com/SmartGecko44/Spigot-Admin-Toys/actions/workflows/maven-publish.yml/badge.svg?branch=master)](https://github.com/SmartGecko44/Spigot-Admin-Toys/actions/workflows/maven-publish.yml)
 [![CodeQL](https://github.com/SmartGecko44/Spigot-Admin-Toys/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/SmartGecko44/Spigot-Admin-Toys/actions/workflows/github-code-scanning/codeql)
+[![Qodana Quality Gate](https://github.com/SmartGecko44/Spigot-Admin-Toys/actions/workflows/qodana-quality-gate.yml/badge.svg)](https://github.com/SmartGecko44/Spigot-Admin-Toys/actions/workflows/qodana-quality-gate.yml)
