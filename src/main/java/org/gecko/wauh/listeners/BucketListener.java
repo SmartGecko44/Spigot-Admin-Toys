@@ -64,36 +64,29 @@ public class BucketListener implements Listener {
         String identifier = nbtItem.getString("Ident");
         radiusLimit = Main.getPlugin(Main.class).getRadiusLimit();
         realRadiusLimit = radiusLimit - 2;
-        if (realRadiusLimit > 1) {
-            if (!wauhRemovalActive && !barrierListener.blockRemovalActive && !bedrockListener.allRemovalActive && !waterBucketListener.tsunamiActive) {
-                // Check if the bucket is filling with water
-                if (IMMUTABLE_MATERIALS.contains(event.getBlockClicked().getType())) {
-                    if (event.getBucket() == Material.BUCKET && identifier.equalsIgnoreCase("Custom Bucket")) {
-                        wauhRemovalActive = true;
-                        Player player = event.getPlayer();
+        if (realRadiusLimit > 1 && !wauhRemovalActive && !barrierListener.blockRemovalActive && !bedrockListener.allRemovalActive && !waterBucketListener.tsunamiActive && IMMUTABLE_MATERIALS.contains(event.getBlockClicked().getType()) && event.getBucket() == Material.BUCKET && identifier.equalsIgnoreCase("Custom Bucket")) {
+            wauhRemovalActive = true;
+            Player player = event.getPlayer();
 
-                        limitReached = false;
-                        clickedLocation = event.getBlockClicked().getLocation();
+            limitReached = false;
+            clickedLocation = event.getBlockClicked().getLocation();
 
-                        // Reset the water removal counts and initialize the set of blocks to process
-                        waterRemovedCount = 0;
-                        stationaryWaterRemovedCount = 0;
-                        lave = 0;
-                        highestDist = 0;
-                        blocksToProcess.clear();
-                        processedBlocks.clear();
-                        currentRemovingPlayer = player;
+            // Reset the water removal counts and initialize the set of blocks to process
+            waterRemovedCount = 0;
+            stationaryWaterRemovedCount = 0;
+            lave = 0;
+            highestDist = 0;
+            blocksToProcess.clear();
+            processedBlocks.clear();
+            currentRemovingPlayer = player;
 
-                        // Add the clicked block to the set of blocks to process
-                        blocksToProcess.add(event.getBlockClicked());
+            // Add the clicked block to the set of blocks to process
+            blocksToProcess.add(event.getBlockClicked());
 
-                        markedBlocks.add(event.getBlockClicked());
+            markedBlocks.add(event.getBlockClicked());
 
-                        // Start the water removal process
-                        processWaterRemoval();
-                    }
-                }
-            }
+            // Start the water removal process
+            processWaterRemoval();
         }
     }
 
