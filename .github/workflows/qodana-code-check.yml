@@ -21,10 +21,3 @@ jobs:
           QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           QODANA_BRANCH: ${GITHUB_REF_NAME}
-
-      - name: Upload Qodana results to GitHub
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: ${{ runner.temp }}/qodana/results/qodana.sarif.json
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
