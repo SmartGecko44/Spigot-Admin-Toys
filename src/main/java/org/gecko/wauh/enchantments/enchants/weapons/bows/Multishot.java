@@ -13,13 +13,15 @@ import java.util.Map;
 
 public class Multishot extends Enchantment implements Listener {
 
+    public static final String MULTISHOTSTRING = "Multishot";
+
     public Multishot() {
         super(102);
     }
 
     @Override
     public String getName() {
-        return "Multishot";
+        return MULTISHOTSTRING;
     }
 
     @Override
@@ -60,8 +62,8 @@ public class Multishot extends Enchantment implements Listener {
     public void multishotHandler(Arrow arrow, ItemStack bow) {
         // This uses a map of all enchantments because for some reason, using the preexisting function doesn't work
         Map<Enchantment, Integer> itemEnch = bow.getEnchantments();
-        if (itemEnch.containsKey(Enchantment.getByName("Multishot")) && arrow.isCritical()) {
-            int level = itemEnch.get(Enchantment.getByName("Multishot"));
+        if (itemEnch.containsKey(Enchantment.getByName(MULTISHOTSTRING)) && arrow.isCritical()) {
+            int level = itemEnch.get(Enchantment.getByName(MULTISHOTSTRING));
 
             for (int i = level; i > 0; i--) {
                 spawnAdditionalArrow(arrow, i, level);
@@ -102,7 +104,7 @@ public class Multishot extends Enchantment implements Listener {
     }
 
     public void onArrowHitHandler(Arrow arrow, ItemStack bow) {
-        if (bow.containsEnchantment(Enchantment.getByName("Multishot")) && arrow.isCritical()) {
+        if (bow.containsEnchantment(Enchantment.getByName(MULTISHOTSTRING)) && arrow.isCritical()) {
             arrow.remove();
         }
     }

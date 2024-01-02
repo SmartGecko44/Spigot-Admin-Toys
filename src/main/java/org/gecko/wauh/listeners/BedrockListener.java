@@ -20,8 +20,6 @@ import org.gecko.wauh.data.ConfigurationManager;
 import org.gecko.wauh.logic.Scale;
 
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class BedrockListener implements Listener {
 
@@ -29,10 +27,10 @@ public class BedrockListener implements Listener {
     private final Set<Block> markedBlocks = new HashSet<>();
     private final Set<Block> processedBlocks = new HashSet<>();
     private final Set<Block> removedBlocks = new HashSet<>();
-    private final Main mainPlugin = Main.getPlugin(Main.class);
-    public Player currentRemovingPlayer;
-    public boolean stopAllRemoval = false;
-    public boolean allRemovalActive = false;
+    private final Main plugin = new Main();
+    private Player currentRemovingPlayer;
+    private boolean stopAllRemoval = false;
+    private boolean allRemovalActive = false;
     private int allRemovedCount;
     private Set<Block> blocksToProcess = new HashSet<>();
     private Location clickedLocation;
@@ -45,7 +43,6 @@ public class BedrockListener implements Listener {
     private boolean repeated = false;
     private boolean explosionTrigger = false;
     private String realSource = null;
-    private final java.util.logging.Logger logger = Logger.getLogger(Main.class.getName());
 
     private void addIfValid(Block block, Set<Block> nextSet) {
         if (realSource.equalsIgnoreCase("TNT") || realSource.equalsIgnoreCase("creeper")) {
@@ -58,7 +55,7 @@ public class BedrockListener implements Listener {
                 tntPrimed.setFuseTicks(20);
                 nextSet.add(block);
             }
-        } else if (!IMMUTABLE_MATERIALS.contains(block.getType()) && !(block.getType() == Material.AIR)) {
+        } else if (!IMMUTABLE_MATERIALS.contains(block.getType()) && (block.getType() != Material.AIR)) {
             nextSet.add(block);
         } else if (block.getType() == Material.TNT) {
             Location location = block.getLocation();
@@ -76,52 +73,45 @@ public class BedrockListener implements Listener {
 
     public void bedrockValueAssignHandler(BlockBreakEvent event, String source) {
         realSource = source;
-        TNTListener tntListener = mainPlugin.getTntListener();
+        TNTListener tntListener = plugin.getTntListener();
         if (tntListener == null) {
             return;
         }
-        if (event == null && source.equalsIgnoreCase("TNT")) {
-            if (tntListener.tntPlayer != null) {
-                if (!tntListener.tntPlayer.isOp()) {
-                    return;
-                }
-            }
+        if (event == null && source.equalsIgnoreCase("TNT") && (tntListener.getTntPlayer() != null && (!tntListener.getTntPlayer().isOp()))) {
+            return;
         }
-        if (event != null) {
-            if (!event.getPlayer().isOp()) {
-                return;
-            }
+        if (event != null && (!event.getPlayer().isOp())) {
+            return;
         }
         ConfigurationManager configManager;
         FileConfiguration config;
-        configManager = new ConfigurationManager(Main.getPlugin(Main.class));
+        configManager = new ConfigurationManager(plugin);
         config = configManager.getConfig();
         if (config.getInt("Bedrock enabled") == 0) {
             return;
         }
-        BucketListener bucketListener = mainPlugin.getBucketListener();
-        BarrierListener barrierListener = mainPlugin.getBarrierListener();
-        WaterBucketListener waterBucketListener = mainPlugin.getWaterBucketListener();
-        CreeperListener creeperListener = mainPlugin.getCreeperListener();
+        BucketListener bucketListener = plugin.getBucketListener();
+        BarrierListener barrierListener = plugin.getBarrierListener();
+        WaterBucketListener waterBucketListener = plugin.getWaterBucketListener();
+        CreeperListener creeperListener = plugin.getCreeperListener();
         if (source.equalsIgnoreCase("player")) {
-            radiusLimit = mainPlugin.getRadiusLimit();
+            radiusLimit = plugin.getRadiusLimit();
         } else if (source.equalsIgnoreCase("TNT")) {
-            radiusLimit = mainPlugin.getTntRadiusLimit();
+            radiusLimit = plugin.getTntRadiusLimit();
         } else {
-            radiusLimit = mainPlugin.getCreeperRadiusLimit();
+            radiusLimit = plugin.getCreeperRadiusLimit();
         }
         realRadiusLimit = radiusLimit - 2;
-        if (realRadiusLimit > 1) {
-            if (!bucketListener.wauhRemovalActive && !barrierListener.blockRemovalActive && !allRemovalActive && !waterBucketListener.tsunamiActive || explosionTrigger) {
+        if (realRadiusLimit > 1 && (!bucketListener.isWauhRemovalActive() && !barrierListener.isBlockRemovalActive() && !isAllRemovalActive() && !waterBucketListener.isTsunamiActive() || explosionTrigger)) {
                 if (event == null && source.equalsIgnoreCase("TNT") || source.equalsIgnoreCase("creeper")) {
-                    allRemovalActive = true;
+                    setAllRemovalActive(true);
                     explosionTrigger = true;
                     limitReached = false;
 
-                    if (tntListener.tntLocation != null) {
-                        clickedLocation = tntListener.tntLocation;
-                    } else if (creeperListener != null && creeperListener.creeperLocation != null) {
-                        clickedLocation = creeperListener.creeperLocation;
+                    if (tntListener.getTntLocation() != null) {
+                        clickedLocation = tntListener.getTntLocation();
+                    } else if (creeperListener != null && creeperListener.getCreeperLocation() != null) {
+                        clickedLocation = creeperListener.getCreeperLocation();
                     } else {
                         return;
                     }
@@ -129,10 +119,10 @@ public class BedrockListener implements Listener {
                     highestDist = 0;
                     allRemovedCount = 0;
                     blocksToProcess.clear();
-                    if (tntListener.tntPlayer != null) {
-                        currentRemovingPlayer = tntListener.tntPlayer;
+                    if (tntListener.getTntPlayer() != null) {
+                        setCurrentRemovingPlayer(tntListener.getTntPlayer());
                     } else {
-                        currentRemovingPlayer = null;
+                        setCurrentRemovingPlayer(null);
                     }
 
                     blocksToProcess.add(clickedLocation.getBlock());
@@ -146,40 +136,37 @@ public class BedrockListener implements Listener {
                     NBTItem nbtItem = new NBTItem(event.getPlayer().getInventory().getItemInMainHand());
                     String identifier = nbtItem.getString("Ident");
                     // Check if the bucket is filling with water
-                    if (player.getInventory().getItemInMainHand().getType() == Material.BEDROCK && identifier.equalsIgnoreCase("Custom Bedrock")) {
-                        if (!IMMUTABLE_MATERIALS.contains(event.getBlock().getType())) {
-                            allRemovalActive = true;
-                            limitReached = false;
-                            clickedLocation = event.getBlock().getLocation();
+                    if (player.getInventory().getItemInMainHand().getType() == Material.BEDROCK && identifier.equalsIgnoreCase("Custom Bedrock") && (!IMMUTABLE_MATERIALS.contains(event.getBlock().getType()))) {
+                        setAllRemovalActive(true);
+                        limitReached = false;
+                        clickedLocation = event.getBlock().getLocation();
 
-                            // Reset the water removal counts and initialize the set of blocks to process
-                            highestDist = 0;
-                            allRemovedCount = 0;
-                            blocksToProcess.clear();
-                            currentRemovingPlayer = player;
+                        // Reset the water removal counts and initialize the set of blocks to process
+                        highestDist = 0;
+                        allRemovedCount = 0;
+                        blocksToProcess.clear();
+                        setCurrentRemovingPlayer(player);
 
-                            // Add the clicked block to the set of blocks to process
-                            blocksToProcess.add(clickedLocation.getBlock());
+                        // Add the clicked block to the set of blocks to process
+                        blocksToProcess.add(clickedLocation.getBlock());
 
-                            // Start the water removal process
-                            processAllRemoval();
-                        }
+                        // Start the water removal process
+                        processAllRemoval();
                     }
                 }
-            } else {
-                logger.log(Level.WARNING, "Too many explosions");
-            }
+
         }
     }
 
     private void processAllRemoval() {
-        if (stopAllRemoval) {
-            stopAllRemoval = false;
+        if (isStopAllRemoval()) {
+            setStopAllRemoval(false);
             displaySummary();
             return;
         }
         Set<Block> nextSet = new HashSet<>();
         boolean limitReachedThisIteration = false; // Variable to track whether the limit was reached this iteration
+        String aR = "All removal: ";
         for (Block block : blocksToProcess) {
             if (processedBlocks.contains(block)) {
                 continue;
@@ -189,26 +176,24 @@ public class BedrockListener implements Listener {
                 limitReached = true;
                 limitReachedThisIteration = true;
             }
-            if ((dist - 1) > highestDist) {
-                if (dist > 1) {
-                    int progressPercentage = (int) ((double) highestDist / (realRadiusLimit - 2) * 100);
-                    highestDist = dist - 1;
-                    if (currentRemovingPlayer != null) {
-                        // Send a message to the player only when the dist value rises
-                        if (highestDist < realRadiusLimit - 1) {
-                            currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "All removal: " + ChatColor.RED + progressPercentage + "% " + ChatColor.GREEN + "(" + ChatColor.RED + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
-                        } else if (!limitReachedThisIteration) {
-                            currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "All removal: " + ChatColor.GREEN + progressPercentage + "% (" + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
-                        } else {
-                            currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "All removal: " + ChatColor.GREEN + "100% " + "(" + realRadiusLimit + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
-                        }
+            if ((dist - 1) > highestDist && (dist > 1)) {
+                int progressPercentage = (int) ((double) highestDist / (realRadiusLimit - 2) * 100);
+                highestDist = dist - 1;
+                if (getCurrentRemovingPlayer() != null) {
+                    // Send a message to the player only when the dist value rises
+                    if (highestDist < realRadiusLimit - 1) {
+                        getCurrentRemovingPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + aR + ChatColor.RED + progressPercentage + "% " + ChatColor.GREEN + "(" + ChatColor.RED + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
+                    } else if (!limitReachedThisIteration) {
+                        getCurrentRemovingPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + aR + ChatColor.GREEN + progressPercentage + "% (" + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
+                    } else {
+                        getCurrentRemovingPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + aR + ChatColor.GREEN + "100% " + "(" + realRadiusLimit + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
                     }
                 }
             }
 
             // Check if the block is grass or dirt
             allRemovedCount++;
-            if (Main.getPlugin(Main.class).getShowRemoval()) {
+            if (plugin.getShowRemoval()) {
                 block.setType(Material.AIR);
             } else {
                 markedBlocks.add(block);
@@ -228,14 +213,14 @@ public class BedrockListener implements Listener {
         if (limitReachedThisIteration) {
             bedrockFin();
         } else if (!blocksToProcess.isEmpty()) {
-            if (Main.getPlugin(Main.class).getShowRemoval()) {
-                Bukkit.getScheduler().runTaskLater(Main.getPlugin(Main.class), this::processAllRemoval, 2L);
+            if (plugin.getShowRemoval()) {
+                Bukkit.getScheduler().runTaskLater(plugin, this::processAllRemoval, 2L);
             } else {
                 processAllRemoval();
             }
         } else {
-            if (dist > 1 && currentRemovingPlayer != null) {
-                currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "All removal: " + ChatColor.GREEN + "100% " + "(" + realRadiusLimit + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
+            if (dist > 1 && getCurrentRemovingPlayer() != null) {
+                getCurrentRemovingPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + aR + ChatColor.GREEN + "100% " + "(" + realRadiusLimit + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
             }
             displaySummary();
         }
@@ -246,8 +231,8 @@ public class BedrockListener implements Listener {
         if (limitReached) {
             displaySummary();
         } else if (!blocksToProcess.isEmpty()) {
-            if (Main.getPlugin(Main.class).getShowRemoval()) {
-                Bukkit.getScheduler().runTaskLater(Main.getPlugin(Main.class), this::processAllRemoval, 2L);
+            if (plugin.getShowRemoval()) {
+                Bukkit.getScheduler().runTaskLater(plugin, this::processAllRemoval, 2L);
             } else {
                 processAllRemoval();
             }
@@ -257,9 +242,9 @@ public class BedrockListener implements Listener {
     }
 
     public void displaySummary() {
-        TNTListener tntListener = mainPlugin.getTntListener();
-        CreeperListener creeperListener = mainPlugin.getCreeperListener();
-        Player player = currentRemovingPlayer;
+        TNTListener tntListener = plugin.getTntListener();
+        CreeperListener creeperListener = plugin.getCreeperListener();
+        Player player = getCurrentRemovingPlayer();
         // Display the block removal summary to the player
         if (allRemovedCount > 1) {
             if (player != null) {
@@ -267,7 +252,7 @@ public class BedrockListener implements Listener {
                 // Display the block removal summary in the console
                 Bukkit.getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + player.getName() + ChatColor.GREEN + " removed " + ChatColor.RED + allRemovedCount + ChatColor.GREEN + " blocks.");
             }
-            if (!Main.getPlugin(Main.class).getShowRemoval()) {
+            if (!plugin.getShowRemoval()) {
                 removeMarkedBlocks();
             } else {
                 clearAll(tntListener, creeperListener);
@@ -287,8 +272,8 @@ public class BedrockListener implements Listener {
      * Finally, clear all the sets and variables related to block removal.
      */
     private void removeMarkedBlocks() {
-        TNTListener tntListener = mainPlugin.getTntListener();
-        CreeperListener creeperListener = mainPlugin.getCreeperListener();
+        TNTListener tntListener = plugin.getTntListener();
+        CreeperListener creeperListener = plugin.getCreeperListener();
         Scale scale;
         scale = new Scale();
 
@@ -304,19 +289,19 @@ public class BedrockListener implements Listener {
 
         // If there are more blocks to remove, schedule the next batch
         if (!markedBlocks.isEmpty()) {
-            Bukkit.getScheduler().runTaskLater(Main.getPlugin(Main.class), this::removeMarkedBlocks, 10L); // Schedule the next batch after 1 tick
+            Bukkit.getScheduler().runTaskLater(plugin, this::removeMarkedBlocks, 10L); // Schedule the next batch after 1 tick
         } else if (!removedBlocks.isEmpty()) {
             if (repetitions > 0) {
                 repetitions--;
                 repeated = true;
                 markedBlocks.addAll(removedBlocks);
                 removedBlocks.clear();
-                Bukkit.getScheduler().runTaskLater(Main.getPlugin(Main.class), this::removeMarkedBlocks, 100L);
+                Bukkit.getScheduler().runTaskLater(plugin, this::removeMarkedBlocks, 100L);
                 // If all blocks have been processed, but there are blocks in the removedBlocks set,
                 // process those in the next iteration.
             } else {
-                if (currentRemovingPlayer != null) {
-                    currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Falling block cleanup finished"));
+                if (getCurrentRemovingPlayer() != null) {
+                    getCurrentRemovingPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Falling block cleanup finished"));
                 }
                 clearAll(tntListener, creeperListener);
             }
@@ -324,29 +309,29 @@ public class BedrockListener implements Listener {
     }
 
     private void clearAll(TNTListener tntListener, CreeperListener creeperListener) {
-        allRemovalActive = false;
+        setAllRemovalActive(false);
         explosionTrigger = false;
-        currentRemovingPlayer = null;
+        setCurrentRemovingPlayer(null);
         clickedLocation = null;
-        tntListener.tntLocation = null;
-        tntListener.tntPlayer = null;
-        creeperListener.creeperLocation = null;
+        tntListener.setTntLocation(null);
+        tntListener.setTntPlayer(null);
+        creeperListener.setCreeperLocation(null);
         realSource = null;
-        stopAllRemoval = false;
+        setStopAllRemoval(false);
         blocksToProcess.clear();
         markedBlocks.clear();
         processedBlocks.clear();
         removedBlocks.clear();
     }
 
-    public void CleanRemove(int scaledBlocksPerIteration, Iterator<Block> iterator) {
+    public void cleanRemove(int scaledBlocksPerIteration, Iterator<Block> iterator) {
         // Temporary list to store blocks to be removed
         List<Block> blocksToRemove = new ArrayList<>();
         for (int i = 0; i < scaledBlocksPerIteration && iterator.hasNext(); i++) {
             Block block = iterator.next();
             if (repeated) {
-                if (currentRemovingPlayer != null) {
-                    currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "Cleaning up falling blocks"));
+                if (getCurrentRemovingPlayer() != null) {
+                    getCurrentRemovingPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "Cleaning up falling blocks"));
                 }
                 if (block.getType() == Material.SAND || block.getType() == Material.GRAVEL) {
                     block.setType(Material.AIR);
@@ -373,5 +358,29 @@ public class BedrockListener implements Listener {
         for (Block block : blocksToRemove) {
             markedBlocks.remove(block);
         }
+    }
+
+    public Player getCurrentRemovingPlayer() {
+        return currentRemovingPlayer;
+    }
+
+    public void setCurrentRemovingPlayer(Player currentRemovingPlayer) {
+        this.currentRemovingPlayer = currentRemovingPlayer;
+    }
+
+    public boolean isStopAllRemoval() {
+        return stopAllRemoval;
+    }
+
+    public void setStopAllRemoval(boolean stopAllRemoval) {
+        this.stopAllRemoval = stopAllRemoval;
+    }
+
+    public boolean isAllRemovalActive() {
+        return allRemovalActive;
+    }
+
+    public void setAllRemovalActive(boolean allRemovalActive) {
+        this.allRemovalActive = allRemovalActive;
     }
 }

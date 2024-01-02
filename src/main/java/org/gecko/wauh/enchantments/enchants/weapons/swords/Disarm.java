@@ -12,8 +12,12 @@ import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Map;
+import java.util.Random;
 
 public class Disarm extends Enchantment implements Listener {
+
+    public static final String DISARMSTRING = "Disarm";
+    private static final Random r = new Random();
 
     public Disarm() {
         super(100);
@@ -21,7 +25,7 @@ public class Disarm extends Enchantment implements Listener {
 
     @Override
     public String getName() {
-        return "Disarm";
+        return DISARMSTRING;
     }
 
     @Override
@@ -60,19 +64,18 @@ public class Disarm extends Enchantment implements Listener {
     }
 
     @EventHandler
-    public void OnPlayerHit(EntityDamageByEntityEvent event) {
-        if (event.getDamager() instanceof Player player && event.getEntity() instanceof LivingEntity) {
+    public void onPlayerHit(EntityDamageByEntityEvent event) {
+        if (event.getDamager() instanceof Player player && event.getEntity() instanceof LivingEntity livingEntity) {
             ItemStack weapon = player.getInventory().getItemInMainHand();
 
             // This uses a map of all enchantments because for some reason, using the preexisting function doesn't work
             Map<Enchantment, Integer> itemEnch = weapon.getEnchantments();
-            if (itemEnch.containsKey(Enchantment.getByName("Disarm"))) {
-                int level = itemEnch.get(Enchantment.getByName("Disarm"));
+            if (itemEnch.containsKey(Enchantment.getByName(DISARMSTRING))) {
+                int level = itemEnch.get(Enchantment.getByName(DISARMSTRING));
                 double chanceForOne = Math.min(1.0, 0.1 * level);
 
                 if (Math.random() < chanceForOne) {
-                    LivingEntity target = (LivingEntity) event.getEntity();
-                    removeRandomArmorPiece(target);
+                    removeRandomArmorPiece(livingEntity);
                 }
             }
         }
@@ -97,7 +100,7 @@ public class Disarm extends Enchantment implements Listener {
                 int maxAttempts = armor.length * 10; // Max attempts to prevent an infinite loop
 
                 while (maxAttempts-- > 0) {
-                    int randomSlot = (int) (Math.random() * armor.length);
+                    int randomSlot = r.nextInt() * armor.length;
 
                     // Check if the armor slot contains an item before removing
                     if (armor[randomSlot] != null && !armor[randomSlot].getType().equals(Material.AIR)) {

@@ -16,6 +16,7 @@ import java.util.Set;
 public class Drill extends Enchantment implements Listener {
 
     private static final Set<Material> IMMUTABLE_MATERIALS = EnumSet.of(Material.BEDROCK, Material.STATIONARY_WATER, Material.WATER, Material.LAVA, Material.STATIONARY_LAVA);
+    public static final String DRILLSTRING = "Drill";
 
     public Drill() {
         super(103);
@@ -23,7 +24,7 @@ public class Drill extends Enchantment implements Listener {
 
     @Override
     public String getName() {
-        return "Drill";
+        return DRILLSTRING;
     }
 
     @Override
@@ -67,8 +68,8 @@ public class Drill extends Enchantment implements Listener {
 
         // This uses a map of all enchantments because for some reason, using the preexisting function doesn't work
         Map<Enchantment, Integer> itemEnch = mainHandItem.getEnchantments();
-        if (itemEnch.containsKey(Enchantment.getByName("Drill"))) {
-            int level = itemEnch.get(Enchantment.getByName("Drill"));
+        if (itemEnch.containsKey(Enchantment.getByName(DRILLSTRING))) {
+            int level = itemEnch.get(Enchantment.getByName(DRILLSTRING));
             int range = 2 * level + 1;
 
             // Calculate middle position

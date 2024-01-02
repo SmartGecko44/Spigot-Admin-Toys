@@ -11,6 +11,7 @@ import org.gecko.wauh.listeners.BucketListener;
 import org.gecko.wauh.listeners.WaterBucketListener;
 
 public class StopWauh implements CommandExecutor {
+    public static final String STOPPED = "stopped.";
     private final BucketListener bucketListener;
     private final BarrierListener barrierListener;
     private final BedrockListener bedrockListener;
@@ -30,23 +31,23 @@ public class StopWauh implements CommandExecutor {
             return true;
         }
 
-        if (bucketListener.wauhRemovalActive) {
-            bucketListener.stopWaterRemoval = true;
-            player.sendMessage(ChatColor.GREEN + "Wauh removal " + ChatColor.RED + ChatColor.BOLD + "stopped.");
+        if (bucketListener.isWauhRemovalActive()) {
+            bucketListener.setStopWaterRemoval(true);
+            player.sendMessage(ChatColor.GREEN + "Wauh removal " + ChatColor.RED + ChatColor.BOLD + STOPPED);
         }
-        if (barrierListener.blockRemovalActive) {
-            barrierListener.stopBlockRemoval = true;
-            player.sendMessage(ChatColor.GREEN + "Block removal " + ChatColor.RED + ChatColor.BOLD + "stopped.");
+        if (barrierListener.isBlockRemovalActive()) {
+            barrierListener.setStopBlockRemoval(true);
+            player.sendMessage(ChatColor.GREEN + "Block removal " + ChatColor.RED + ChatColor.BOLD + STOPPED);
         }
-        if (bedrockListener.allRemovalActive) {
-            bedrockListener.stopAllRemoval = true;
-            player.sendMessage(ChatColor.GREEN + "All removal " + ChatColor.RED + ChatColor.BOLD + "stopped.");
+        if (bedrockListener.isAllRemovalActive()) {
+            bedrockListener.setStopAllRemoval(true);
+            player.sendMessage(ChatColor.GREEN + "All removal " + ChatColor.RED + ChatColor.BOLD + STOPPED);
         }
-        if (waterBucketListener.tsunamiActive) {
-            waterBucketListener.stopTsunami = true;
-            player.sendMessage(ChatColor.GREEN + "Tsunami " + ChatColor.RED + ChatColor.BOLD + "stopped.");
+        if (waterBucketListener.isTsunamiActive()) {
+            waterBucketListener.setStopTsunami(true);
+            player.sendMessage(ChatColor.GREEN + "Tsunami " + ChatColor.RED + ChatColor.BOLD + STOPPED);
         }
-        if (!bucketListener.wauhRemovalActive && !barrierListener.blockRemovalActive && !bedrockListener.allRemovalActive && !waterBucketListener.tsunamiActive) {
+        if (!bucketListener.isWauhRemovalActive() && !barrierListener.isBlockRemovalActive() && !bedrockListener.isAllRemovalActive() && !waterBucketListener.isTsunamiActive()) {
             player.sendMessage(ChatColor.RED + "There are no operations running");
         }
 

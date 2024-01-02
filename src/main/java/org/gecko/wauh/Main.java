@@ -100,7 +100,7 @@ public final class Main extends JavaPlugin {
         this.getCommand("setradiuslimit").setExecutor(new SetRadiusLimitCommand(this));
         this.getCommand("setradiuslimit").setTabCompleter(new SetRadiusLimitCommand(this));
         this.getCommand("toggleremovalview").setExecutor(new ToggleRemovalView(this));
-        this.getCommand("test").setExecutor(new test(configGUI));
+        this.getCommand("Test").setExecutor(new Test(configGUI));
         this.getCommand("givecustomitems").setExecutor(new GiveCustomItems());
         this.getCommand("givecustomitems").setTabCompleter(new SetRadiusLimitCommand(this));
         this.getCommand("ench").setExecutor(new Ench());

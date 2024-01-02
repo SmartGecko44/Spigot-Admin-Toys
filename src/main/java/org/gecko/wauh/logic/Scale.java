@@ -27,11 +27,11 @@ public class Scale {
         Iterator<Block> iterator = markedBlocks.iterator();
 
         if (source.equalsIgnoreCase("bedrock")) {
-            bedrockListener.CleanRemove(scaledBlocksPerIteration, iterator);
+            bedrockListener.cleanRemove(scaledBlocksPerIteration, iterator);
         } else if (source.equalsIgnoreCase("bucket")) {
-            bucketListener.CleanRemove(scaledBlocksPerIteration, iterator);
+            bucketListener.cleanRemove(scaledBlocksPerIteration, iterator);
         } else if (source.equalsIgnoreCase("barrier")) {
-            barrierListener.CleanRemove(scaledBlocksPerIteration, iterator);
+            barrierListener.cleanRemove(scaledBlocksPerIteration, iterator);
         } else if (source.equalsIgnoreCase("wauh")) {
             waterBucketListener.cleanRemove(scaledBlocksPerIteration, iterator);
         }

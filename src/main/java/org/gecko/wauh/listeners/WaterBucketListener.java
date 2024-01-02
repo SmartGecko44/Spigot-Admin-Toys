@@ -25,9 +25,9 @@ public class WaterBucketListener implements Listener {
     private final Set<Block> markedBlocks = new HashSet<>();
     private final Set<Block> processedBlocks = new HashSet<>();
     private final Set<Block> removedBlocks = new HashSet<>();
-    public Player currentRemovingPlayer;
-    public boolean stopTsunami = false;
-    public boolean tsunamiActive = false;
+    private Player currentRemovingPlayer;
+    private boolean stopTsunami = false;
+    private boolean tsunamiActive = false;
     private int waterPlacedCount;
     private Set<Block> blocksToProcess = new HashSet<>();
     private Location clickedLocation;
@@ -45,7 +45,7 @@ public class WaterBucketListener implements Listener {
     }
 
     @EventHandler
-    public void TsunamiClick(PlayerBucketEmptyEvent event) {
+    public void tsunamiClick(PlayerBucketEmptyEvent event) {
         if (!event.getPlayer().isOp() || event.getPlayer().getInventory().getItemInMainHand() == null || event.getPlayer().getInventory().getItemInMainHand().getAmount() == 0 || event.getPlayer().getInventory().getItemInMainHand().getType() == Material.AIR) {
             return;
         }
@@ -65,11 +65,11 @@ public class WaterBucketListener implements Listener {
         String identifier = nbtItem.getString("Ident");
         radiusLimit = plugin.getRadiusLimit();
         realRadiusLimit = radiusLimit - 2;
-        if (realRadiusLimit > 1 && !bucketListener.wauhRemovalActive && !barrierListener.blockRemovalActive && !bedrockListener.allRemovalActive && !tsunamiActive) {
+        if (realRadiusLimit > 1 && !bucketListener.isWauhRemovalActive() && !barrierListener.isBlockRemovalActive() && !bedrockListener.isAllRemovalActive() && !isTsunamiActive()) {
             Player player = event.getPlayer();
             // Check if the bucket is filling with water
             if (player.getInventory().getItemInMainHand().getType() == Material.WATER_BUCKET && identifier.equalsIgnoreCase("Custom Tsunami") && player.isSneaking()) {
-                tsunamiActive = true;
+                setTsunamiActive(true);
                 limitReached = false;
                 clickedLocation = event.getBlockClicked().getRelative(event.getBlockFace()).getLocation();
 
@@ -77,7 +77,7 @@ public class WaterBucketListener implements Listener {
                 highestDist = 0;
                 waterPlacedCount = 0;
                 blocksToProcess.clear();
-                currentRemovingPlayer = player;
+                setCurrentRemovingPlayer(player);
 
                 // Add the clicked block to the set of blocks to process
                 blocksToProcess.add(clickedLocation.getBlock());
@@ -89,13 +89,14 @@ public class WaterBucketListener implements Listener {
     }
 
     private void processTsunami() {
-        if (stopTsunami) {
-            stopTsunami = false;
+        if (isStopTsunami()) {
+            setStopTsunami(false);
             displaySummary();
             return;
         }
         Set<Block> nextSet = new HashSet<>();
         boolean limitReachedThisIteration = false; // Variable to track whether the limit was reached this iteration
+        String tsunami = "Tsunami: ";
         for (Block block : blocksToProcess) {
             if (processedBlocks.contains(block)) {
                 continue;
@@ -105,18 +106,16 @@ public class WaterBucketListener implements Listener {
                 limitReached = true;
                 limitReachedThisIteration = true;
             }
-            if ((dist - 1) > highestDist) {
-                if (dist > 1) {
-                    int progressPercentage = (int) ((double) highestDist / (realRadiusLimit - 2) * 100);
-                    highestDist = dist - 1;
-                    // Send a message to the player only when the dist value rises
-                    if (highestDist < realRadiusLimit - 1) {
-                        currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Tsunami: " + ChatColor.RED + progressPercentage + "% " + ChatColor.GREEN + "(" + ChatColor.RED + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
-                    } else if (!limitReachedThisIteration) {
-                        currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Tsunami: " + ChatColor.GREEN + progressPercentage + "% (" + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
-                    } else {
-                        currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Tsunami: " + ChatColor.GREEN + "100% " + "(" + realRadiusLimit + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
-                    }
+            if ((dist - 1) > highestDist && dist > 1) {
+                int progressPercentage = (int) ((double) highestDist / (realRadiusLimit - 2) * 100);
+                highestDist = dist - 1;
+                // Send a message to the player only when the dist value rises
+                if (highestDist < realRadiusLimit - 1) {
+                    getCurrentRemovingPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + tsunami + ChatColor.RED + progressPercentage + "% " + ChatColor.GREEN + "(" + ChatColor.RED + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
+                } else if (!limitReachedThisIteration) {
+                    getCurrentRemovingPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + tsunami + ChatColor.GREEN + progressPercentage + "% (" + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
+                } else {
+                    getCurrentRemovingPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + tsunami + ChatColor.GREEN + "100% " + "(" + realRadiusLimit + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
                 }
             }
 
@@ -142,28 +141,28 @@ public class WaterBucketListener implements Listener {
         blocksToProcess = nextSet;
 
         if (limitReachedThisIteration) {
-            TsunamiFin();
+            tsunamiFin();
         } else if (!blocksToProcess.isEmpty()) {
-            if (!plugin.getShowRemoval()) {
-                Bukkit.getScheduler().runTaskLater(Main.getPlugin(Main.class), this::processTsunami, 2L);
+            if (plugin.getShowRemoval()) {
+                Bukkit.getScheduler().runTaskLater(plugin, this::processTsunami, 2L);
             } else {
                 processTsunami();
             }
         } else {
             if (dist > 0) {
-                currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Tsunami: " + ChatColor.GREEN + "100% " + "(" + realRadiusLimit + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
+                getCurrentRemovingPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + tsunami + ChatColor.GREEN + "100% " + "(" + realRadiusLimit + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
             }
             displaySummary();
         }
     }
 
-    private void TsunamiFin() {
+    private void tsunamiFin() {
         // Check if there are more blocks to process
         if (limitReached) {
             displaySummary();
         } else if (!blocksToProcess.isEmpty()) {
             if (plugin.getShowRemoval()) {
-                Bukkit.getScheduler().runTaskLater(Main.getPlugin(Main.class), this::processTsunami, 2L);
+                Bukkit.getScheduler().runTaskLater(plugin, this::processTsunami, 2L);
             } else {
                 processTsunami();
             }
@@ -173,27 +172,27 @@ public class WaterBucketListener implements Listener {
     }
 
     public void displaySummary() {
-        Player player = currentRemovingPlayer;
+        Player player = getCurrentRemovingPlayer();
         // Display the block removal summary to the player
         if (waterPlacedCount > 1) {
             player.sendMessage(ChatColor.GREEN + "Placed " + ChatColor.RED + waterPlacedCount + ChatColor.GREEN + " water blocks.");
             // Display the block removal summary in the console
             Bukkit.getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + player.getName() + ChatColor.GREEN + " placed " + ChatColor.RED + waterPlacedCount + ChatColor.GREEN + " water blocks.");
-            if (!Main.getPlugin(Main.class).getShowRemoval()) {
+            if (!plugin.getShowRemoval()) {
                 removeMarkedBlocks();
             } else {
-                tsunamiActive = false;
-                currentRemovingPlayer = null;
-                stopTsunami = false;
+                setTsunamiActive(false);
+                setCurrentRemovingPlayer(null);
+                setStopTsunami(false);
                 blocksToProcess.clear();
                 markedBlocks.clear();
                 processedBlocks.clear();
                 removedBlocks.clear();
             }
         } else {
-            tsunamiActive = false;
-            currentRemovingPlayer = null;
-            stopTsunami = false;
+            setTsunamiActive(false);
+            setCurrentRemovingPlayer(null);
+            setStopTsunami(false);
             blocksToProcess.clear();
             markedBlocks.clear();
             processedBlocks.clear();
@@ -210,9 +209,9 @@ public class WaterBucketListener implements Listener {
             for (Block block : markedBlocks) {
                 block.setType(Material.STATIONARY_WATER);
             }
-            tsunamiActive = false;
-            currentRemovingPlayer = null;
-            stopTsunami = false;
+            setTsunamiActive(false);
+            setCurrentRemovingPlayer(null);
+            setStopTsunami(false);
             blocksToProcess.clear();
             markedBlocks.clear();
             processedBlocks.clear();
@@ -229,10 +228,10 @@ public class WaterBucketListener implements Listener {
             Bukkit.getScheduler().runTaskLater(plugin, this::removeMarkedBlocks, 100L);
             // If all blocks have been processed, but there are blocks in the removedBlocks set,
             // process those in the next iteration.
-            currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Water placement finished"));
-            tsunamiActive = false;
-            currentRemovingPlayer = null;
-            stopTsunami = false;
+            getCurrentRemovingPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Water placement finished"));
+            setTsunamiActive(false);
+            setCurrentRemovingPlayer(null);
+            setStopTsunami(false);
             blocksToProcess.clear();
             markedBlocks.clear();
             processedBlocks.clear();
@@ -244,7 +243,7 @@ public class WaterBucketListener implements Listener {
         List<Block> blocksToRemove = new ArrayList<>();
         for (int i = 0; i < scaledBlocksPerIteration && iterator.hasNext(); i++) {
             Block block = iterator.next();
-            currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR,
+            getCurrentRemovingPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR,
                     new TextComponent(ChatColor.RED + "Placing water blocks"));
             block.setType(Material.STATIONARY_WATER);
             // Add the block to the new set
@@ -257,5 +256,29 @@ public class WaterBucketListener implements Listener {
         for (Block block : blocksToRemove) {
             markedBlocks.remove(block);
         }
+    }
+
+    public Player getCurrentRemovingPlayer() {
+        return currentRemovingPlayer;
+    }
+
+    public void setCurrentRemovingPlayer(Player currentRemovingPlayer) {
+        this.currentRemovingPlayer = currentRemovingPlayer;
+    }
+
+    public boolean isStopTsunami() {
+        return stopTsunami;
+    }
+
+    public void setStopTsunami(boolean stopTsunami) {
+        this.stopTsunami = stopTsunami;
+    }
+
+    public boolean isTsunamiActive() {
+        return tsunamiActive;
+    }
+
+    public void setTsunamiActive(boolean tsunamiActive) {
+        this.tsunamiActive = tsunamiActive;
     }
 }

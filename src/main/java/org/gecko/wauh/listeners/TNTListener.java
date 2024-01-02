@@ -13,14 +13,15 @@ import org.gecko.wauh.data.ConfigurationManager;
 
 public class TNTListener implements Listener {
 
-    public Location tntLocation;
-    public Player tntPlayer = null;
+    private static final Main plugin = new Main();
+    private Location tntLocation;
+    private Player tntPlayer = null;
 
     @EventHandler
     public void onTNTExplode(EntityExplodeEvent event) {
         ConfigurationManager configManager;
         FileConfiguration config;
-        configManager = new ConfigurationManager(Main.getPlugin(Main.class));
+        configManager = new ConfigurationManager(plugin);
         config = configManager.getConfig();
         if (config.getInt("TNT enabled") == 0) {
             return;
@@ -33,19 +34,35 @@ public class TNTListener implements Listener {
 
             // Get the location of the TNT explosion
             if (tnt.getLocation() != null) {
-                if (tnt.getSource() instanceof Player) {
-                    tntPlayer = (Player) tnt.getSource();
-                    if (!tntPlayer.isOp()) {
+                if (tnt.getSource() instanceof Player player) {
+                    setTntPlayer(player);
+                    if (!getTntPlayer().isOp()) {
                         return;
                     }
                 } else {
-                    tntPlayer = null;
+                    setTntPlayer(null);
                 }
 
-                tntLocation = tnt.getLocation();
+                setTntLocation(tnt.getLocation());
                 BedrockListener bedrockListener = new BedrockListener();
                 bedrockListener.bedrockValueAssignHandler(null, "TNT");
             }
         }
+    }
+
+    public Location getTntLocation() {
+        return tntLocation;
+    }
+
+    public void setTntLocation(Location tntLocation) {
+        this.tntLocation = tntLocation;
+    }
+
+    public Player getTntPlayer() {
+        return tntPlayer;
+    }
+
+    public void setTntPlayer(Player tntPlayer) {
+        this.tntPlayer = tntPlayer;
     }
 }

@@ -7,10 +7,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.gecko.wauh.gui.ConfigGUI;
 
-public class test implements CommandExecutor {
+public class Test implements CommandExecutor {
     final ConfigGUI configGUI;
 
-    public test(ConfigGUI configGUI) {
+    public Test(ConfigGUI configGUI) {
         this.configGUI = configGUI;
     }
 
@@ -18,7 +18,7 @@ public class test implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (!(sender instanceof Player player)) {
             sender.sendMessage(ChatColor.RED + "Only players can use this command.");
-            return true;
+            return false;
         }
 
         configGUI.openGUI(player);

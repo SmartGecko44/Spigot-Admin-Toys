@@ -15,12 +15,10 @@ import org.gecko.wauh.enchantments.logic.EnchantmentHandler;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class Ench implements CommandExecutor, TabCompleter {
 
-    private final Logger logger = Logger.getLogger(Main.class.getName());
+    private static final Main plugin = new Main();
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
@@ -29,26 +27,26 @@ public class Ench implements CommandExecutor, TabCompleter {
             sender.sendMessage(enches.toString());
             return true;
         }
-        if (sender instanceof Player) {
+        if (sender instanceof Player senderPlayer) {
             if (args.length == 2) {
                 String operation = args[0].toLowerCase();
 
-                ItemStack enchItem = ((Player) sender).getInventory().getItemInMainHand();
+                ItemStack enchItem = senderPlayer.getInventory().getItemInMainHand();
                 String enchantmentNameFinal = operation.substring(0, 1).toUpperCase() + operation.substring(1).toLowerCase();
-                if (Main.getPlugin(Main.class).getEnchantmentHandler().getEnchantmentExists(enchantmentNameFinal)) {
-                    if (Main.getPlugin(Main.class).getEnchantmentHandler().getCanEnchant(operation, enchItem)) {
+                if (plugin.getEnchantmentHandler().getEnchantmentExists(enchantmentNameFinal)) {
+                    if (plugin.getEnchantmentHandler().getCanEnchant(operation, enchItem)) {
                             try {
                                 ArrayList<Enchantment> currentEnchantments = new ArrayList<>(enchItem.getEnchantments().keySet());
                                 int level = Integer.parseInt(args[1]);
-                                int maxLevel = Main.getPlugin(Main.class).getEnchantmentHandler().getMaxLevelEnch(operation.toLowerCase());
-                                int minLevel = Main.getPlugin(Main.class).getEnchantmentHandler().getMinLevelEnch(operation.toLowerCase());
+                                int maxLevel = plugin.getEnchantmentHandler().getMaxLevelEnch(operation.toLowerCase());
+                                int minLevel = plugin.getEnchantmentHandler().getMinLevelEnch(operation.toLowerCase());
                                 if (level <= maxLevel && level >= minLevel || level == 0 || (minLevel == -1 && maxLevel == -1)) {
                                     if ((minLevel & maxLevel) == -1) {
                                         sender.sendMessage("Enchantment not found.");
                                         return true;
                                     }
-                                    if (Main.getPlugin(Main.class).getEnchantmentHandler().getConflicting(operation.toLowerCase(), currentEnchantments) != null) {
-                                        List<Enchantment> conflictingEnchants = Main.getPlugin(Main.class).getEnchantmentHandler().getConflicting(operation.toLowerCase(), currentEnchantments);
+                                    if (plugin.getEnchantmentHandler().getConflicting(operation.toLowerCase(), currentEnchantments) != null) {
+                                        List<Enchantment> conflictingEnchants = plugin.getEnchantmentHandler().getConflicting(operation.toLowerCase(), currentEnchantments);
                                         if (conflictingEnchants.size() == 1) {
                                             sender.sendMessage("This enchantment conflicts with another enchantment on this item");
                                             sender.sendMessage("Conflicting enchantment: " + conflictingEnchants);
@@ -80,7 +78,7 @@ public class Ench implements CommandExecutor, TabCompleter {
 
                             } catch (NumberFormatException e) {
                                 sender.sendMessage("Please specify a valid integer.");
-                                logger.log(Level.SEVERE, "Error:" + e);
+                                throw new NumberFormatException("Error: " + e);
                             }
                     } else {
                         sender.sendMessage("You cannot enchant this item with this enchantment");
