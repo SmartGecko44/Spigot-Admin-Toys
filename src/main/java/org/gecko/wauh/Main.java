@@ -17,6 +17,7 @@ import org.gecko.wauh.enchantments.tools.pickaxes.Drill;
 import org.gecko.wauh.enchantments.tools.pickaxes.Smelt;
 import org.gecko.wauh.gui.ConfigGUI;
 import org.gecko.wauh.listeners.*;
+import org.gecko.wauh.logic.IterateBlocks;
 
 import java.lang.reflect.Field;
 
@@ -41,6 +42,7 @@ public final class Main extends JavaPlugin {
     private TNTListener tntListener;
     private CreeperListener creeperListener;
     private final EnchantmentHandler enchantmentHandler = new EnchantmentHandler();
+    private IterateBlocks iterateBlocks;
 
     // Enchantments
     public static final Enchantment disarm = new Disarm();
@@ -65,8 +67,10 @@ public final class Main extends JavaPlugin {
         creeperListener = new CreeperListener(this);
         configManager = new ConfigurationManager(this);
         config = configManager.getConfig();
+        iterateBlocks = new IterateBlocks();
         ConfigGUI configGUI = new ConfigGUI(this);
         Mirror mirror = new Mirror(this);
+
 
         // Register the listeners
         getServer().getPluginManager().registerEvents(bucketListener, this);
@@ -185,6 +189,10 @@ public final class Main extends JavaPlugin {
 
     public EnchantmentHandler getEnchantmentHandler() {
         return enchantmentHandler;
+    }
+
+    public IterateBlocks getIterateBlocks() {
+        return iterateBlocks;
     }
 
     public static void registerEnchantment(Enchantment enchantment) throws RegisterError {

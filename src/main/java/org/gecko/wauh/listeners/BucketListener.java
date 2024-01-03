@@ -15,6 +15,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.gecko.wauh.Main;
 import org.gecko.wauh.data.ConfigurationManager;
+import org.gecko.wauh.logic.IterateBlocks;
 import org.gecko.wauh.logic.Scale;
 
 import java.util.*;
@@ -40,11 +41,6 @@ public class BucketListener implements Listener {
     private int repetitions = 1;
     private static final Set<Material> IMMUTABLE_MATERIALS = EnumSet.of(Material.WATER, Material.STATIONARY_WATER, Material.LAVA, Material.STATIONARY_LAVA);
 
-    private void addIfValid(Block block, Set<Block> nextSet) {
-        if (IMMUTABLE_MATERIALS.contains(block.getType())) {
-            nextSet.add(block);
-        }
-    }
 
     public BucketListener(Main plugin) {
         this.plugin = plugin;
@@ -96,6 +92,7 @@ public class BucketListener implements Listener {
     }
 
     private void processWaterRemoval() {
+        IterateBlocks iterateBlocks;
         if (isStopWaterRemoval()) {
             setStopWaterRemoval(false);
             displaySummary();
@@ -145,14 +142,8 @@ public class BucketListener implements Listener {
             } else {
                 markedBlocks.add(block);
             }
-
-            // Iterate through neighboring blocks and add them to the next set
-            for (int i = -1; i <= 1; i++) {
-                if (i == 0) continue; // Skip the current block
-                addIfValid(block.getRelative(i, 0, 0), nextSet);
-                addIfValid(block.getRelative(0, i, 0), nextSet);
-                addIfValid(block.getRelative(0, 0, i), nextSet);
-            }
+            iterateBlocks = plugin.getIterateBlocks();
+            iterateBlocks.iterateBlocks(block, nextSet, IMMUTABLE_MATERIALS);
             processedBlocks.add(block);
         }
 
