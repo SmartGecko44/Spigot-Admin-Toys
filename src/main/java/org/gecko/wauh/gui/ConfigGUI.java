@@ -19,7 +19,6 @@ import org.gecko.wauh.data.ConfigurationManager;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.util.Collections;
@@ -318,13 +317,14 @@ public class ConfigGUI implements Listener {
     private boolean isFileDeleted() throws IOException {
         try {
             Files.delete(configFile.toPath());
+            // Deletion successful
             return true;
         } catch (NoSuchFileException e) {
-            throw new NoSuchFileException("File does not exist");
-        } catch (DirectoryNotEmptyException e) {
-            throw new DirectoryNotEmptyException("Directory is not empty");
+            // File does not exist, consider it deleted
+            return true;
         } catch (IOException e) {
-            throw new IOException("Unable to delete file", e);
+            // Directory is not empty, consider it not deleted or Unable to delete file for various causes, consider it not deleted
+            return false;
         }
     }
 
