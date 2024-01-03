@@ -28,7 +28,7 @@ public class StopWauh implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (!(sender instanceof Player player)) {
             sender.sendMessage(ChatColor.RED + "Only players can use this command.");
-            return true;
+            return false;
         }
 
         if (bucketListener.isWauhRemovalActive()) {
@@ -50,7 +50,6 @@ public class StopWauh implements CommandExecutor {
         if (!bucketListener.isWauhRemovalActive() && !barrierListener.isBlockRemovalActive() && !bedrockListener.isAllRemovalActive() && !waterBucketListener.isTsunamiActive()) {
             player.sendMessage(ChatColor.RED + "There are no operations running");
         }
-
         return true;
     }
 }

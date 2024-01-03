@@ -74,7 +74,7 @@ public class Disarm extends Enchantment implements Listener {
                 int level = itemEnch.get(Enchantment.getByName(DISARMSTRING));
                 double chanceForOne = Math.min(1.0, 0.1 * level);
 
-                if (Math.random() < chanceForOne) {
+                if (r.nextInt() < chanceForOne) {
                     removeRandomArmorPiece(livingEntity);
                 }
             }

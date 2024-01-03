@@ -14,10 +14,9 @@ import java.util.List;
 
 public class EnchantmentHandler {
 
-    private static List<Enchantment> enchantments;
+    private static final List<Enchantment> enchantments = new ArrayList<>();
 
     public EnchantmentHandler() {
-        enchantments = new ArrayList<>();
         enchantments.add(new Disarm());
         enchantments.add(new Aim());
         enchantments.add(new Multishot());
