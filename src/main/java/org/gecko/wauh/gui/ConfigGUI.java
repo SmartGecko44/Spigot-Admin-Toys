@@ -170,111 +170,71 @@ public class ConfigGUI implements Listener {
         player.openInventory(gui);
     }
 
+    private void handleButtonClick(Player player, String identifier, short data, String configKey, int guiIndex, String enableMessage, String disableMessage) {
+        boolean isEnabled = data == 8;
+
+        config.set(configKey, isEnabled ? 1 : 0);
+        configManager.saveConfig();
+
+        gui.setItem(9 * 3 + guiIndex, createButtonItem(
+                Material.INK_SACK,
+                isEnabled ? DISABLE : ENABLE,
+                (short) (isEnabled ? 10 : 8),
+                null,
+                identifier
+        ));
+
+        player.sendMessage(isEnabled ? disableMessage : enableMessage);
+    }
+
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        if (event.getInventory().equals(gui) && event.getWhoClicked() instanceof Player player) {
-            event.setCancelled(true); // Prevent item moving or other inventory actions
+        if (isClickEventValid(event)) {
+            handleItemClick((Player) event.getWhoClicked(), event.getCurrentItem());
+        }
+    }
 
-            ItemStack clickedItem = event.getCurrentItem();
+    private boolean isClickEventValid(InventoryClickEvent event) {
+        return event.getInventory().equals(gui) && event.getWhoClicked() instanceof Player;
+    }
 
-            if (clickedItem != null) {
+    private void handleItemClick(Player player, ItemStack clickedItem) {
+        if (clickedItem != null && clickedItem.getType() == Material.INK_SACK) {
+            NBTItem nbtItem = new NBTItem(clickedItem);
+            String identifier = nbtItem.getString("Ident");
+            short data = clickedItem.getDurability();
 
-                NBTItem nbtItem = new NBTItem(clickedItem);
-                String identifier = nbtItem.getString("Ident");
-                short data = clickedItem.getDurability();
+            if (handleButtonFeatures(player, identifier, data)) {
+                return; // Button feature handling succeeded
+            }
 
-                // Handle button clicks
-                if (clickedItem.getType() == Material.INK_SACK) {
-                    if (identifier.equalsIgnoreCase(ENABLE_BUCKET) && data == 8) {
-                        config.set(BUCKET_ENABLED, 1);
-                        configManager.saveConfig();
-                        gui.setItem(9 * 3 + 1, createButtonItem(Material.INK_SACK, DISABLE, (short) 10, null, ENABLE_BUCKET));
-                        player.sendMessage("Liquid removal enabled!");
-                        return;
-                    } else if (identifier.equalsIgnoreCase(ENABLE_BUCKET) && data == 10) {
-                        config.set(BUCKET_ENABLED, 0);
-                        configManager.saveConfig();
-                        gui.setItem(9 * 3 + 1, createButtonItem(Material.INK_SACK, ENABLE, (short) 8, null, ENABLE_BUCKET));
-                        player.sendMessage("Liquid removal disabled!");
-                        return;
-                    }
-
-                    if (identifier.equalsIgnoreCase(ENABLE_BARRIER) && data == 8) {
-                        config.set(BARRIER_ENABLED, 1);
-                        configManager.saveConfig();
-                        gui.setItem(9 * 3 + 2, createButtonItem(Material.INK_SACK, DISABLE, (short) 10, null, ENABLE_BARRIER));
-                        player.sendMessage("Surface removal enabled!");
-                        return;
-                    } else if (identifier.equalsIgnoreCase(ENABLE_BARRIER) && data == 10) {
-                        config.set(BARRIER_ENABLED, 0);
-                        configManager.saveConfig();
-                        gui.setItem(9 * 3 + 2, createButtonItem(Material.INK_SACK, ENABLE, (short) 8, null, ENABLE_BARRIER));
-                        player.sendMessage("Surface removal disabled!");
-                        return;
-                    }
-
-                    if (identifier.equalsIgnoreCase(ENABLE_BEDROCK) && data == 8) {
-                        config.set(BEDROCK_ENABLED, 1);
-                        configManager.saveConfig();
-                        gui.setItem(9 * 3 + 3, createButtonItem(Material.INK_SACK, DISABLE, (short) 10, null, ENABLE_BEDROCK));
-                        player.sendMessage("All block removal enabled!");
-                        return;
-                    } else if (identifier.equalsIgnoreCase(ENABLE_BEDROCK) && data == 10) {
-                        config.set(BEDROCK_ENABLED, 0);
-                        configManager.saveConfig();
-                        gui.setItem(9 * 3 + 3, createButtonItem(Material.INK_SACK, ENABLE, (short) 8, null, ENABLE_BEDROCK));
-                        player.sendMessage("All block removal disabled!");
-                        return;
-                    }
-
-                    if (identifier.equalsIgnoreCase(ENABLE_TSUNAMI) && data == 8) {
-                        config.set(TSUNAMI_ENABLED, 1);
-                        configManager.saveConfig();
-                        gui.setItem(9 * 3 + 4, createButtonItem(Material.INK_SACK, DISABLE, (short) 10, null, ENABLE_TSUNAMI));
-                        player.sendMessage("Tsunami enabled!");
-                        return;
-                    } else if (identifier.equalsIgnoreCase(ENABLE_TSUNAMI) && data == 10) {
-                        config.set(TSUNAMI_ENABLED, 0);
-                        configManager.saveConfig();
-                        gui.setItem(9 * 3 + 4, createButtonItem(Material.INK_SACK, ENABLE, (short) 8, null, ENABLE_TSUNAMI));
-                        player.sendMessage("Tsunami disabled!");
-                        return;
-                    }
-
-                    if (identifier.equalsIgnoreCase(ENABLE_CREEPER) && data == 8) {
-                        config.set(CREEPER_ENABLED, 1);
-                        configManager.saveConfig();
-                        gui.setItem(9 * 3 + 5, createButtonItem(Material.INK_SACK, DISABLE, (short) 10, null, ENABLE_CREEPER));
-                        player.sendMessage("Custom creeper explosions enabled!");
-                        return;
-                    } else if (identifier.equalsIgnoreCase(ENABLE_CREEPER) && data == 10) {
-                        config.set(CREEPER_ENABLED, 0);
-                        configManager.saveConfig();
-                        gui.setItem(9 * 3 + 5, createButtonItem(Material.INK_SACK, ENABLE, (short) 8, null, ENABLE_CREEPER));
-                        player.sendMessage("Custom creeper explosions disabled!");
-                        return;
-                    }
-
-                    if (identifier.equalsIgnoreCase(ENABLE_TNT) && data == 8) {
-                        config.set(TNT_ENABLED, 1);
-                        configManager.saveConfig();
-                        gui.setItem(9 * 3 + 6, createButtonItem(Material.INK_SACK, DISABLE, (short) 10, null, ENABLE_TNT));
-                        player.sendMessage("Custom TNT explosions enabled!");
-                        return;
-                    } else if (identifier.equalsIgnoreCase(ENABLE_TNT) && data == 10) {
-                        config.set(TNT_ENABLED, 0);
-                        configManager.saveConfig();
-                        gui.setItem(9 * 3 + 6, createButtonItem(Material.INK_SACK, ENABLE, (short) 8, null, ENABLE_TNT));
-                        player.sendMessage("Custom TNT explosions disabled!");
-                        return;
-                    }
-                }
-
-                if (clickedItem.getType() == Material.PAPER && (identifier.equalsIgnoreCase("Reset"))) {
-                    resetConfig(player);
-                }
+            if (clickedItem.getType() == Material.PAPER && (identifier.equalsIgnoreCase("Reset"))) {
+                resetConfig(player);
             }
         }
+    }
+
+    private boolean handleButtonFeatures(Player player, String identifier, short data) {
+        if (identifier.equalsIgnoreCase(ENABLE_BUCKET)) {
+            handleButtonClick(player, identifier, data, BUCKET_ENABLED, 1, "Liquid removal enabled!", "Liquid removal disabled!");
+            return true;
+        } else if (identifier.equalsIgnoreCase(ENABLE_BARRIER)) {
+            handleButtonClick(player, identifier, data, BARRIER_ENABLED, 2, "Surface removal enabled!", "Surface removal disabled!");
+            return true;
+        } else if (identifier.equalsIgnoreCase(ENABLE_BEDROCK)) {
+            handleButtonClick(player, identifier, data, BEDROCK_ENABLED, 3, "All block removal enabled!", "All block removal disabled!");
+            return true;
+        } else if (identifier.equalsIgnoreCase(ENABLE_TSUNAMI)) {
+            handleButtonClick(player, identifier, data, TSUNAMI_ENABLED, 4, "Tsunami enabled!", "Tsunami disabled!");
+            return true;
+        } else if (identifier.equalsIgnoreCase(ENABLE_CREEPER)) {
+            handleButtonClick(player, identifier, data, CREEPER_ENABLED, 5, "Custom creeper explosions enabled!", "Custom creeper explosions disabled!");
+            return true;
+        } else if (identifier.equalsIgnoreCase(ENABLE_TNT)) {
+            handleButtonClick(player, identifier, data, TNT_ENABLED, 6, "Custom TNT explosions enabled!", "Custom TNT explosions disabled!");
+            return true;
+        }
+        return false; // No button feature handled
     }
 
     private void resetConfig(Player player) {
