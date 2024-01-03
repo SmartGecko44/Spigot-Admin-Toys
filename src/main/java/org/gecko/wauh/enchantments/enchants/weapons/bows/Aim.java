@@ -20,7 +20,7 @@ import java.util.Map;
 
 public class Aim extends Enchantment implements Listener {
 
-    private final Main plugin = new Main();
+    private Main plugin;
     private final Map<Entity, Long> lastArrowHitTimes = new HashMap<>();
 
     public Aim() {
@@ -121,7 +121,8 @@ public class Aim extends Enchantment implements Listener {
         return nearestEntity;
     }
 
-    public void onAimHitHandler(ItemStack bow, Entity entity) {
+    public void onAimHitHandler(ItemStack bow, Entity entity, Main plugin) {
+        this.plugin = plugin;
         if (entity instanceof LivingEntity livingEntity) {
             Map<Enchantment, Integer> itemEnch = bow.getEnchantments();
             if (itemEnch.containsKey(Enchantment.getByName("Aim"))) {

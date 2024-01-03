@@ -13,9 +13,13 @@ import org.gecko.wauh.data.ConfigurationManager;
 
 public class TNTListener implements Listener {
 
-    private static final Main plugin = new Main();
     private Location tntLocation;
     private Player tntPlayer = null;
+    private final Main plugin;
+
+    public TNTListener(Main plugin) {
+        this.plugin = plugin;
+    }
 
     @EventHandler
     public void onTNTExplode(EntityExplodeEvent event) {
@@ -44,7 +48,7 @@ public class TNTListener implements Listener {
                 }
 
                 setTntLocation(tnt.getLocation());
-                BedrockListener bedrockListener = new BedrockListener();
+                BedrockListener bedrockListener = new BedrockListener(plugin);
                 bedrockListener.bedrockValueAssignHandler(null, "TNT");
             }
         }

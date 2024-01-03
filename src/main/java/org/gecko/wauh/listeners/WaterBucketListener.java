@@ -21,7 +21,7 @@ import java.util.*;
 
 public class WaterBucketListener implements Listener {
 
-    private final Main plugin = new Main();
+    private final Main plugin;
     private final Set<Block> markedBlocks = new HashSet<>();
     private final Set<Block> processedBlocks = new HashSet<>();
     private final Set<Block> removedBlocks = new HashSet<>();
@@ -42,6 +42,10 @@ public class WaterBucketListener implements Listener {
         if (IMMUTABLE_MATERIALS.contains(block.getType())) {
             nextSet.add(block);
         }
+    }
+
+    public WaterBucketListener(Main plugin) {
+        this.plugin = plugin;
     }
 
     @EventHandler

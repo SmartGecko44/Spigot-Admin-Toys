@@ -291,8 +291,7 @@ public class ConfigGUI implements Listener {
                     writer.close();
                 }
             } else {
-                boolean fileDeleted = isFileDeleted();
-                if (!fileDeleted) {
+                if (!isFileDeleted()) {
                     logger.log(Level.SEVERE, "Config file could not be deleted");
                     player.sendMessage(ChatColor.RED + "Config file could not be reset");
                 } else {

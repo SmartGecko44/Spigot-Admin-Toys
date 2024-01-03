@@ -20,6 +20,12 @@ import org.gecko.wauh.listeners.*;
 
 import java.lang.reflect.Field;
 
+class RegisterError extends Exception {
+    public RegisterError(String errorMessage) {
+        super(errorMessage);
+    }
+}
+
 public final class Main extends JavaPlugin {
 
     ConfigurationManager configManager;
@@ -51,12 +57,12 @@ public final class Main extends JavaPlugin {
         Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "Yay");
 
         // Create instances of the listeners
-        bucketListener = new BucketListener();
-        barrierListener = new BarrierListener();
-        bedrockListener = new BedrockListener();
-        waterBucketListener = new WaterBucketListener();
-        tntListener = new TNTListener();
-        creeperListener = new CreeperListener();
+        bucketListener = new BucketListener(this);
+        barrierListener = new BarrierListener(this);
+        bedrockListener = new BedrockListener(this);
+        waterBucketListener = new WaterBucketListener(this);
+        tntListener = new TNTListener(this);
+        creeperListener = new CreeperListener(this);
         configManager = new ConfigurationManager(this);
         config = configManager.getConfig();
         ConfigGUI configGUI = new ConfigGUI(this);
@@ -74,7 +80,7 @@ public final class Main extends JavaPlugin {
 
         // Create enchant instances
         Disarm disarmListener = new Disarm();
-        BowListener bowListener = new BowListener();
+        BowListener bowListener = new BowListener(this);
         Drill drillListener = new Drill();
         Smelt smeltListener = new Smelt();
 
@@ -91,7 +97,7 @@ public final class Main extends JavaPlugin {
             registerEnchantment(multishot);
             registerEnchantment(drill);
             registerEnchantment(smelt);
-        } catch (IllegalArgumentException ignored) {
+        } catch (IllegalArgumentException | RegisterError ignored) {
             // Ignore any exceptions during enchantment registration
         }
 
@@ -181,16 +187,14 @@ public final class Main extends JavaPlugin {
         return enchantmentHandler;
     }
 
-    public static void registerEnchantment(Enchantment enchantment) {
-        boolean registered = true;
+    public static void registerEnchantment(Enchantment enchantment) throws RegisterError {
         try {
             Field f = Enchantment.class.getDeclaredField("acceptingNew");
             f.setAccessible(true);
             f.set(null, true); // Allow enchantment registration temporarily
             Enchantment.registerEnchantment(enchantment);
         } catch (Exception e) {
-            registered = false;
-            throw new RuntimeException("Error while registering enchantment " + enchantment + " Error:" + e);
+            throw new RegisterError("Error while registering enchantment " + enchantment + " Error:" + e);
         } finally {
             try {
                 // Set acceptingNew back to false to avoid potential issues
@@ -201,10 +205,7 @@ public final class Main extends JavaPlugin {
                 // Ignore any exceptions during cleanup
             }
         }
-
-        if (registered) {
-            // It's been registered!
-            Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + enchantment.getName() + " Registered");
-        }
+        // It's been registered!
+        Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + enchantment.getName() + " Registered");
     }
 }

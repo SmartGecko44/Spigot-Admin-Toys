@@ -18,21 +18,21 @@ import java.util.Map;
 
 public class Ench implements CommandExecutor, TabCompleter {
 
-    private static final Main plugin = new Main();
-
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (args[0].equalsIgnoreCase("view")) {
-            Map<Enchantment, Integer> enches = ((Player) sender).getInventory().getItemInMainHand().getEnchantments();
-            sender.sendMessage(enches.toString());
-            return true;
-        }
+        Main plugin;
         if (sender instanceof Player senderPlayer) {
             if (args.length == 2) {
+                if (args[0].equalsIgnoreCase("view")) {
+                    Map<Enchantment, Integer> enches = ((Player) sender).getInventory().getItemInMainHand().getEnchantments();
+                    sender.sendMessage(enches.toString());
+                    return true;
+                }
                 String operation = args[0].toLowerCase();
 
                 ItemStack enchItem = senderPlayer.getInventory().getItemInMainHand();
                 String enchantmentNameFinal = operation.substring(0, 1).toUpperCase() + operation.substring(1).toLowerCase();
+                plugin = new Main();
                 if (plugin.getEnchantmentHandler().getEnchantmentExists(enchantmentNameFinal)) {
                     if (plugin.getEnchantmentHandler().getCanEnchant(operation, enchItem)) {
                             try {

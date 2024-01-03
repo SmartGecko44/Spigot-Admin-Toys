@@ -13,7 +13,11 @@ import org.gecko.wauh.data.ConfigurationManager;
 public class CreeperListener implements Listener {
 
     private Location creeperLocation;
-    private static final Main plugin = new Main();
+    private final Main plugin;
+
+    public CreeperListener(Main plugin) {
+        this.plugin = plugin;
+    }
 
     @EventHandler
     public void onCreeperExplode(EntityExplodeEvent event) {
@@ -33,7 +37,7 @@ public class CreeperListener implements Listener {
             // Get the location of the TNT explosion
             if (creeper.getLocation() != null) {
                 setCreeperLocation(creeper.getLocation());
-                BedrockListener bedrockListener = new BedrockListener();
+                BedrockListener bedrockListener = new BedrockListener(plugin);
                 bedrockListener.bedrockValueAssignHandler(null, "creeper");
             }
         }

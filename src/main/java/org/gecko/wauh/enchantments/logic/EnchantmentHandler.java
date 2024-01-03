@@ -17,6 +17,7 @@ public class EnchantmentHandler {
     private static List<Enchantment> enchantments;
 
     public EnchantmentHandler() {
+        enchantments = new ArrayList<>();
         enchantments.add(new Disarm());
         enchantments.add(new Aim());
         enchantments.add(new Multishot());
