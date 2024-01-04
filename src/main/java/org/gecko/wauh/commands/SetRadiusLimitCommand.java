@@ -33,12 +33,12 @@ public class SetRadiusLimitCommand implements CommandExecutor, TabCompleter {
 
                         if (newLimit < 0) {
                             player.sendMessage("The limit must be a positive value.");
-                            return false;
+                            return true;
                         }
 
                         if (newLimit == 0 || newLimit == 1) {
                             player.sendMessage("Please specify a limit above 1");
-                            return false;
+                            return true;
                         }
 
                         if (operation.equals("tnt")) {
@@ -53,19 +53,18 @@ public class SetRadiusLimitCommand implements CommandExecutor, TabCompleter {
                         }
                     } catch (NumberFormatException e) {
                         player.sendMessage("Please specify a valid integer.");
-                        return false;
+                        return true;
                     }
                 } else {
                     player.sendMessage("Invalid operation. Use 'tnt', 'player' or 'creeper'.");
-                    return false;
+                    return true;
                 }
             } else {
-                player.sendMessage("Usage: /setradiuslimit [tnt/player/creeper] <integer>");
                 return false;
             }
         } else {
             sender.sendMessage("Only players can use this command.");
-            return false;
+            return true;
         }
         return true;
     }

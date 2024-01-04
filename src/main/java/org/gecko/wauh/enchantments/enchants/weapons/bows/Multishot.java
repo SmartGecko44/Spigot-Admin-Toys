@@ -26,7 +26,7 @@ public class Multishot extends Enchantment implements Listener {
 
     @Override
     public int getMaxLevel() {
-        return 10;
+        return 300;
     }
 
     @Override
@@ -85,7 +85,13 @@ public class Multishot extends Enchantment implements Listener {
         additionalArrow.setPickupStatus(Arrow.PickupStatus.DISALLOWED);
 
         // Set velocity based on the arrowIndex and totalArrows
-        double angleBetweenArrows = Math.toRadians(2); // Adjust the angle between arrows as needed
+        double angleBetweenArrows;
+        if (totalArrows < 30) {
+            angleBetweenArrows = Math.toRadians(2);
+        } else {
+            angleBetweenArrows = Math.toRadians((double) 60 / totalArrows); // Adjust the angle between arrows as needed
+        }
+
         double rotationAngle = arrowIndex * angleBetweenArrows - (angleBetweenArrows * (totalArrows - 1) / 2);
 
         // Use the direction of the original arrow as the base direction

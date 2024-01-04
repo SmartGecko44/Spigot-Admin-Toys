@@ -108,12 +108,16 @@ public final class Main extends JavaPlugin {
         // Register commands
         this.getCommand("stopwauh").setExecutor(new StopWauh(bucketListener, barrierListener, bedrockListener, waterBucketListener));
         this.getCommand("setradiuslimit").setExecutor(new SetRadiusLimitCommand(this));
-        this.getCommand("setradiuslimit").setTabCompleter(new SetRadiusLimitCommand(this));
         this.getCommand("toggleremovalview").setExecutor(new ToggleRemovalView(this));
         this.getCommand("Test").setExecutor(new Test(configGUI));
         this.getCommand("givecustomitems").setExecutor(new GiveCustomItems());
+        this.getCommand("ench").setExecutor(new Ench(this));
+        this.getCommand("spawn").setExecutor(new Spawn());
+        // Register TabCompleters
+        this.getCommand("setradiuslimit").setTabCompleter(new SetRadiusLimitCommand(this));
         this.getCommand("givecustomitems").setTabCompleter(new SetRadiusLimitCommand(this));
-        this.getCommand("ench").setExecutor(new Ench());
+        this.getCommand("ench").setTabCompleter(new Ench(this));
+        this.getCommand("spawn").setTabCompleter(new Spawn());
     }
 
     @Override

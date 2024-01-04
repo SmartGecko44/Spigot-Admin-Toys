@@ -53,14 +53,13 @@ public class GiveCustomItems implements CommandExecutor, TabCompleter {
                             ((Player) sender).getInventory().addItem(customBucket, customBarrier, customBedrock, customTsunami, mirror.createMirrorItem());
                             break;
                     }
-                } else return false;
+                } else return true;
             } else {
-                sender.sendMessage("Usage: /givecustomitems [bucket/barrier/bedrock/tsunami/all]");
                 return false;
             }
         } else {
             sender.sendMessage("Only players can execute this command");
-            return false;
+            return true;
         }
         return true;
     }

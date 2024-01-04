@@ -18,9 +18,14 @@ import java.util.Map;
 
 public class Ench implements CommandExecutor, TabCompleter {
 
+    private final Main plugin;
+
+    public Ench(Main plugin) {
+        this.plugin = plugin;
+    }
+
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        Main plugin;
         if (sender instanceof Player senderPlayer) {
             if (args.length == 2) {
                 if (args[0].equalsIgnoreCase("view")) {
@@ -32,7 +37,6 @@ public class Ench implements CommandExecutor, TabCompleter {
 
                 ItemStack enchItem = senderPlayer.getInventory().getItemInMainHand();
                 String enchantmentNameFinal = operation.substring(0, 1).toUpperCase() + operation.substring(1).toLowerCase();
-                plugin = new Main();
                 if (plugin.getEnchantmentHandler().getEnchantmentExists(enchantmentNameFinal)) {
                     if (plugin.getEnchantmentHandler().getCanEnchant(operation, enchItem)) {
                             try {
@@ -89,8 +93,7 @@ public class Ench implements CommandExecutor, TabCompleter {
                     return true;
                 }
             } else {
-                sender.sendMessage("Usage: /ench [enchantment] <level>");
-                return true;
+                return false;
             }
         } else {
             sender.sendMessage("Only players can execute this command");
@@ -124,7 +127,7 @@ public class Ench implements CommandExecutor, TabCompleter {
 
 
     private String convertToRomanNumerals(int number) {
-        if (number < 1 || number > 100) {
+        if (number < 1 || number > 300) {
             throw new IllegalArgumentException("Number out of range for Roman numerals.");
         }
 
