@@ -17,6 +17,7 @@ import org.gecko.wauh.Main;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class Aim extends Enchantment implements Listener {
 
@@ -153,4 +154,19 @@ public class Aim extends Enchantment implements Listener {
             }
         }.runTaskLater(plugin, 100); // Run the task after 5 seconds (100 ticks = 5 seconds)
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Aim aim = (Aim) o;
+        return Objects.equals(plugin, aim.plugin) &&
+                Objects.equals(lastArrowHitTimes, aim.lastArrowHitTimes);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(plugin, lastArrowHitTimes);
+    }
+
 }

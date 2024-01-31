@@ -33,7 +33,6 @@ public class BarrierListener implements Listener {
     private int barrierRemovedCount;
     private Set<Block> blocksToProcess = new HashSet<>();
     private Location clickedLocation;
-    private boolean limitReached = false;
     private int highestDist = 0;
     private int dist;
     private int radiusLimit;
@@ -74,7 +73,6 @@ public class BarrierListener implements Listener {
             Player player = event.getPlayer();
             if (IMMUTABLE_MATERIALS.contains(event.getBlock().getType()) && player.getInventory().getItemInMainHand().getType() == Material.BARRIER && identifier.equalsIgnoreCase("Custom Barrier")) {
                 setBlockRemovalActive(true);
-                limitReached = false;
                 clickedLocation = event.getBlock().getLocation();
 
                 // Reset the water removal counts and initialize the set of blocks to process
@@ -96,136 +94,138 @@ public class BarrierListener implements Listener {
 
     private void processBlockRemoval() {
         if (isStopBlockRemoval()) {
-            setStopBlockRemoval(false);
-            displaySummary();
+            finishBlockRemoval();
             return;
         }
+
         Set<Block> nextSet = new HashSet<>();
-        boolean limitReachedThisIteration = false; // Variable to track whether the limit was reached this iteration
-        String bR = "Block removal: ";
-        for (Block block : blocksToProcess) {
-            if (processedBlocks.contains(block)) {
-                continue;
-            }
-            dist = (int) clickedLocation.distance(block.getLocation()) + 1;
-            if (dist > radiusLimit - 3) {
-                limitReached = true;
-                limitReachedThisIteration = true;
-            }
-            if ((dist - 1) > highestDist && (dist > 1)) {
-                int progressPercentage = (int) ((double) highestDist / (realRadiusLimit - 2) * 100);
-                highestDist = dist - 1;
-                // Send a message to the player only when the dist value rises
-                if (highestDist < realRadiusLimit - 1) {
-                    getCurrentRemovingPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + bR + ChatColor.RED + progressPercentage + "% " + ChatColor.GREEN + "(" + ChatColor.RED + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
-                } else if (!limitReachedThisIteration) {
-                    getCurrentRemovingPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + bR + ChatColor.GREEN + progressPercentage + "% (" + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
-                } else {
-                    getCurrentRemovingPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + bR + ChatColor.GREEN + "100% " + "(" + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
-                }
-
-            }
-
-            // Check if the block is grass or dirt
-            if (block.getType() == Material.GRASS) {
-                grassRemovedCount++;
-            } else if (block.getType() == Material.DIRT) {
-                dirtRemovedCount++;
-            } else if (block.getType() == Material.BARRIER) {
-                barrierRemovedCount++;
-            }
-            if (!plugin.getShowRemoval()) {
-                markedBlocks.add(block);
-            } else {
-                block.setType(Material.AIR);
-            }
-
-            // Iterate through neighboring blocks and add them to the next set
-            // Iterate through neighboring blocks and add them to the next set
-            for (int i = -1; i <= 1; i++) {
-                if (i == 0) continue; // Skip the current block
-                addIfValid(block.getRelative(i, 0, 0), nextSet);
-                addIfValid(block.getRelative(0, i, 0), nextSet);
-                addIfValid(block.getRelative(0, 0, i), nextSet);
-            }
-            processedBlocks.add(block);
-        }
+        boolean limitReachedThisIteration = processBlocksToBeRemoved(nextSet);
 
         blocksToProcess = nextSet;
 
         if (limitReachedThisIteration) {
-            barriuhFin();
+            finishBlockRemoval();
         } else if (!blocksToProcess.isEmpty()) {
-            if (plugin.getShowRemoval()) {
-                Bukkit.getScheduler().runTaskLater(plugin, this::processBlockRemoval, 1L);
-            } else {
-                processBlockRemoval();
-            }
+            continueBlockRemoval();
         } else {
-            if (dist > 1) {
-                getCurrentRemovingPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + bR + ChatColor.GREEN + "100% " + "(" + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
-            }
-            displaySummary();
+            finishBlockRemoval();
         }
     }
 
-    private void barriuhFin() {
-        // Check if there are more blocks to process
-        if (limitReached) {
-            displaySummary();
-        } else if (!blocksToProcess.isEmpty()) {
-            if (plugin.getShowRemoval()) {
-                Bukkit.getScheduler().runTaskLater(plugin, this::processBlockRemoval, 1L);
-            } else {
-                processBlockRemoval();
+    private boolean processBlocksToBeRemoved(Set<Block> nextSet) {
+        boolean limitReachedThisIteration = false;
+        for (Block block : blocksToProcess) {
+            if (processedBlocks.contains(block)) {
+                continue;
             }
-        } else {
-            displaySummary();
+            limitReachedThisIteration = updateDistanceAndCheckLimit(block, limitReachedThisIteration);
+            updateRemovedCountAndBlockType(block);
+            addNeighboringBlocksToNextSet(block, nextSet);
+            processedBlocks.add(block);
         }
+        return limitReachedThisIteration;
+    }
+
+    private void updateRemovedCountAndBlockType(Block block) {
+        if (block.getType() == Material.GRASS) {
+            grassRemovedCount++;
+        } else if (block.getType() == Material.DIRT) {
+            dirtRemovedCount++;
+        } else if (block.getType() == Material.BARRIER) {
+            barrierRemovedCount++;
+        }
+        if (!plugin.getShowRemoval()) {
+            markedBlocks.add(block);
+        } else {
+            block.setType(Material.AIR);
+        }
+    }
+
+    private void addNeighboringBlocksToNextSet(Block block, Set<Block> nextSet) {
+        for (int i = -1; i <= 1; i++) {
+            if (i == 0) continue;
+            addIfValid(block.getRelative(i, 0, 0), nextSet);
+            addIfValid(block.getRelative(0, i, 0), nextSet);
+            addIfValid(block.getRelative(0, 0, i), nextSet);
+        }
+    }
+
+    private boolean updateDistanceAndCheckLimit(Block block, boolean limitReachedThisIteration) {
+        dist = (int) clickedLocation.distance(block.getLocation()) + 1;
+        if (dist > radiusLimit - 3) {
+            limitReachedThisIteration = true;
+        }
+        if ((dist - 1) > highestDist && (dist > 1)) {
+            highestDist = dist - 1;
+            sendProgressMessage(limitReachedThisIteration);
+        }
+        return limitReachedThisIteration;
+    }
+
+    private void sendProgressMessage(boolean limitReachedThisIteration) {
+        int progressPercentage = (int) ((double) highestDist / (realRadiusLimit - 2) * 100);
+        String progressMessage = generateProgressMessage(progressPercentage, limitReachedThisIteration);
+        getCurrentRemovingPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(progressMessage));
+    }
+
+    private String generateProgressMessage(int progressPercentage, boolean limitReachedThisIteration) {
+        String bR = "Block removal: ";
+        if (highestDist < realRadiusLimit - 1) {
+            return ChatColor.GREEN + bR + ChatColor.RED + progressPercentage + "% " + ChatColor.GREEN + "(" + ChatColor.RED + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")";
+        } else if (!limitReachedThisIteration) {
+            return ChatColor.GREEN + bR + ChatColor.GREEN + progressPercentage + "% (" + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")";
+        } else {
+            return ChatColor.GREEN + bR + ChatColor.GREEN + "100% " + "(" + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")";
+        }
+    }
+
+    private void continueBlockRemoval() {
+        if (plugin.getShowRemoval()) {
+            Bukkit.getScheduler().runTaskLater(plugin, this::processBlockRemoval, 1L);
+        } else {
+            processBlockRemoval();
+        }
+    }
+
+    private void finishBlockRemoval() {
+        setStopBlockRemoval(false);
+        displaySummary();
     }
 
     public void displaySummary() {
         Player player = getCurrentRemovingPlayer();
-        // Display the block removal summary to the player
-        if (grassRemovedCount + dirtRemovedCount + barrierRemovedCount > 1) {
-            String removed = "Removed ";
-            String dA = " dirt blocks and ";
-            String bB = " barrier blocks.";
-            if (barrierRemovedCount == 0 && grassRemovedCount == 0 && dirtRemovedCount > 0) {
-                player.sendMessage(ChatColor.GREEN + removed + ChatColor.RED + dirtRemovedCount + ChatColor.GREEN + " dirt blocks.");
-            } else if (barrierRemovedCount == 0 && dirtRemovedCount == 0 && grassRemovedCount > 0) {
-                player.sendMessage(ChatColor.GREEN + removed + ChatColor.RED + grassRemovedCount + ChatColor.GREEN + " grass blocks.");
-            } else if (barrierRemovedCount == 0 && grassRemovedCount > 0 && dirtRemovedCount > 0) {
-                 player.sendMessage(ChatColor.GREEN + removed + ChatColor.RED + grassRemovedCount + ChatColor.GREEN + " grass blocks and " + ChatColor.RED + dirtRemovedCount + ChatColor.GREEN + " dirt blocks.");
-            } else if (barrierRemovedCount > 0 && grassRemovedCount > 0 && dirtRemovedCount > 0) {
-                 player.sendMessage(ChatColor.GREEN + removed + ChatColor.RED + grassRemovedCount + ChatColor.GREEN + " grass blocks, " + ChatColor.RED + dirtRemovedCount + ChatColor.GREEN + dA + ChatColor.RED + barrierRemovedCount + ChatColor.GREEN + bB);
-            } else if (barrierRemovedCount > 0 && grassRemovedCount > 0 && dirtRemovedCount == 0) {
-                 player.sendMessage(ChatColor.GREEN + removed + ChatColor.RED + grassRemovedCount + ChatColor.GREEN + " grass blocks and " + ChatColor.RED + barrierRemovedCount + ChatColor.GREEN + bB);
-            } else if (barrierRemovedCount > 0 && grassRemovedCount == 0 && dirtRemovedCount > 0) {
-                 player.sendMessage(ChatColor.GREEN + removed + ChatColor.RED + dirtRemovedCount + ChatColor.GREEN + dA + ChatColor.RED + barrierRemovedCount + ChatColor.GREEN + bB);
-            }
-            // Display the block removal summary in the console
+        int totalRemovedCount = dirtRemovedCount + grassRemovedCount + barrierRemovedCount;
+        String removed = "Removed ";
+        String dA = " dirt blocks and ";
+        String bB = " barrier blocks.";
+
+        if (totalRemovedCount > 1) {
+            String playerMessage = ChatColor.GREEN + removed;
+            if (grassRemovedCount > 0) playerMessage += ChatColor.RED + String.valueOf(grassRemovedCount) + ChatColor.GREEN + " grass blocks, ";
+            if (dirtRemovedCount > 0) playerMessage += ChatColor.RED + String.valueOf(dirtRemovedCount) + ChatColor.GREEN + dA;
+            if (barrierRemovedCount > 0) playerMessage += ChatColor.RED + String.valueOf(barrierRemovedCount) + ChatColor.GREEN + bB;
+            player.sendMessage(playerMessage);
+
             Bukkit.getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + player.getName() + ChatColor.GREEN + " removed " + ChatColor.RED + grassRemovedCount + ChatColor.GREEN + " grass blocks, " + ChatColor.RED + dirtRemovedCount + ChatColor.GREEN + dA + ChatColor.RED + barrierRemovedCount + ChatColor.GREEN + bB);
+
             if (!plugin.getShowRemoval()) {
                 removeMarkedBlocks();
             } else {
-                setBlockRemovalActive(false);
-                setCurrentRemovingPlayer(null);
-                setStopBlockRemoval(false);
-                blocksToProcess.clear();
-                markedBlocks.clear();
-                processedBlocks.clear();
-                removedBlocks.clear();
+                resetRemoval();
             }
         } else {
-            setBlockRemovalActive(false);
-            setCurrentRemovingPlayer(null);
-            setStopBlockRemoval(false);
-            blocksToProcess.clear();
-            markedBlocks.clear();
-            processedBlocks.clear();
-            removedBlocks.clear();
+            resetRemoval();
         }
+    }
+
+    private void resetRemoval() {
+        setBlockRemovalActive(false);
+        setCurrentRemovingPlayer(null);
+        setStopBlockRemoval(false);
+        blocksToProcess.clear();
+        markedBlocks.clear();
+        processedBlocks.clear();
+        removedBlocks.clear();
     }
 
     private void removeMarkedBlocks() {
@@ -237,13 +237,7 @@ public class BarrierListener implements Listener {
             for (Block block : markedBlocks) {
                 block.setType(Material.AIR);
             }
-            setBlockRemovalActive(false);
-            setCurrentRemovingPlayer(null);
-            setStopBlockRemoval(false);
-            blocksToProcess.clear();
-            markedBlocks.clear();
-            processedBlocks.clear();
-            removedBlocks.clear();
+            resetRemoval();
         } else {
             scale.scaleReverseLogic(totalRemovedCount, radiusLimit, markedBlocks, "barrier");
 
@@ -254,13 +248,7 @@ public class BarrierListener implements Listener {
                 Bukkit.getScheduler().runTaskLater(plugin, this::removeMarkedBlocks, 100L);
                 // If all blocks have been processed, but there are blocks in the removedBlocks set,
                 // process those in the next iteration.
-                setBlockRemovalActive(false);
-                setCurrentRemovingPlayer(null);
-                setStopBlockRemoval(false);
-                blocksToProcess.clear();
-                markedBlocks.clear();
-                processedBlocks.clear();
-                removedBlocks.clear();
+                resetRemoval();
             }
         }
     }
