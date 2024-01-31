@@ -9,14 +9,14 @@ import org.gecko.wauh.enchantments.tools.pickaxes.Drill;
 import org.gecko.wauh.enchantments.tools.pickaxes.Smelt;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class EnchantmentHandler {
 
-    private static List<Enchantment> enchantments;
+    private static final List<Enchantment> enchantments = new ArrayList<>();
 
     public EnchantmentHandler() {
-        enchantments = new ArrayList<>();
         enchantments.add(new Disarm());
         enchantments.add(new Aim());
         enchantments.add(new Multishot());
@@ -57,7 +57,7 @@ public class EnchantmentHandler {
         List<Enchantment> conflictingEnchantments = new ArrayList<>();
 
         if (enchantment == null) {
-            return null;
+            return Collections.emptyList();
         }
 
         for (Enchantment conflictingEnchant : enchantments) {
@@ -67,7 +67,7 @@ public class EnchantmentHandler {
         }
 
         if (conflictingEnchantments.isEmpty()) {
-            return null;
+            return Collections.emptyList();
         }
 
         return conflictingEnchantments;

@@ -17,10 +17,15 @@ import org.gecko.wauh.enchantments.tools.pickaxes.Drill;
 import org.gecko.wauh.enchantments.tools.pickaxes.Smelt;
 import org.gecko.wauh.gui.ConfigGUI;
 import org.gecko.wauh.listeners.*;
+import org.gecko.wauh.logic.IterateBlocks;
 
 import java.lang.reflect.Field;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+class RegisterError extends Exception {
+    public RegisterError(String errorMessage) {
+        super(errorMessage);
+    }
+}
 
 public final class Main extends JavaPlugin {
 
@@ -36,8 +41,8 @@ public final class Main extends JavaPlugin {
     private WaterBucketListener waterBucketListener;
     private TNTListener tntListener;
     private CreeperListener creeperListener;
-    private static final Logger logger = Logger.getLogger(Main.class.getName());
     private final EnchantmentHandler enchantmentHandler = new EnchantmentHandler();
+    private IterateBlocks iterateBlocks;
 
     // Enchantments
     public static final Enchantment disarm = new Disarm();
@@ -54,16 +59,18 @@ public final class Main extends JavaPlugin {
         Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "Yay");
 
         // Create instances of the listeners
-        bucketListener = new BucketListener();
-        barrierListener = new BarrierListener();
-        bedrockListener = new BedrockListener();
-        waterBucketListener = new WaterBucketListener();
-        tntListener = new TNTListener();
-        creeperListener = new CreeperListener();
+        bucketListener = new BucketListener(this);
+        barrierListener = new BarrierListener(this);
+        bedrockListener = new BedrockListener(this);
+        waterBucketListener = new WaterBucketListener(this);
+        tntListener = new TNTListener(this);
+        creeperListener = new CreeperListener(this);
         configManager = new ConfigurationManager(this);
         config = configManager.getConfig();
+        iterateBlocks = new IterateBlocks();
         ConfigGUI configGUI = new ConfigGUI(this);
         Mirror mirror = new Mirror(this);
+
 
         // Register the listeners
         getServer().getPluginManager().registerEvents(bucketListener, this);
@@ -77,7 +84,7 @@ public final class Main extends JavaPlugin {
 
         // Create enchant instances
         Disarm disarmListener = new Disarm();
-        BowListener bowListener = new BowListener();
+        BowListener bowListener = new BowListener(this);
         Drill drillListener = new Drill();
         Smelt smeltListener = new Smelt();
 
@@ -94,19 +101,23 @@ public final class Main extends JavaPlugin {
             registerEnchantment(multishot);
             registerEnchantment(drill);
             registerEnchantment(smelt);
-        } catch (IllegalArgumentException ignored) {
+        } catch (IllegalArgumentException | RegisterError ignored) {
             // Ignore any exceptions during enchantment registration
         }
 
         // Register commands
         this.getCommand("stopwauh").setExecutor(new StopWauh(bucketListener, barrierListener, bedrockListener, waterBucketListener));
         this.getCommand("setradiuslimit").setExecutor(new SetRadiusLimitCommand(this));
-        this.getCommand("setradiuslimit").setTabCompleter(new SetRadiusLimitCommand(this));
         this.getCommand("toggleremovalview").setExecutor(new ToggleRemovalView(this));
-        this.getCommand("test").setExecutor(new test(configGUI));
+        this.getCommand("Test").setExecutor(new Test(configGUI));
         this.getCommand("givecustomitems").setExecutor(new GiveCustomItems());
+        this.getCommand("ench").setExecutor(new Ench(this));
+        this.getCommand("spawn").setExecutor(new Spawn());
+        // Register TabCompleters
+        this.getCommand("setradiuslimit").setTabCompleter(new SetRadiusLimitCommand(this));
         this.getCommand("givecustomitems").setTabCompleter(new SetRadiusLimitCommand(this));
-        this.getCommand("ench").setExecutor(new Ench());
+        this.getCommand("ench").setTabCompleter(new Ench(this));
+        this.getCommand("spawn").setTabCompleter(new Spawn());
     }
 
     @Override
@@ -184,16 +195,18 @@ public final class Main extends JavaPlugin {
         return enchantmentHandler;
     }
 
-    public static void registerEnchantment(Enchantment enchantment) {
-        boolean registered = true;
+    public IterateBlocks getIterateBlocks() {
+        return iterateBlocks;
+    }
+
+    public static void registerEnchantment(Enchantment enchantment) throws RegisterError {
         try {
             Field f = Enchantment.class.getDeclaredField("acceptingNew");
             f.setAccessible(true);
             f.set(null, true); // Allow enchantment registration temporarily
             Enchantment.registerEnchantment(enchantment);
         } catch (Exception e) {
-            registered = false;
-            logger.log(Level.SEVERE, "Error while registering enchantment " + enchantment + " Error:" + e);
+            throw new RegisterError("Error while registering enchantment " + enchantment + " Error:" + e);
         } finally {
             try {
                 // Set acceptingNew back to false to avoid potential issues
@@ -204,10 +217,7 @@ public final class Main extends JavaPlugin {
                 // Ignore any exceptions during cleanup
             }
         }
-
-        if (registered) {
-            // It's been registered!
-            Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + enchantment.getName() + " Registered");
-        }
+        // It's been registered!
+        Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + enchantment.getName() + " Registered");
     }
 }

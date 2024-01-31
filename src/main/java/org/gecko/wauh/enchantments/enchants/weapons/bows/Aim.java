@@ -20,7 +20,7 @@ import java.util.Map;
 
 public class Aim extends Enchantment implements Listener {
 
-    private final Main plugin = new Main();
+    private Main plugin;
     private final Map<Entity, Long> lastArrowHitTimes = new HashMap<>();
 
     public Aim() {
@@ -108,16 +108,12 @@ public class Aim extends Enchantment implements Listener {
         Entity nearestEntity = null;
 
         for (Entity entity : entities) {
-            if (entity instanceof LivingEntity livingEntity && !entity.equals(shooter) && entity.isValid()) {
-
-                // Check line of sight
-                if (livingEntity.hasLineOfSight(arrow)) {
-                    // Use the arrow's location for distance calculation
-                    double distance = arrow.getLocation().distanceSquared(entity.getLocation());
-                    if (distance < minDistance) {
-                        minDistance = distance;
-                        nearestEntity = entity;
-                    }
+            if (entity instanceof LivingEntity livingEntity && !entity.equals(shooter) && entity.isValid() && (livingEntity.hasLineOfSight(arrow))) {
+                // Use the arrow's location for distance calculation
+                double distance = arrow.getLocation().distanceSquared(entity.getLocation());
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    nearestEntity = entity;
                 }
             }
         }
@@ -125,11 +121,12 @@ public class Aim extends Enchantment implements Listener {
         return nearestEntity;
     }
 
-    public void onAimHitHandler(ItemStack bow, Entity entity) {
-        if (entity instanceof LivingEntity) {
+    public void onAimHitHandler(ItemStack bow, Entity entity, Main plugin) {
+        this.plugin = plugin;
+        if (entity instanceof LivingEntity livingEntity) {
             Map<Enchantment, Integer> itemEnch = bow.getEnchantments();
             if (itemEnch.containsKey(Enchantment.getByName("Aim"))) {
-                ((LivingEntity) entity).setNoDamageTicks(0);
+                livingEntity.setNoDamageTicks(0);
 
                 // Update the last arrow hit time for this entity
                 lastArrowHitTimes.put(entity, System.currentTimeMillis());

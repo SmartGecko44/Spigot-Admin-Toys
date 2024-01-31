@@ -10,7 +10,7 @@ commands:
     permission-message: §cYou need to have operator permissions to run this command!
   setradiuslimit:
     description: Set the radius limit
-    usage: /setradiuslimit <radius>
+    usage: /setradiuslimit [tnt/player/creeper] <integer>
     permission: op
     permission-message: §cYou need to have operator permissions to run this command!
   toggleremovalview:
@@ -19,17 +19,22 @@ commands:
     permission: op
     permission-message: §cYou need to have operator permissions to run this command!
   test:
-    description: test gui
-    usage: /test
+    description: Test gui
+    usage: /Test
     permission: op
     permission-message: §cYou need to have operator permissions to run this command!
   givecustomitems:
-    description: give yourself a custom item
+    description: Give yourself a custom item
     usage: /givecustomitems [bucket/barrier/bedrock/tsunami/all]
     permission: op
     permission-message: §cYou need to have operator permissions to run this command!
   ench:
-    description: enchant the item in your hand
+    description: Enchant the item in your hand
     usage: /ench [enchantment] <level>
+    permission: op
+    permission-message: §cYou need to have operator permissions to run this command!
+  spawn:
+    description: Spawn a specified amount of a specified entity
+    usage: /spawn [entity] <amount>
     permission: op
     permission-message: §cYou need to have operator permissions to run this command!

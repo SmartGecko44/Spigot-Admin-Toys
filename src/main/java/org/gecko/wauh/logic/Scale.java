@@ -11,8 +11,8 @@ import java.util.*;
 
 public class Scale {
 
-    public void ScaleReverseLogic(int totalRemovedCount, int radiusLimit, Set<Block> markedBlocks, String source) {
-        Main mainPlugin = Main.getPlugin(Main.class);
+    public void scaleReverseLogic(int totalRemovedCount, int radiusLimit, Set<Block> markedBlocks, String source) {
+        Main mainPlugin = new Main();
 
         BucketListener bucketListener = mainPlugin.getBucketListener();
         BarrierListener barrierListener = mainPlugin.getBarrierListener();
@@ -27,13 +27,13 @@ public class Scale {
         Iterator<Block> iterator = markedBlocks.iterator();
 
         if (source.equalsIgnoreCase("bedrock")) {
-            bedrockListener.CleanRemove(scaledBlocksPerIteration, iterator);
+            bedrockListener.cleanRemove(scaledBlocksPerIteration, iterator);
         } else if (source.equalsIgnoreCase("bucket")) {
-            bucketListener.CleanRemove(scaledBlocksPerIteration, iterator);
+            bucketListener.cleanRemove(scaledBlocksPerIteration, iterator);
         } else if (source.equalsIgnoreCase("barrier")) {
-            barrierListener.CleanRemove(scaledBlocksPerIteration, iterator);
+            barrierListener.cleanRemove(scaledBlocksPerIteration, iterator);
         } else if (source.equalsIgnoreCase("wauh")) {
-            waterBucketListener.CleanRemove(scaledBlocksPerIteration, iterator);
+            waterBucketListener.cleanRemove(scaledBlocksPerIteration, iterator);
         }
 
     }

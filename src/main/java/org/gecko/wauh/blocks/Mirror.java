@@ -6,7 +6,6 @@ import org.bukkit.Particle;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -23,11 +22,11 @@ public class Mirror implements Listener {
         this.plugin = plugin;
     }
 
-    public void MirrorLogic(Player player) {
+    public void mirrorLogic(Player player) {
         // Additional logic if needed
     }
     @EventHandler
-    public void PlayerJoinEvent(PlayerJoinEvent event) {
+    public void playerJoinEvent(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         scheduleRayCastTask(player);
     }

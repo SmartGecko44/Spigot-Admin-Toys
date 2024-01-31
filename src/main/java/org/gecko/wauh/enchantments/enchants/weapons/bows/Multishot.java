@@ -13,18 +13,20 @@ import java.util.Map;
 
 public class Multishot extends Enchantment implements Listener {
 
+    public static final String MULTISHOTSTRING = "Multishot";
+
     public Multishot() {
         super(102);
     }
 
     @Override
     public String getName() {
-        return "Multishot";
+        return MULTISHOTSTRING;
     }
 
     @Override
     public int getMaxLevel() {
-        return 10;
+        return 300;
     }
 
     @Override
@@ -60,8 +62,8 @@ public class Multishot extends Enchantment implements Listener {
     public void multishotHandler(Arrow arrow, ItemStack bow) {
         // This uses a map of all enchantments because for some reason, using the preexisting function doesn't work
         Map<Enchantment, Integer> itemEnch = bow.getEnchantments();
-        if (itemEnch.containsKey(Enchantment.getByName("Multishot")) && arrow.isCritical()) {
-            int level = itemEnch.get(Enchantment.getByName("Multishot"));
+        if (itemEnch.containsKey(Enchantment.getByName(MULTISHOTSTRING)) && arrow.isCritical()) {
+            int level = itemEnch.get(Enchantment.getByName(MULTISHOTSTRING));
 
             for (int i = level; i > 0; i--) {
                 spawnAdditionalArrow(arrow, i, level);
@@ -83,7 +85,13 @@ public class Multishot extends Enchantment implements Listener {
         additionalArrow.setPickupStatus(Arrow.PickupStatus.DISALLOWED);
 
         // Set velocity based on the arrowIndex and totalArrows
-        double angleBetweenArrows = Math.toRadians(2); // Adjust the angle between arrows as needed
+        double angleBetweenArrows;
+        if (totalArrows < 30) {
+            angleBetweenArrows = Math.toRadians(2);
+        } else {
+            angleBetweenArrows = Math.toRadians((double) 60 / totalArrows); // Adjust the angle between arrows as needed
+        }
+
         double rotationAngle = arrowIndex * angleBetweenArrows - (angleBetweenArrows * (totalArrows - 1) / 2);
 
         // Use the direction of the original arrow as the base direction
@@ -102,7 +110,7 @@ public class Multishot extends Enchantment implements Listener {
     }
 
     public void onArrowHitHandler(Arrow arrow, ItemStack bow) {
-        if (bow.containsEnchantment(Enchantment.getByName("Multishot")) && arrow.isCritical()) {
+        if (bow.containsEnchantment(Enchantment.getByName(MULTISHOTSTRING)) && arrow.isCritical()) {
             arrow.remove();
         }
     }

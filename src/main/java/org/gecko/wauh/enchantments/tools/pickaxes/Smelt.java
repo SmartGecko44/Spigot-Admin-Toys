@@ -17,7 +17,7 @@ import java.util.Set;
 
 public class Smelt extends Enchantment implements Listener {
 
-    private final Set<Material> SMELTABLE_MATERIALS = EnumSet.of(Material.IRON_ORE, Material.GOLD_ORE);
+    private final Set<Material> smeltMaterials = EnumSet.of(Material.IRON_ORE, Material.GOLD_ORE);
 
     public Smelt() {
         super(104);
@@ -69,19 +69,16 @@ public class Smelt extends Enchantment implements Listener {
         Map<Enchantment, Integer> itemEnch = event.getPlayer().getInventory().getItemInMainHand().getEnchantments();
         if (itemEnch.containsKey(Enchantment.getByName("Smelt"))) {
             event.getBlock().getDrops().clear();
-            if (SMELTABLE_MATERIALS.contains(event.getBlock().getType())) {
+            if (smeltMaterials.contains(event.getBlock().getType())) {
                 event.setCancelled(true);
-                switch (event.getBlock().getType()) {
-                    case IRON_ORE:
-                        event.getBlock().setType(Material.AIR);
-                        event.getBlock().getWorld().dropItem(event.getBlock().getLocation(), new ItemStack(Material.IRON_INGOT, 1));
-                        event.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "You smelted iron ore!"));
-                        break;
-                    case GOLD_ORE:
-                        event.getBlock().setType(Material.AIR);
-                        event.getBlock().getWorld().dropItem(event.getBlock().getLocation(), new ItemStack(Material.GOLD_INGOT, 1));
-                        event.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "You smelted gold ore!"));
-                        break;
+                if (event.getBlock().getType() == Material.IRON_ORE) {
+                    event.getBlock().setType(Material.AIR);
+                    event.getBlock().getWorld().dropItem(event.getBlock().getLocation(), new ItemStack(Material.IRON_INGOT, 1));
+                    event.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "You smelted iron ore!"));
+                } else if (event.getBlock().getType() == Material.GOLD_ORE) {
+                    event.getBlock().setType(Material.AIR);
+                    event.getBlock().getWorld().dropItem(event.getBlock().getLocation(), new ItemStack(Material.GOLD_INGOT, 1));
+                    event.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "You smelted gold ore!"));
                 }
             } else {
                 event.getBlock().getDrops().add(new ItemStack(event.getBlock().getType()));
