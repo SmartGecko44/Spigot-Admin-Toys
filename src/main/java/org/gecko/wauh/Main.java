@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.gecko.wauh.blocks.Mirror;
 import org.gecko.wauh.commands.*;
@@ -115,7 +116,7 @@ public final class Main extends JavaPlugin {
         this.getCommand("spawn").setExecutor(new Spawn());
         // Register TabCompleters
         this.getCommand("setradiuslimit").setTabCompleter(new SetRadiusLimitCommand(this));
-        this.getCommand("givecustomitems").setTabCompleter(new SetRadiusLimitCommand(this));
+        this.getCommand("givecustomitems").setTabCompleter(new GiveCustomItems());
         this.getCommand("ench").setTabCompleter(new Ench(this));
         this.getCommand("spawn").setTabCompleter(new Spawn());
     }
@@ -123,7 +124,10 @@ public final class Main extends JavaPlugin {
     @Override
     public void onDisable() {
         // Plugin shutdown logic
-        Enchantment.stopAcceptingRegistrations();
+        if (Enchantment.isAcceptingRegistrations()) {
+            Enchantment.stopAcceptingRegistrations();
+        }
+        HandlerList.unregisterAll(this);
     }
 
     public int getRadiusLimit() {

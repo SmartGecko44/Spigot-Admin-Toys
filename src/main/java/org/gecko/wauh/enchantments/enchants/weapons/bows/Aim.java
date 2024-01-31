@@ -34,7 +34,7 @@ public class Aim extends Enchantment implements Listener {
 
     @Override
     public int getMaxLevel() {
-        return 10; // You can adjust the maximum level as needed
+        return 30; // You can adjust the maximum level as needed
     }
 
     @Override
@@ -96,7 +96,7 @@ public class Aim extends Enchantment implements Listener {
 
         if (target != null) {
             // Adjust target location to the center of the entity
-            Vector targetLocation = target.getLocation().toVector().add(new Vector(0, (target.getHeight() / 1.2), 0));
+            Vector targetLocation = target.getLocation().toVector().add(new Vector(0, (target.getHeight() / 2 + target.getHeight() * 0.1), 0));
 
             Vector direction = targetLocation.subtract(arrow.getLocation().toVector());
             arrow.setVelocity(direction.normalize().multiply(arrow.getVelocity().length()));

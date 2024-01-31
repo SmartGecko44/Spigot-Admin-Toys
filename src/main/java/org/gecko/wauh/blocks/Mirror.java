@@ -25,11 +25,12 @@ public class Mirror implements Listener {
     public void mirrorLogic(Player player) {
         // Additional logic if needed
     }
-    @EventHandler
+    /* @EventHandler
     public void playerJoinEvent(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         scheduleRayCastTask(player);
     }
+     */
 
     public void mainRayCast(Player player) {
         int maxDistance = 100;
