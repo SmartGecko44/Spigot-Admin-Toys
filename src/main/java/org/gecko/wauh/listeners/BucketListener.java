@@ -15,7 +15,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.gecko.wauh.Main;
 import org.gecko.wauh.data.ConfigurationManager;
-import org.gecko.wauh.logic.IterateBlocks;
 import org.gecko.wauh.logic.Scale;
 
 import java.util.*;
@@ -92,87 +91,90 @@ public class BucketListener implements Listener {
     }
 
     private void processWaterRemoval() {
-        IterateBlocks iterateBlocks;
         if (isStopWaterRemoval()) {
-            setStopWaterRemoval(false);
-            displaySummary();
-            // Schedule a task to remove the barrier blocks after a short delay
-            Bukkit.getScheduler().runTaskLater(plugin, this::removeReplacedBlocks, 20L); // Delay the removal of barrier blocks for 1 second (20 ticks)
+            finishWaterRemoval();
             return;
         }
+
         Set<Block> nextSet = new HashSet<>();
-        boolean limitReachedThisIteration = false; // Variable to track whether the limit was reached this iteration
-        String wR = "Wauh removal: ";
+        boolean limitReachedThisIteration = false;
+
         for (Block block : blocksToProcess) {
             if (processedBlocks.contains(block)) {
                 continue;
             }
-            int dist = (int) clickedLocation.distance(block.getLocation()) + 1;
-            if (dist > radiusLimit - 3) {
-                limitReached = true;
-                limitReachedThisIteration = true;
-            }
-            if ((dist - 1) > highestDist) {
-                int progressPercentage = (int) ((double) highestDist / (realRadiusLimit - 2) * 100);
-                highestDist = dist - 1;
-                // Send a message to the player only when the dist value rises
 
-                if (highestDist < realRadiusLimit - 1) {
-                    getCurrentRemovingPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + wR + ChatColor.RED + progressPercentage + "% " + ChatColor.GREEN + "(" + ChatColor.RED + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
-                } else if (!limitReachedThisIteration) {
-                    getCurrentRemovingPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + wR + ChatColor.GREEN + progressPercentage + "% (" + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
-                } else {
-                    getCurrentRemovingPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + wR + ChatColor.GREEN + "100% " + "(" + realRadiusLimit + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
-                }
-            }
-
-            // Check if the block is water or stationary water
-            if (block.getType() == Material.WATER) {
-                waterRemovedCount++;
-            } else if (block.getType() == Material.STATIONARY_WATER) {
-                stationaryWaterRemovedCount++;
-            } else if (block.getType() == Material.LAVA || block.getType() == Material.STATIONARY_LAVA) {
-                lave++;
-            }
-            // Remove the water block
-            if (plugin.getShowRemoval()) {
-                block.setType(Material.STRUCTURE_VOID);
-                // Add the block to the list of replaced blocks
-                markedBlocks.add(block);
-            } else {
-                markedBlocks.add(block);
-            }
-            iterateBlocks = plugin.getIterateBlocks();
-            iterateBlocks.iterateBlocks(block, nextSet, IMMUTABLE_MATERIALS);
+            limitReachedThisIteration = processBlock(block, nextSet, limitReachedThisIteration);
             processedBlocks.add(block);
         }
 
         blocksToProcess = nextSet;
 
-
-        if (limitReachedThisIteration) {
-            wauhFin();
-        } else if (!blocksToProcess.isEmpty()) {
-            if (plugin.getShowRemoval()) {
-                Bukkit.getScheduler().runTaskLater(plugin, this::processWaterRemoval, 1L);
-            } else {
-                processWaterRemoval();
-            }
+        if (limitReachedThisIteration || blocksToProcess.isEmpty()) {
+            finishWaterRemoval();
         } else {
-            getCurrentRemovingPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + wR + ChatColor.GREEN + "100% " + "(" + realRadiusLimit + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")"));
-            wauhFin();
+            Bukkit.getScheduler().runTaskLater(plugin, this::processWaterRemoval, 1L);
         }
     }
 
-    private void wauhFin() {
-        // Check if there are more blocks to process
-        if (limitReached) {
-            displaySummary();
-        } else if (!blocksToProcess.isEmpty()) {
-            Bukkit.getScheduler().runTaskLater(plugin, this::processWaterRemoval, 1L);
-        } else {
-            displaySummary();
+    private boolean processBlock(Block block, Set<Block> nextSet, boolean limitReachedThisIteration) {
+        int dist = (int) clickedLocation.distance(block.getLocation()) + 1;
+        if (dist > radiusLimit - 3) {
+            limitReached = true;
+            limitReachedThisIteration = true;
         }
+
+        updateProgress(dist);
+        updateBlockCounts(block);
+        removeBlock(block);
+
+        plugin.getIterateBlocks().iterateBlocks(block, nextSet, IMMUTABLE_MATERIALS);
+
+        return limitReachedThisIteration;
+    }
+
+    private void updateProgress(int dist) {
+        if ((dist - 1) > highestDist) {
+            highestDist = dist - 1;
+            int progressPercentage = (int) ((double) highestDist / (realRadiusLimit - 2) * 100);
+            getCurrentRemovingPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(getProgressBar(progressPercentage, dist)));
+        }
+    }
+
+    private String getProgressBar(int progressPercentage, int dist) {
+        String wR = "Wauh removal: ";
+        if (highestDist < realRadiusLimit - 1) {
+            return ChatColor.GREEN + wR + ChatColor.RED + progressPercentage + "% " + ChatColor.GREEN + "(" + ChatColor.RED + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")";
+        } else if (!limitReached) {
+            return ChatColor.GREEN + wR + ChatColor.GREEN + progressPercentage + "% (" + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")";
+        } else {
+            return ChatColor.GREEN + wR + ChatColor.GREEN + "100% " + "(" + realRadiusLimit + ChatColor.WHITE + "/" + ChatColor.GREEN + realRadiusLimit + ")";
+        }
+    }
+
+    private void updateBlockCounts(Block block) {
+        if (block.getType() == Material.WATER) {
+            waterRemovedCount++;
+        } else if (block.getType() == Material.STATIONARY_WATER) {
+            stationaryWaterRemovedCount++;
+        } else if (block.getType() == Material.LAVA || block.getType() == Material.STATIONARY_LAVA) {
+            lave++;
+        }
+    }
+
+    private void removeBlock(Block block) {
+        if (plugin.getShowRemoval()) {
+            block.setType(Material.STRUCTURE_VOID);
+            markedBlocks.add(block);
+        } else {
+            markedBlocks.add(block);
+        }
+    }
+
+    private void finishWaterRemoval() {
+        setStopWaterRemoval(false);
+        displaySummary();
+        Bukkit.getScheduler().runTaskLater(plugin, this::removeReplacedBlocks, 20L);
     }
 
     public void displaySummary() {

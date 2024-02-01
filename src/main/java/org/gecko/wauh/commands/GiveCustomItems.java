@@ -53,7 +53,7 @@ public class GiveCustomItems implements CommandExecutor, TabCompleter {
                             ((Player) sender).getInventory().addItem(customBucket, customBarrier, customBedrock, customTsunami, mirror.createMirrorItem());
                             break;
                     }
-                } else return true;
+                } else return false;
             } else {
                 return false;
             }
@@ -73,13 +73,17 @@ public class GiveCustomItems implements CommandExecutor, TabCompleter {
 
             if (BUCKET.startsWith(input)) {
                 completions.add(BUCKET);
-            } else if (BARRIER.startsWith(input)) {
+            }
+            if (BARRIER.startsWith(input)) {
                 completions.add(BARRIER);
-            } else if (BEDROCK.startsWith(input)) {
+            }
+            if (BEDROCK.startsWith(input)) {
                 completions.add(BEDROCK);
-            } else if (TSUNAMI.startsWith(input)) {
+            }
+            if (TSUNAMI.startsWith(input)) {
                 completions.add(TSUNAMI);
-            } else if ("all".startsWith(input)) {
+            }
+            if ("all".startsWith(input)) {
                 completions.add("all");
             }
         }

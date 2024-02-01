@@ -21,51 +21,48 @@ public class SetRadiusLimitCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (sender instanceof Player player) {
-
-            if (args.length == 2) {
-                String operation = args[0].toLowerCase(); // Convert to lowercase for case-insensitivity
-
-                if (operation.equals("tnt") || operation.equals(PLAYER) || operation.equals(CREEPER)) {
-                    // Check if the second argument is an integer
-                    try {
-                        int newLimit = Integer.parseInt(args[1]);
-
-                        if (newLimit < 0) {
-                            player.sendMessage("The limit must be a positive value.");
-                            return true;
-                        }
-
-                        if (newLimit == 0 || newLimit == 1) {
-                            player.sendMessage("Please specify a limit above 1");
-                            return true;
-                        }
-
-                        if (operation.equals("tnt")) {
-                            plugin.setTntRadiusLimit(newLimit);  // Use the setter method for TNT operations
-                            player.sendMessage("TNT radius set to " + newLimit);
-                        } else if (operation.equals(PLAYER)){
-                            plugin.setRadiusLimit(newLimit); // Use the setter method for player operations
-                            player.sendMessage("Player operation limit set to " + newLimit);
-                        } else {
-                            plugin.setCreeperLimit(newLimit);
-                            player.sendMessage("Creeper radius limit set to " + newLimit);
-                        }
-                    } catch (NumberFormatException e) {
-                        player.sendMessage("Please specify a valid integer.");
-                        return true;
-                    }
-                } else {
-                    player.sendMessage("Invalid operation. Use 'tnt', 'player' or 'creeper'.");
-                    return true;
-                }
-            } else {
-                return false;
-            }
-        } else {
+        if (!(sender instanceof Player player)) {
             sender.sendMessage("Only players can use this command.");
             return true;
         }
+
+        if (args.length != 2) {
+            return false;
+        }
+
+        String operation = args[0].toLowerCase();
+        int newLimit;
+
+        try {
+            newLimit = Integer.parseInt(args[1]);
+        } catch (NumberFormatException e) {
+            player.sendMessage("Please specify a valid integer.");
+            return true;
+        }
+
+        if (newLimit < 2) {
+            player.sendMessage(newLimit < 0 ? "The limit must be a positive value." : "Please specify a limit above 1");
+            return true;
+        }
+
+        switch (operation) {
+            case "tnt":
+                plugin.setTntRadiusLimit(newLimit);
+                player.sendMessage("TNT radius set to " + newLimit);
+                break;
+            case PLAYER:
+                plugin.setRadiusLimit(newLimit);
+                player.sendMessage("Player operation limit set to " + newLimit);
+                break;
+            case CREEPER:
+                plugin.setCreeperLimit(newLimit);
+                player.sendMessage("Creeper radius limit set to " + newLimit);
+                break;
+            default:
+                player.sendMessage("Invalid operation. Use 'tnt', 'player' or 'creeper'.");
+                return true;
+        }
+
         return true;
     }
 
