@@ -3,6 +3,7 @@ package org.gecko.wauh.enchantments.logic;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.gecko.wauh.enchantments.enchants.weapons.bows.Aim;
+import org.gecko.wauh.enchantments.enchants.weapons.bows.Glow;
 import org.gecko.wauh.enchantments.enchants.weapons.bows.Multishot;
 import org.gecko.wauh.enchantments.enchants.weapons.swords.Disarm;
 import org.gecko.wauh.enchantments.tools.pickaxes.Drill;
@@ -22,6 +23,11 @@ public class EnchantmentHandler {
         enchantments.add(new Multishot());
         enchantments.add(new Drill());
         enchantments.add(new Smelt());
+        enchantments.add(new Glow());
+    }
+
+    public static List<Enchantment> getAllEnchantments() {
+        return enchantments;
     }
 
     public boolean getEnchantmentExists(String name) {
@@ -71,10 +77,6 @@ public class EnchantmentHandler {
         }
 
         return conflictingEnchantments;
-    }
-
-    public static List<Enchantment> getAllEnchantments() {
-        return enchantments;
     }
 
 }

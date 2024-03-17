@@ -13,9 +13,9 @@ import org.gecko.wauh.data.ConfigurationManager;
 
 public class TNTListener implements Listener {
 
+    private final Main plugin;
     private Location tntLocation;
     private Player tntPlayer = null;
-    private final Main plugin;
 
     public TNTListener(Main plugin) {
         this.plugin = plugin;

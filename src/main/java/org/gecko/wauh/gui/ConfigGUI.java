@@ -1,6 +1,6 @@
 package org.gecko.wauh.gui;
 
-import de.tr7zw.changeme.nbtapi.*;
+import de.tr7zw.changeme.nbtapi.NBTItem;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -40,16 +40,16 @@ public class ConfigGUI implements Listener {
     public static final String TSUNAMI_ENABLED = "Tsunami enabled";
     public static final String CREEPER_ENABLED = "Creeper enabled";
     public static final String TNT_ENABLED = "TNT enabled";
-    private final Inventory gui;
     private static final int SIZE = 45;
-    final ConfigurationManager configManager;
-    FileConfiguration config;
-    private final File configFile;
-    private final Logger logger = Logger.getLogger(ConfigGUI.class.getName());
-    private final Main plugin;
     private static final String DISABLE = "Disable";
     private static final String ENABLE = "Enable";
     private static final String ENABLE_BUCKET = "Enable Bucket";
+    final ConfigurationManager configManager;
+    private final Inventory gui;
+    private final File configFile;
+    private final Logger logger = Logger.getLogger(ConfigGUI.class.getName());
+    private final Main plugin;
+    FileConfiguration config;
 
     public ConfigGUI(Main plugin) {
         configManager = new ConfigurationManager(plugin);
@@ -120,7 +120,7 @@ public class ConfigGUI implements Listener {
 
             gui.setItem(leftSlot, borderItem); // Left column
         }
-        for (int i =0; i < (size9 - 2); i++) {
+        for (int i = 0; i < (size9 - 2); i++) {
             int rightSlot = 9 * (i + 2) - 1;
 
             gui.setItem(rightSlot, borderItem); // Right column

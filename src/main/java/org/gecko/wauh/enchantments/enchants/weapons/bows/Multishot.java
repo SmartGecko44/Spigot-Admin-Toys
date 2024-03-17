@@ -82,6 +82,9 @@ public class Multishot extends Enchantment implements Listener {
         // Copy relevant properties from the original arrow
         additionalArrow.setShooter(originalArrow.getShooter());
         additionalArrow.setCritical(originalArrow.isCritical());
+        if (originalArrow.getFireTicks() > 0) {
+            additionalArrow.setFireTicks(Integer.MAX_VALUE);
+        }
         additionalArrow.setPickupStatus(Arrow.PickupStatus.DISALLOWED);
 
         // Set velocity based on the arrowIndex and totalArrows
@@ -107,6 +110,7 @@ public class Multishot extends Enchantment implements Listener {
         additionalArrow.setVelocity(new Vector(rotatedX, baseDirection.getY(), rotatedZ).multiply(originalArrow.getVelocity().length()));
         originalArrow.remove();
         new Aim().aimHandler((Player) originalArrow.getShooter(), additionalArrow, ((Player) originalArrow.getShooter()).getInventory().getItemInMainHand());
+        new Glow().glowCreateHandler(additionalArrow, ((Player) originalArrow.getShooter()).getInventory().getItemInMainHand());
     }
 
     public void onArrowHitHandler(Arrow arrow, ItemStack bow) {

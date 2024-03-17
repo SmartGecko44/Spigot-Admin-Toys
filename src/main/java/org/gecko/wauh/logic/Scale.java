@@ -7,7 +7,8 @@ import org.gecko.wauh.listeners.BedrockListener;
 import org.gecko.wauh.listeners.BucketListener;
 import org.gecko.wauh.listeners.WaterBucketListener;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.Set;
 
 public class Scale {
 

@@ -7,8 +7,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.gecko.wauh.Main;
 import org.gecko.wauh.items.TriggerItems;
-import org.gecko.wauh.items.blocks.MirrorItem;
+import org.gecko.wauh.items.weapons.Shortbow;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,44 +20,50 @@ public class GiveCustomItems implements CommandExecutor, TabCompleter {
     public static final String BARRIER = "barrier";
     public static final String BEDROCK = "bedrock";
     public static final String TSUNAMI = "tsunami";
-    private final MirrorItem mirror = new MirrorItem();
+    public static final String SHORTBOW = "shortbow";
+    private final Main plugin;
+
+    public GiveCustomItems(Main plugin) {
+        this.plugin = plugin;
+    }
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         TriggerItems items = new TriggerItems();
-        if (sender instanceof Player senderPlayer) {
-            if (args.length == 1) {
-                String operation = args[0].toLowerCase();
+        if (args.length != 1) {
+            return false;
+        }
 
-                if (operation.equals(BUCKET) || operation.equals(BARRIER) || operation.equals(BEDROCK) || operation.equals(TSUNAMI) || operation.equals("mirror") || operation.equals("all")) {
-                    ItemStack customBucket = items.createCustomItem(Material.BUCKET, "Water Drainer", (short) 0, "Removes all fluids", "Custom Bucket");
-                    ItemStack customBarrier = items.createCustomItem(Material.BARRIER, "Surface Remover", (short) 0, "Removes grass and dirt blocks", "Custom Barrier");
-                    ItemStack customBedrock = items.createCustomItem(Material.BEDROCK, "Block Obliterator", (short) 0, "Removes almost all blocks", "Custom Bedrock");
-                    ItemStack customTsunami = items.createCustomItem(Material.WATER_BUCKET, "Tsunami Bucket", (short) 0, "Creates a tsunami if you shift + right click on a block", "Custom Tsunami");
-                    switch (operation) {
-                        case BUCKET:
-                            senderPlayer.getInventory().addItem(customBucket);
-                            break;
-                        case BARRIER:
-                            ((Player) sender).getInventory().addItem(customBarrier);
-                            break;
-                        case BEDROCK:
-                            ((Player) sender).getInventory().addItem(customBedrock);
-                            break;
-                        case TSUNAMI:
-                            ((Player) sender).getInventory().addItem(customTsunami);
-                            break;
-                        case "mirror":
-                            ((Player) sender).getInventory().addItem(mirror.createMirrorItem());
-                            break;
-                        default:
-                            ((Player) sender).getInventory().addItem(customBucket, customBarrier, customBedrock, customTsunami, mirror.createMirrorItem());
-                            break;
-                    }
-                } else return true;
-            } else {
-                return false;
+        if (sender instanceof Player senderPlayer) {
+            String operation = args[0].toLowerCase();
+
+            ItemStack customBucket = items.createCustomItem(Material.BUCKET, "Water Drainer", (short) 0, "Removes all fluids", "Custom Bucket");
+            ItemStack customBarrier = items.createCustomItem(Material.BARRIER, "Surface Remover", (short) 0, "Removes grass and dirt blocks", "Custom Barrier");
+            ItemStack customBedrock = items.createCustomItem(Material.BEDROCK, "Block Obliterator", (short) 0, "Removes almost all blocks", "Custom Bedrock");
+            ItemStack customTsunami = items.createCustomItem(Material.WATER_BUCKET, "Tsunami Bucket", (short) 0, "Creates a tsunami if you shift + right click on a block", "Custom Tsunami");
+            final Shortbow shortbowClass = new Shortbow(plugin);
+
+            switch (operation) {
+                case BUCKET:
+                    senderPlayer.getInventory().addItem(customBucket);
+                    break;
+                case BARRIER:
+                    ((Player) sender).getInventory().addItem(customBarrier);
+                    break;
+                case BEDROCK:
+                    ((Player) sender).getInventory().addItem(customBedrock);
+                    break;
+                case TSUNAMI:
+                    ((Player) sender).getInventory().addItem(customTsunami);
+                    break;
+                case SHORTBOW:
+                    ((Player) sender).getInventory().addItem(shortbowClass.createShortbow());
+                    break;
+                default:
+                    sender.sendMessage("Invalid operation");
+                    return true;
             }
+            sender.sendMessage("Item added to inventory");
         } else {
             sender.sendMessage("Only players can execute this command");
             return true;
@@ -73,14 +80,18 @@ public class GiveCustomItems implements CommandExecutor, TabCompleter {
 
             if (BUCKET.startsWith(input)) {
                 completions.add(BUCKET);
-            } else if (BARRIER.startsWith(input)) {
+            }
+            if (BARRIER.startsWith(input)) {
                 completions.add(BARRIER);
-            } else if (BEDROCK.startsWith(input)) {
+            }
+            if (BEDROCK.startsWith(input)) {
                 completions.add(BEDROCK);
-            } else if (TSUNAMI.startsWith(input)) {
+            }
+            if (TSUNAMI.startsWith(input)) {
                 completions.add(TSUNAMI);
-            } else if ("all".startsWith(input)) {
-                completions.add("all");
+            }
+            if (SHORTBOW.startsWith(input)) {
+                completions.add(SHORTBOW);
             }
         }
         return completions;

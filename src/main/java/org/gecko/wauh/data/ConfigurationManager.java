@@ -14,8 +14,9 @@ import java.util.logging.Logger;
 
 public class ConfigurationManager {
     private final File configFile;
-    private FileConfiguration config;
     private final Logger logger = Logger.getLogger(ConfigurationManager.class.getName());
+    private FileConfiguration config;
+
     public ConfigurationManager(Main plugin) {
         File dir = new File("plugins/Wauh");
 
