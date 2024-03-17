@@ -33,6 +33,10 @@ public class Shortbow implements Listener {
             return;
         }
 
+        if (event.getPlayer().getInventory().getItemInMainHand().getType() != Material.BOW) {
+            return;
+        }
+
         NBTItem nbtItem = new NBTItem(event.getPlayer().getInventory().getItemInMainHand());
         String identifier = nbtItem.getString("Ident");
 
