@@ -41,7 +41,7 @@ public class GiveCustomItems implements CommandExecutor, TabCompleter {
             ItemStack customBarrier = items.createCustomItem(Material.BARRIER, "Surface Remover", (short) 0, "Removes grass and dirt blocks", "Custom Barrier");
             ItemStack customBedrock = items.createCustomItem(Material.BEDROCK, "Block Obliterator", (short) 0, "Removes almost all blocks", "Custom Bedrock");
             ItemStack customTsunami = items.createCustomItem(Material.WATER_BUCKET, "Tsunami Bucket", (short) 0, "Creates a tsunami if you shift + right click on a block", "Custom Tsunami");
-            final Shortbow shortbowClass = new Shortbow(plugin);
+            final Shortbow shortbowClass = new Shortbow();
 
             switch (operation) {
                 case BUCKET:
