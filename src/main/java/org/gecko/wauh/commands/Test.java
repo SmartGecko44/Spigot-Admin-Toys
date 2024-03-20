@@ -26,7 +26,6 @@ public class Test implements CommandExecutor {
         }
 
         configGUI.openGUI(player);
-
         return true;
     }
 }

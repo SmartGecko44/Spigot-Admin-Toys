@@ -5,13 +5,12 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.enchantments.EnchantmentTarget;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import java.util.Map;
 
-public class Multishot extends Enchantment implements Listener {
+public class Multishot extends Enchantment {
 
     public static final String MULTISHOTSTRING = "Multishot";
 

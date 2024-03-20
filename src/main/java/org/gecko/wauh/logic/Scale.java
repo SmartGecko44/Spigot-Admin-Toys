@@ -1,6 +1,7 @@
 package org.gecko.wauh.logic;
 
 import org.bukkit.block.Block;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.gecko.wauh.Main;
 import org.gecko.wauh.listeners.BarrierListener;
 import org.gecko.wauh.listeners.BedrockListener;
@@ -13,7 +14,7 @@ import java.util.Set;
 public class Scale {
 
     public void scaleReverseLogic(int totalRemovedCount, int radiusLimit, Set<Block> markedBlocks, String source) {
-        Main mainPlugin = new Main();
+        Main mainPlugin = JavaPlugin.getPlugin(Main.class);
 
         BucketListener bucketListener = mainPlugin.getBucketListener();
         BarrierListener barrierListener = mainPlugin.getBarrierListener();

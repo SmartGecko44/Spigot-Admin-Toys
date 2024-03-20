@@ -6,12 +6,11 @@ import org.bukkit.enchantments.EnchantmentTarget;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-public class Glow extends Enchantment implements Listener {
+public class Glow extends Enchantment {
 
     public static final String GLOWSTRING = "Glow";
 
@@ -66,15 +65,14 @@ public class Glow extends Enchantment implements Listener {
     }
 
     public void glowHitHandler(ItemStack bow, LivingEntity entity) {
-        if (bow.getEnchantments().containsKey(Enchantment.getByName(GLOWSTRING))) {
-            if (entity != null) {
+        if (bow.getEnchantments().containsKey(Enchantment.getByName(GLOWSTRING)) && (entity != null)) {
                 if (entity instanceof Player) {
                     PotionEffect glowEffect = new PotionEffect(PotionEffectType.GLOWING, 100, 1, true, true);
                     entity.addPotionEffect(glowEffect);
                 } else {
                     entity.setGlowing(true);
                 }
-            }
+
         }
     }
 }

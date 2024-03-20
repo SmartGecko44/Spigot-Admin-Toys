@@ -8,15 +8,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.inventory.ItemStack;
-import org.gecko.wauh.Main;
 
 public class BowListener implements Listener {
-
-    private final Main plugin;
-
-    public BowListener(Main plugin) {
-        this.plugin = plugin;
-    }
 
     public void projectileLaunch(ProjectileLaunchEvent event, Player shooterManual, Arrow arrowManual, ItemStack bowManual) {
         if (event != null) {
@@ -43,8 +36,11 @@ public class BowListener implements Listener {
         if (event.getEntity() instanceof Arrow arrow && (arrow.getShooter() instanceof Player shooter)) {
             ItemStack bow = shooter.getInventory().getItemInMainHand();
             new Multishot().onArrowHitHandler(arrow, bow);
-            new Aim().onAimHitHandler(bow, event.getHitEntity(), plugin);
-            new Glow().glowHitHandler(bow, (LivingEntity) event.getHitEntity());
+            if (event.getEntity() instanceof LivingEntity) {
+                new Glow().glowHitHandler(bow, (LivingEntity) event.getHitEntity());
+                new Endanger().onProjectileHit((LivingEntity) event.getHitEntity(), bow);
+            }
+            new Explosive().onProjectileHit(bow, arrow);
         }
     }
 }

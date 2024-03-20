@@ -9,7 +9,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-import org.gecko.wauh.Main;
 import org.gecko.wauh.enchantments.enchants.weapons.bows.BowListener;
 import org.gecko.wauh.items.TriggerItems;
 
@@ -17,11 +16,6 @@ public class Shortbow implements Listener {
 
     public static final String SHORTBOWCONST = "Shortbow";
     private final TriggerItems triggerItems = new TriggerItems();
-    private final Main plugin;
-
-    public Shortbow(Main plugin) {
-        this.plugin = plugin;
-    }
 
     public ItemStack createShortbow() {
         return triggerItems.createCustomItem(Material.BOW, SHORTBOWCONST, (short) 0, "Instantly shoots an arrow", SHORTBOWCONST);
@@ -52,7 +46,7 @@ public class Shortbow implements Listener {
             arrow.setFireTicks(Integer.MAX_VALUE);
         }
 
-        BowListener bowListener = new BowListener(plugin);
+        BowListener bowListener = new BowListener();
         bowListener.projectileLaunch(null, event.getPlayer(), arrow, event.getPlayer().getInventory().getItemInMainHand());
 
     }

@@ -40,12 +40,11 @@ public class ConfigGUI implements Listener {
     public static final String TSUNAMI_ENABLED = "Tsunami enabled";
     public static final String CREEPER_ENABLED = "Creeper enabled";
     public static final String TNT_ENABLED = "TNT enabled";
-    private static final int SIZE = 45;
     private static final String DISABLE = "Disable";
     private static final String ENABLE = "Enable";
     private static final String ENABLE_BUCKET = "Enable Bucket";
     final ConfigurationManager configManager;
-    private final Inventory gui;
+    private Inventory gui;
     private final File configFile;
     private final Logger logger = Logger.getLogger(ConfigGUI.class.getName());
     private final Main plugin;
@@ -54,12 +53,12 @@ public class ConfigGUI implements Listener {
     public ConfigGUI(Main plugin) {
         configManager = new ConfigurationManager(plugin);
         config = configManager.getConfig();
-        this.gui = Bukkit.createInventory(null, SIZE, "Test (WIP)");
+        this.gui = Bukkit.createInventory(null, 45, "Test (WIP)");
         File dir = new File("plugins/Wauh");
         this.configFile = new File(dir, "data.yml");
         this.plugin = plugin;
 
-        fillBorders(createButtonItem(Material.STAINED_GLASS_PANE, "§r", (short) 5, null, null));
+        fillBorders(createButtonItem(Material.STAINED_GLASS_PANE, "§r", (short) 5, null, null), 45, false);
         // Initialize GUI content
         initializeGUI();
     }
@@ -104,9 +103,9 @@ public class ConfigGUI implements Listener {
         gui.setItem(9 * 4 + 8, createButtonItem(Material.PAPER, ChatColor.RESET + "" + ChatColor.RED + "Reset config", (short) 0, null, "Reset"));
     }
 
-    private void fillBorders(ItemStack borderItem) {
+    private void fillBorders(ItemStack borderItem, int size, boolean fillRightCorner) {
         // Fill top and bottom rows
-        int size9 = SIZE / 9;
+        int size9 = size / 9;
         for (int i = 0; i < 9; i++) {
             gui.setItem(i, borderItem); // Top row
         }
@@ -120,10 +119,18 @@ public class ConfigGUI implements Listener {
 
             gui.setItem(leftSlot, borderItem); // Left column
         }
-        for (int i = 0; i < (size9 - 2); i++) {
-            int rightSlot = 9 * (i + 2) - 1;
+        if (!fillRightCorner) {
+            for (int i = 0; i < (size9 - 2); i++) {
+                int rightSlot = 9 * (i + 2) - 1;
 
-            gui.setItem(rightSlot, borderItem); // Right column
+                gui.setItem(rightSlot, borderItem); // Right column
+            }
+        } else {
+            for (int i = 0; i < (size9 - 1); i++) {
+                int rightSlot = 9 * (i + 2) - 1;
+
+                gui.setItem(rightSlot, borderItem); // Right column
+            }
         }
     }
 
@@ -190,6 +197,7 @@ public class ConfigGUI implements Listener {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         if (isClickEventValid(event)) {
+            event.setCancelled(true);
             handleItemClick((Player) event.getWhoClicked(), event.getCurrentItem());
         }
     }
@@ -199,18 +207,19 @@ public class ConfigGUI implements Listener {
     }
 
     private void handleItemClick(Player player, ItemStack clickedItem) {
-        if (clickedItem != null && clickedItem.getType() == Material.INK_SACK) {
-            NBTItem nbtItem = new NBTItem(clickedItem);
-            String identifier = nbtItem.getString("Ident");
-            short data = clickedItem.getDurability();
+        if (clickedItem != null && (clickedItem.getType() == Material.INK_SACK || clickedItem.getType() == Material.PAPER)) {
+                NBTItem nbtItem = new NBTItem(clickedItem);
+                String identifier = nbtItem.getString("Ident");
+                short data = clickedItem.getDurability();
 
-            if (handleButtonFeatures(player, identifier, data)) {
-                return; // Button feature handling succeeded
-            }
+                if (handleButtonFeatures(player, identifier, data)) {
+                    return; // Button feature handling succeeded
+                }
 
-            if (clickedItem.getType() == Material.PAPER && (identifier.equalsIgnoreCase("Reset"))) {
-                resetConfig(player);
-            }
+                if (clickedItem.getType() == Material.PAPER && (identifier.equalsIgnoreCase("Reset"))) {
+                    confirmationPrompt("Reset config?", player);
+                }
+
         }
     }
 
@@ -233,8 +242,7 @@ public class ConfigGUI implements Listener {
         } else if (identifier.equalsIgnoreCase(ENABLE_TNT)) {
             handleButtonClick(player, identifier, data, TNT_ENABLED, 6, "Custom TNT explosions enabled!", "Custom TNT explosions disabled!");
             return true;
-        }
-        return false; // No button feature handled
+        } else return false; // No button feature handled
     }
 
     private void resetConfig(Player player) {
@@ -306,4 +314,11 @@ public class ConfigGUI implements Listener {
         }
     }
 
+    private void confirmationPrompt(String prompt, Player player) {
+        this.gui = Bukkit.createInventory(null, 9 * 3, prompt);
+        fillBorders(createButtonItem(Material.STAINED_GLASS_PANE, "§r", (short) 14, null, null), 9 * 3, true);
+        gui.setItem(9 + 2, createButtonItem(Material.CONCRETE, ChatColor.RED + "Cancel", (short) 14, null, "cancel"));
+        gui.setItem(9 + 6, createButtonItem(Material.CONCRETE, ChatColor.GREEN + "Confirm", (short) 13, null, "confirm"));
+        player.openInventory(gui);
+    }
 }

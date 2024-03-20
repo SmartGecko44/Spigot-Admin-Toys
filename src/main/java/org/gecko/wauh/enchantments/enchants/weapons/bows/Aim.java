@@ -8,9 +8,7 @@ import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import org.gecko.wauh.Main;
 
@@ -19,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public class Aim extends Enchantment implements Listener {
+public class Aim extends Enchantment {
 
     private final Map<Entity, Long> lastArrowHitTimes = new HashMap<>();
     private Main plugin;
@@ -96,8 +94,13 @@ public class Aim extends Enchantment implements Listener {
         Entity target = findNearestVisibleEntity(nearbyEntities, shooter, arrow);
 
         if (target != null) {
+            Vector targetLocation;
             // Adjust target location to the center of the entity
-            Vector targetLocation = target.getLocation().toVector().add(new Vector(0, (target.getHeight() / 1.2), 0));
+            if (target.getHeight() <= 5) {
+                targetLocation = target.getLocation().toVector().add(new Vector(0, (target.getHeight() / 1.2), 0));
+            } else {
+                targetLocation = target.getLocation().toVector().add(new Vector(0, (target.getHeight() / 3), 0));
+            }
 
             Vector direction = targetLocation.subtract(arrow.getLocation().toVector());
             arrow.setVelocity(direction.normalize().multiply(arrow.getVelocity().length()));
@@ -122,39 +125,6 @@ public class Aim extends Enchantment implements Listener {
         return nearestEntity;
     }
 
-    public void onAimHitHandler(ItemStack bow, Entity entity, Main plugin) {
-        this.plugin = plugin;
-        if (entity instanceof LivingEntity livingEntity) {
-            Map<Enchantment, Integer> itemEnch = bow.getEnchantments();
-            if (itemEnch.containsKey(Enchantment.getByName("Aim"))) {
-                livingEntity.setNoDamageTicks(0);
-
-                // Update the last arrow hit time for this entity
-                lastArrowHitTimes.put(entity, System.currentTimeMillis());
-
-                // Schedule a task to check if 5 seconds have passed without a new arrow hit
-                scheduleResetTask(entity);
-            }
-        }
-    }
-
-    private void scheduleResetTask(Entity entity) {
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                long lastHitTime = lastArrowHitTimes.getOrDefault(entity, 0L);
-                long currentTime = System.currentTimeMillis();
-
-                // Check if 5 seconds have passed since the last arrow hit
-                if (currentTime - lastHitTime >= 5000) {
-                    ((LivingEntity) entity).setNoDamageTicks(20); // Reset the no damage ticks
-                    // Remove the entity from the lastArrowHitTimes map
-                    lastArrowHitTimes.remove(entity);
-                }
-            }
-        }.runTaskLater(plugin, 100); // Run the task after 5 seconds (100 ticks = 5 seconds)
-    }
-
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -164,6 +134,7 @@ public class Aim extends Enchantment implements Listener {
             return false;
         }
         Aim aim = (Aim) obj;
+        // No clue what an uninitialized plugin is doing here, but the code breaks if I remove it :(
         return Objects.equals(plugin, aim.plugin) && Objects.equals(lastArrowHitTimes, aim.lastArrowHitTimes);
     }
 

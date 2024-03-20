@@ -7,10 +7,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.gecko.wauh.commands.*;
 import org.gecko.wauh.data.ConfigurationManager;
-import org.gecko.wauh.enchantments.enchants.weapons.bows.Aim;
-import org.gecko.wauh.enchantments.enchants.weapons.bows.BowListener;
-import org.gecko.wauh.enchantments.enchants.weapons.bows.Glow;
-import org.gecko.wauh.enchantments.enchants.weapons.bows.Multishot;
+import org.gecko.wauh.enchantments.enchants.weapons.bows.*;
 import org.gecko.wauh.enchantments.enchants.weapons.swords.Disarm;
 import org.gecko.wauh.enchantments.logic.EnchantmentHandler;
 import org.gecko.wauh.enchantments.tools.pickaxes.Drill;
@@ -37,6 +34,8 @@ public final class Main extends JavaPlugin {
     public static final Enchantment drill = new Drill(); // Id: 103
     public static final Enchantment smelt = new Smelt(); // Id: 104
     public static final Enchantment glow = new Glow(); // Id: 105
+    public static final Enchantment endanger = new Endanger(); // Id: 106
+    public static final Enchantment explosive = new Explosive(); // Id: 107
     private final EnchantmentHandler enchantmentHandler = new EnchantmentHandler();
     ConfigurationManager configManager;
     FileConfiguration config;
@@ -92,7 +91,7 @@ public final class Main extends JavaPlugin {
         config = configManager.getConfig();
         iterateBlocks = new IterateBlocks();
         ConfigGUI configGUI = new ConfigGUI(this);
-        shortbow = new Shortbow(this);
+        shortbow = new Shortbow();
 
 
         // Register the listeners
@@ -107,17 +106,15 @@ public final class Main extends JavaPlugin {
 
         // Create enchant instances
         Disarm disarmListener = new Disarm();
-        BowListener bowListener = new BowListener(this);
+        BowListener bowListener = new BowListener();
         Drill drillListener = new Drill();
         Smelt smeltListener = new Smelt();
-        Glow glowListener = new Glow();
 
         // Enchantment listeners
         getServer().getPluginManager().registerEvents(disarmListener, this);
         getServer().getPluginManager().registerEvents(bowListener, this);
         getServer().getPluginManager().registerEvents(drillListener, this);
         getServer().getPluginManager().registerEvents(smeltListener, this);
-        getServer().getPluginManager().registerEvents(glowListener, this);
 
         // Register Enchantments
         try {
@@ -127,6 +124,8 @@ public final class Main extends JavaPlugin {
             registerEnchantment(drill);
             registerEnchantment(smelt);
             registerEnchantment(glow);
+            registerEnchantment(endanger);
+            registerEnchantment(explosive);
         } catch (IllegalArgumentException | RegisterError ignored) {
             // Ignore any exceptions during enchantment registration
         }

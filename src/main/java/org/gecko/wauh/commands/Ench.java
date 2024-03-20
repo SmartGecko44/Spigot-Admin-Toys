@@ -68,9 +68,9 @@ public class Ench implements CommandExecutor, TabCompleter {
                 return true;
             }
 
-            if (level == -1) {
+            if (level == -1 || level == 1) {
                 enchItem.addEnchantment(Enchantment.getByName(enchantmentNameFinal), 1);
-                updateItemLore(enchItem, operation, convertToRomanNumerals(1), 1);
+                updateItemLore(enchItem, operation, "", 1);
                 sender.sendMessage("Success! Your item now has " + enchantmentNameFinal + " " + convertToRomanNumerals(1));
                 return true;
             }
@@ -87,7 +87,7 @@ public class Ench implements CommandExecutor, TabCompleter {
                 return true;
             }
 
-            if (level > 0) {
+            if (level > 1) {
                 String levelRoman = convertToRomanNumerals(level);
                 if (level <= 10) {
                     enchItem.addEnchantment(Enchantment.getByName(enchantmentNameFinal), level);
