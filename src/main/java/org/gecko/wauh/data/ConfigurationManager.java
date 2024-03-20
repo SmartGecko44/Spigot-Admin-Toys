@@ -69,6 +69,8 @@ public class ConfigurationManager {
     }
 
     public FileConfiguration getConfig() {
+        config = YamlConfiguration.loadConfiguration(configFile);
+        Bukkit.getConsoleSender().sendMessage(ChatColor.RED + config.saveToString());
         return config;
     }
 

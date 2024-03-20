@@ -53,11 +53,15 @@ public class ConfigGUI implements Listener {
     public ConfigGUI(Main plugin) {
         configManager = new ConfigurationManager(plugin);
         config = configManager.getConfig();
-        this.gui = Bukkit.createInventory(null, 45, "Test (WIP)");
         File dir = new File("plugins/Wauh");
         this.configFile = new File(dir, "data.yml");
         this.plugin = plugin;
 
+        generateGUI();
+    }
+
+    public void generateGUI() {
+        this.gui = Bukkit.createInventory(null, 45, "Test (WIP)");
         fillBorders(createButtonItem(Material.STAINED_GLASS_PANE, "§r", (short) 5, null, null), 45, false);
         // Initialize GUI content
         initializeGUI();
@@ -207,42 +211,55 @@ public class ConfigGUI implements Listener {
     }
 
     private void handleItemClick(Player player, ItemStack clickedItem) {
-        if (clickedItem != null && (clickedItem.getType() == Material.INK_SACK || clickedItem.getType() == Material.PAPER)) {
-                NBTItem nbtItem = new NBTItem(clickedItem);
-                String identifier = nbtItem.getString("Ident");
-                short data = clickedItem.getDurability();
+        if (clickedItem != null && (clickedItem.getType() == Material.INK_SACK || clickedItem.getType() == Material.PAPER || clickedItem.getType() == Material.CONCRETE)) {
+            NBTItem nbtItem = new NBTItem(clickedItem);
+            String identifier = nbtItem.getString("Ident");
+            short data = clickedItem.getDurability();
 
-                if (handleButtonFeatures(player, identifier, data)) {
-                    return; // Button feature handling succeeded
-                }
+            if (handleButtonFeatures(player, identifier, data)) {
+                return; // Button feature handling succeeded
+            }
 
-                if (clickedItem.getType() == Material.PAPER && (identifier.equalsIgnoreCase("Reset"))) {
-                    confirmationPrompt("Reset config?", player);
-                }
+            if (clickedItem.getType() == Material.PAPER && (identifier.equalsIgnoreCase("Reset"))) {
+                confirmationPrompt("Reset config?", player);
+            }
 
         }
     }
 
     private boolean handleButtonFeatures(Player player, String identifier, short data) {
-        if (identifier.equalsIgnoreCase(ENABLE_BUCKET)) {
-            handleButtonClick(player, identifier, data, BUCKET_ENABLED, 1, "Liquid removal enabled!", "Liquid removal disabled!");
-            return true;
-        } else if (identifier.equalsIgnoreCase(ENABLE_BARRIER)) {
-            handleButtonClick(player, identifier, data, BARRIER_ENABLED, 2, "Surface removal enabled!", "Surface removal disabled!");
-            return true;
-        } else if (identifier.equalsIgnoreCase(ENABLE_BEDROCK)) {
-            handleButtonClick(player, identifier, data, BEDROCK_ENABLED, 3, "All block removal enabled!", "All block removal disabled!");
-            return true;
-        } else if (identifier.equalsIgnoreCase(ENABLE_TSUNAMI)) {
-            handleButtonClick(player, identifier, data, TSUNAMI_ENABLED, 4, "Tsunami enabled!", "Tsunami disabled!");
-            return true;
-        } else if (identifier.equalsIgnoreCase(ENABLE_CREEPER)) {
-            handleButtonClick(player, identifier, data, CREEPER_ENABLED, 5, "Custom creeper explosions enabled!", "Custom creeper explosions disabled!");
-            return true;
-        } else if (identifier.equalsIgnoreCase(ENABLE_TNT)) {
-            handleButtonClick(player, identifier, data, TNT_ENABLED, 6, "Custom TNT explosions enabled!", "Custom TNT explosions disabled!");
-            return true;
-        } else return false; // No button feature handled
+        if (gui.getTitle().equals("Test (WIP)")) {
+            if (identifier.equalsIgnoreCase(ENABLE_BUCKET)) {
+                handleButtonClick(player, identifier, data, BUCKET_ENABLED, 1, "Liquid removal enabled!", "Liquid removal disabled!");
+                return true;
+            } else if (identifier.equalsIgnoreCase(ENABLE_BARRIER)) {
+                handleButtonClick(player, identifier, data, BARRIER_ENABLED, 2, "Surface removal enabled!", "Surface removal disabled!");
+                return true;
+            } else if (identifier.equalsIgnoreCase(ENABLE_BEDROCK)) {
+                handleButtonClick(player, identifier, data, BEDROCK_ENABLED, 3, "All block removal enabled!", "All block removal disabled!");
+                return true;
+            } else if (identifier.equalsIgnoreCase(ENABLE_TSUNAMI)) {
+                handleButtonClick(player, identifier, data, TSUNAMI_ENABLED, 4, "Tsunami enabled!", "Tsunami disabled!");
+                return true;
+            } else if (identifier.equalsIgnoreCase(ENABLE_CREEPER)) {
+                handleButtonClick(player, identifier, data, CREEPER_ENABLED, 5, "Custom creeper explosions enabled!", "Custom creeper explosions disabled!");
+                return true;
+            } else if (identifier.equalsIgnoreCase(ENABLE_TNT)) {
+                handleButtonClick(player, identifier, data, TNT_ENABLED, 6, "Custom TNT explosions enabled!", "Custom TNT explosions disabled!");
+                return true;
+            }
+        } else if (gui.getTitle().equals("Reset config?")) {
+            if (identifier.equalsIgnoreCase("cancel")) {
+                player.closeInventory();
+                player.sendMessage(ChatColor.RED + "Config reset cancelled");
+                return true;
+            } else if (identifier.equalsIgnoreCase("confirm")) {
+                resetConfig(player);
+                player.closeInventory();
+                return true;
+            }
+        }
+        return false;
     }
 
     private void resetConfig(Player player) {
@@ -320,5 +337,9 @@ public class ConfigGUI implements Listener {
         gui.setItem(9 + 2, createButtonItem(Material.CONCRETE, ChatColor.RED + "Cancel", (short) 14, null, "cancel"));
         gui.setItem(9 + 6, createButtonItem(Material.CONCRETE, ChatColor.GREEN + "Confirm", (short) 13, null, "confirm"));
         player.openInventory(gui);
+    }
+
+    public Inventory getGui() {
+        return gui;
     }
 }

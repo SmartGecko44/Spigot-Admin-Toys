@@ -152,6 +152,7 @@ public final class Main extends JavaPlugin {
     }
 
     public int getRadiusLimit() {
+        config = configManager.getConfig();
         playerRadiusLimit = config.getInt("playerRadiusLimit", playerRadiusLimit);
         return playerRadiusLimit + 2;
     }
@@ -163,7 +164,9 @@ public final class Main extends JavaPlugin {
     }
 
     public int getTntRadiusLimit() {
+        config = configManager.getConfig();
         tntRadiusLimit = config.getInt("tntRadiusLimit", tntRadiusLimit);
+        Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "TNT Radius Limit: " + tntRadiusLimit);
         return tntRadiusLimit + 2;
     }
 
@@ -174,6 +177,7 @@ public final class Main extends JavaPlugin {
     }
 
     public int getCreeperRadiusLimit() {
+        config = configManager.getConfig();
         creeperRadiusLimit = config.getInt("creeperRadiusLimit", creeperRadiusLimit);
         return creeperRadiusLimit + 2;
     }
