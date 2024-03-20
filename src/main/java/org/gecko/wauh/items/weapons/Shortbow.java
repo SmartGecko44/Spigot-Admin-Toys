@@ -22,7 +22,7 @@ public class Shortbow implements Listener {
     }
 
     @EventHandler
-    public void onPlayerBowClick(PlayerInteractEvent event) {
+    public void onPlayerBowClick(PlayerInteractEvent event) throws InterruptedException {
         if (event.getAction() != Action.LEFT_CLICK_AIR && event.getAction() != Action.LEFT_CLICK_BLOCK) {
             return;
         }

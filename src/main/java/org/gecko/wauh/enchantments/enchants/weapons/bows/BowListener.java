@@ -1,5 +1,6 @@
 package org.gecko.wauh.enchantments.enchants.weapons.bows;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -36,7 +37,7 @@ public class BowListener implements Listener {
         if (event.getEntity() instanceof Arrow arrow && (arrow.getShooter() instanceof Player shooter)) {
             ItemStack bow = shooter.getInventory().getItemInMainHand();
             new Multishot().onArrowHitHandler(arrow, bow);
-            if (event.getEntity() instanceof LivingEntity) {
+            if (event.getHitEntity() instanceof LivingEntity) {
                 new Glow().glowHitHandler(bow, (LivingEntity) event.getHitEntity());
                 new Endanger().onProjectileHit((LivingEntity) event.getHitEntity(), bow);
             }
