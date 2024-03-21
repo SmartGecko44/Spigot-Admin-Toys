@@ -9,14 +9,17 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.gecko.wauh.Main;
 import org.gecko.wauh.data.ConfigurationManager;
+import org.gecko.wauh.logic.SetAndGet;
 
 public class CreeperListener implements Listener {
 
     private final Main plugin;
+    private final SetAndGet setAndGet;
     private Location creeperLocation;
 
-    public CreeperListener(Main plugin) {
+    public CreeperListener(Main plugin, SetAndGet setAndGet) {
         this.plugin = plugin;
+        this.setAndGet = setAndGet;
     }
 
     @EventHandler
@@ -37,7 +40,7 @@ public class CreeperListener implements Listener {
             // Get the location of the TNT explosion
             if (creeper.getLocation() != null) {
                 setCreeperLocation(creeper.getLocation());
-                BedrockListener bedrockListener = new BedrockListener(plugin);
+                BedrockListener bedrockListener = new BedrockListener(setAndGet);
                 bedrockListener.bedrockValueAssignHandler(null, "creeper");
             }
         }

@@ -10,15 +10,18 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.gecko.wauh.Main;
 import org.gecko.wauh.data.ConfigurationManager;
+import org.gecko.wauh.logic.SetAndGet;
 
 public class TNTListener implements Listener {
 
     private final Main plugin;
+    private final SetAndGet setAndGet;
     private Location tntLocation;
     private Player tntPlayer = null;
 
-    public TNTListener(Main plugin) {
+    public TNTListener(Main plugin, SetAndGet setAndGet) {
         this.plugin = plugin;
+        this.setAndGet = setAndGet;
     }
 
     @EventHandler
@@ -48,7 +51,7 @@ public class TNTListener implements Listener {
                 }
 
                 setTntLocation(tnt.getLocation());
-                BedrockListener bedrockListener = new BedrockListener(plugin);
+                BedrockListener bedrockListener = new BedrockListener(setAndGet);
                 bedrockListener.bedrockValueAssignHandler(null, "TNT");
             }
         }

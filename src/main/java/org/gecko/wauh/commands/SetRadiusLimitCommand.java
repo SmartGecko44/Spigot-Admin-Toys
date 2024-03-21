@@ -5,7 +5,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
-import org.gecko.wauh.Main;
+import org.gecko.wauh.logic.SetAndGet;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,10 +13,10 @@ import java.util.List;
 public class SetRadiusLimitCommand implements CommandExecutor, TabCompleter {
     public static final String PLAYER = "player";
     public static final String CREEPER = "creeper";
-    private final Main plugin;  // Reference to the Main class
+    private final SetAndGet setAndGet;  // Reference to the Main class
 
-    public SetRadiusLimitCommand(Main plugin) {
-        this.plugin = plugin;
+    public SetRadiusLimitCommand(SetAndGet setAndGet) {
+        this.setAndGet = setAndGet;
     }
 
     @Override
@@ -42,13 +42,13 @@ public class SetRadiusLimitCommand implements CommandExecutor, TabCompleter {
                         }
 
                         if (operation.equals("tnt")) {
-                            plugin.setTntRadiusLimit(newLimit);  // Use the setter method for TNT operations
+                            setAndGet.setTntRadiusLimit(newLimit);  // Use the setter method for TNT operations
                             player.sendMessage("TNT radius set to " + newLimit);
                         } else if (operation.equals(PLAYER)) {
-                            plugin.setRadiusLimit(newLimit); // Use the setter method for player operations
+                            setAndGet.setRadiusLimit(newLimit); // Use the setter method for player operations
                             player.sendMessage("Player operation limit set to " + newLimit);
                         } else {
-                            plugin.setCreeperLimit(newLimit);
+                            setAndGet.setCreeperLimit(newLimit);
                             player.sendMessage("Creeper radius limit set to " + newLimit);
                         }
                     } catch (NumberFormatException e) {

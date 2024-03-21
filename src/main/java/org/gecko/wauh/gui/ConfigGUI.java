@@ -13,8 +13,10 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.gecko.wauh.Main;
 import org.gecko.wauh.data.ConfigurationManager;
+import org.gecko.wauh.logic.SetAndGet;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -47,15 +49,15 @@ public class ConfigGUI implements Listener {
     private Inventory gui;
     private final File configFile;
     private final Logger logger = Logger.getLogger(ConfigGUI.class.getName());
-    private final Main plugin;
+    private final SetAndGet setAndGet;
     FileConfiguration config;
 
-    public ConfigGUI(Main plugin) {
-        configManager = new ConfigurationManager(plugin);
+    public ConfigGUI(SetAndGet setAndGet) {
+        configManager = new ConfigurationManager(JavaPlugin.getPlugin(Main.class));
         config = configManager.getConfig();
         File dir = new File("plugins/Wauh");
         this.configFile = new File(dir, "data.yml");
-        this.plugin = plugin;
+        this.setAndGet = setAndGet;
 
         generateGUI();
     }
@@ -163,9 +165,9 @@ public class ConfigGUI implements Listener {
     }
 
     public void openGUI(Player player) {
-        int playerLimit = plugin.getRadiusLimit() - 2;
-        int creeperLimit = plugin.getCreeperRadiusLimit() - 2;
-        int tntLimit = plugin.getTntRadiusLimit() - 2;
+        int playerLimit = setAndGet.getRadiusLimit() - 2;
+        int creeperLimit = setAndGet.getCreeperRadiusLimit() - 2;
+        int tntLimit = setAndGet.getTntRadiusLimit() - 2;
         gui.setItem(9 + 1, createButtonItem(Material.BUCKET, ChatColor.RESET + "Liquid removal", (short) 0, null, null));
         gui.setItem(9 * 2 + 1, createButtonItem(Material.ENDER_PEARL, ChatColor.RESET + String.valueOf(playerLimit), (short) 0, ChatColor.RESET + "" + ChatColor.DARK_PURPLE + MANAGED, null));
         gui.setItem(9 + 2, createButtonItem(Material.BARRIER, ChatColor.RESET + "Surface removal", (short) 0, null, null));

@@ -15,9 +15,11 @@ import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.gecko.wauh.Main;
 import org.gecko.wauh.data.ConfigurationManager;
 import org.gecko.wauh.logic.Scale;
+import org.gecko.wauh.logic.SetAndGet;
 
 import java.util.*;
 
@@ -27,7 +29,7 @@ public class BedrockListener implements Listener {
     private final Set<Block> markedBlocks = new HashSet<>();
     private final Set<Block> processedBlocks = new HashSet<>();
     private final Set<Block> removedBlocks = new HashSet<>();
-    private final Main plugin;
+    private final SetAndGet setAndGet;
     private Player currentRemovingPlayer;
     private boolean stopAllRemoval = false;
     private boolean allRemovalActive = false;
@@ -44,8 +46,8 @@ public class BedrockListener implements Listener {
     private boolean explosionTrigger = false;
     private String realSource = null;
 
-    public BedrockListener(Main plugin) {
-        this.plugin = plugin;
+    public BedrockListener(SetAndGet setAndGet) {
+        this.setAndGet = setAndGet;
     }
 
     private void addIfValid(Block block, Set<Block> nextSet) {
@@ -77,7 +79,7 @@ public class BedrockListener implements Listener {
 
     public void bedrockValueAssignHandler(BlockBreakEvent event, String source) {
         realSource = source;
-        TNTListener tntListener = plugin.getTntListener();
+        TNTListener tntListener = setAndGet.getTntListener();
         if (tntListener == null) {
             return;
         }
@@ -89,21 +91,21 @@ public class BedrockListener implements Listener {
         }
         ConfigurationManager configManager;
         FileConfiguration config;
-        configManager = new ConfigurationManager(plugin);
+        configManager = new ConfigurationManager(JavaPlugin.getPlugin(Main.class));
         config = configManager.getConfig();
         if (config.getInt("Bedrock enabled") == 0) {
             return;
         }
-        BucketListener bucketListener = plugin.getBucketListener();
-        BarrierListener barrierListener = plugin.getBarrierListener();
-        WaterBucketListener waterBucketListener = plugin.getWaterBucketListener();
-        CreeperListener creeperListener = plugin.getCreeperListener();
+        BucketListener bucketListener = setAndGet.getBucketListener();
+        BarrierListener barrierListener = setAndGet.getBarrierListener();
+        WaterBucketListener waterBucketListener = setAndGet.getWaterBucketListener();
+        CreeperListener creeperListener = setAndGet.getCreeperListener();
         if (source.equalsIgnoreCase("player")) {
-            radiusLimit = plugin.getRadiusLimit();
+            radiusLimit = setAndGet.getRadiusLimit();
         } else if (source.equalsIgnoreCase("TNT")) {
-            radiusLimit = plugin.getTntRadiusLimit();
+            radiusLimit = setAndGet.getTntRadiusLimit();
         } else {
-            radiusLimit = plugin.getCreeperRadiusLimit();
+            radiusLimit = setAndGet.getCreeperRadiusLimit();
         }
         realRadiusLimit = radiusLimit - 2;
         if (realRadiusLimit > 1 && (!bucketListener.isWauhRemovalActive() && !barrierListener.isBlockRemovalActive() && !isAllRemovalActive() && !waterBucketListener.isTsunamiActive() || explosionTrigger)) {
@@ -197,7 +199,7 @@ public class BedrockListener implements Listener {
 
             // Check if the block is grass or dirt
             allRemovedCount++;
-            if (plugin.getShowRemoval()) {
+            if (setAndGet.getShowRemoval()) {
                 block.setType(Material.AIR);
             } else {
                 markedBlocks.add(block);
@@ -217,8 +219,8 @@ public class BedrockListener implements Listener {
         if (limitReachedThisIteration) {
             bedrockFin();
         } else if (!blocksToProcess.isEmpty()) {
-            if (plugin.getShowRemoval()) {
-                Bukkit.getScheduler().runTaskLater(plugin, this::processAllRemoval, 2L);
+            if (setAndGet.getShowRemoval()) {
+                Bukkit.getScheduler().runTaskLater(JavaPlugin.getPlugin(Main.class), this::processAllRemoval, 2L);
             } else {
                 processAllRemoval();
             }
@@ -235,8 +237,8 @@ public class BedrockListener implements Listener {
         if (limitReached) {
             displaySummary();
         } else if (!blocksToProcess.isEmpty()) {
-            if (plugin.getShowRemoval()) {
-                Bukkit.getScheduler().runTaskLater(plugin, this::processAllRemoval, 2L);
+            if (setAndGet.getShowRemoval()) {
+                Bukkit.getScheduler().runTaskLater(JavaPlugin.getPlugin(Main.class), this::processAllRemoval, 2L);
             } else {
                 processAllRemoval();
             }
@@ -246,8 +248,8 @@ public class BedrockListener implements Listener {
     }
 
     public void displaySummary() {
-        TNTListener tntListener = plugin.getTntListener();
-        CreeperListener creeperListener = plugin.getCreeperListener();
+        TNTListener tntListener = setAndGet.getTntListener();
+        CreeperListener creeperListener = setAndGet.getCreeperListener();
         Player player = getCurrentRemovingPlayer();
         // Display the block removal summary to the player
         if (allRemovedCount > 1) {
@@ -256,7 +258,7 @@ public class BedrockListener implements Listener {
                 // Display the block removal summary in the console
                 Bukkit.getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + player.getName() + ChatColor.GREEN + " removed " + ChatColor.RED + allRemovedCount + ChatColor.GREEN + " blocks.");
             }
-            if (!plugin.getShowRemoval()) {
+            if (!setAndGet.getShowRemoval()) {
                 removeMarkedBlocks();
             } else {
                 clearAll(tntListener, creeperListener);
@@ -276,8 +278,8 @@ public class BedrockListener implements Listener {
      * Finally, clear all the sets and variables related to block removal.
      */
     private void removeMarkedBlocks() {
-        TNTListener tntListener = plugin.getTntListener();
-        CreeperListener creeperListener = plugin.getCreeperListener();
+        TNTListener tntListener = setAndGet.getTntListener();
+        CreeperListener creeperListener = setAndGet.getCreeperListener();
         Scale scale;
         scale = new Scale();
 
@@ -293,14 +295,14 @@ public class BedrockListener implements Listener {
 
         // If there are more blocks to remove, schedule the next batch
         if (!markedBlocks.isEmpty()) {
-            Bukkit.getScheduler().runTaskLater(plugin, this::removeMarkedBlocks, 10L); // Schedule the next batch after 1 tick
+            Bukkit.getScheduler().runTaskLater(JavaPlugin.getPlugin(Main.class), this::removeMarkedBlocks, 10L); // Schedule the next batch after 1 tick
         } else if (!removedBlocks.isEmpty()) {
             if (repetitions > 0) {
                 repetitions--;
                 repeated = true;
                 markedBlocks.addAll(removedBlocks);
                 removedBlocks.clear();
-                Bukkit.getScheduler().runTaskLater(plugin, this::removeMarkedBlocks, 100L);
+                Bukkit.getScheduler().runTaskLater(JavaPlugin.getPlugin(Main.class), this::removeMarkedBlocks, 100L);
                 // If all blocks have been processed, but there are blocks in the removedBlocks set,
                 // process those in the next iteration.
             } else {

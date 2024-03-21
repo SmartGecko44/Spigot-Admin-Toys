@@ -13,17 +13,19 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerBucketFillEvent;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.gecko.wauh.Main;
 import org.gecko.wauh.data.ConfigurationManager;
 import org.gecko.wauh.logic.IterateBlocks;
 import org.gecko.wauh.logic.Scale;
+import org.gecko.wauh.logic.SetAndGet;
 
 import java.util.*;
 
 public class BucketListener implements Listener {
 
     private static final Set<Material> IMMUTABLE_MATERIALS = EnumSet.of(Material.WATER, Material.STATIONARY_WATER, Material.LAVA, Material.STATIONARY_LAVA);
-    private final Main plugin;
+    private final SetAndGet setAndGet;
     private final Set<Block> markedBlocks = new HashSet<>();
     private final Set<Block> processedBlocks = new HashSet<>();
     private final Set<Block> removedBlocks = new HashSet<>(); // Create a new set to store removed blocks
@@ -42,8 +44,8 @@ public class BucketListener implements Listener {
     private int repetitions = 1;
 
 
-    public BucketListener(Main plugin) {
-        this.plugin = plugin;
+    public BucketListener(SetAndGet setAndGet) {
+        this.setAndGet = setAndGet;
     }
 
     @EventHandler
@@ -54,18 +56,18 @@ public class BucketListener implements Listener {
 
         ConfigurationManager configManager;
         FileConfiguration config;
-        configManager = new ConfigurationManager(plugin);
+        configManager = new ConfigurationManager(JavaPlugin.getPlugin(Main.class));
         config = configManager.getConfig();
         if (config.getInt("Bucket enabled") == 0) {
             return;
         }
 
-        BarrierListener barrierListener = plugin.getBarrierListener();
-        BedrockListener bedrockListener = plugin.getBedrockListener();
-        WaterBucketListener waterBucketListener = plugin.getWaterBucketListener();
+        BarrierListener barrierListener = setAndGet.getBarrierListener();
+        BedrockListener bedrockListener = setAndGet.getBedrockListener();
+        WaterBucketListener waterBucketListener = setAndGet.getWaterBucketListener();
         NBTItem nbtItem = new NBTItem(event.getPlayer().getInventory().getItemInMainHand());
         String identifier = nbtItem.getString("Ident");
-        radiusLimit = plugin.getRadiusLimit();
+        radiusLimit = setAndGet.getRadiusLimit();
         realRadiusLimit = radiusLimit - 2;
         if (realRadiusLimit > 1 && !isWauhRemovalActive() && !barrierListener.isBlockRemovalActive() && !bedrockListener.isAllRemovalActive() && !waterBucketListener.isTsunamiActive() && IMMUTABLE_MATERIALS.contains(event.getBlockClicked().getType()) && event.getBucket() == Material.BUCKET && identifier.equalsIgnoreCase("Custom Bucket")) {
             setWauhRemovalActive(true);
@@ -99,7 +101,7 @@ public class BucketListener implements Listener {
             setStopWaterRemoval(false);
             displaySummary();
             // Schedule a task to remove the barrier blocks after a short delay
-            Bukkit.getScheduler().runTaskLater(plugin, this::removeReplacedBlocks, 20L); // Delay the removal of barrier blocks for 1 second (20 ticks)
+            Bukkit.getScheduler().runTaskLater(JavaPlugin.getPlugin(Main.class), this::removeReplacedBlocks, 20L); // Delay the removal of barrier blocks for 1 second (20 ticks)
             return;
         }
         Set<Block> nextSet = new HashSet<>();
@@ -137,14 +139,14 @@ public class BucketListener implements Listener {
                 lave++;
             }
             // Remove the water block
-            if (plugin.getShowRemoval()) {
+            if (setAndGet.getShowRemoval()) {
                 block.setType(Material.STRUCTURE_VOID);
                 // Add the block to the list of replaced blocks
                 markedBlocks.add(block);
             } else {
                 markedBlocks.add(block);
             }
-            iterateBlocks = plugin.getIterateBlocks();
+            iterateBlocks = setAndGet.getIterateBlocks();
             iterateBlocks.iterateBlocks(block, nextSet, IMMUTABLE_MATERIALS);
             processedBlocks.add(block);
         }
@@ -155,8 +157,8 @@ public class BucketListener implements Listener {
         if (limitReachedThisIteration) {
             wauhFin();
         } else if (!blocksToProcess.isEmpty()) {
-            if (plugin.getShowRemoval()) {
-                Bukkit.getScheduler().runTaskLater(plugin, this::processWaterRemoval, 1L);
+            if (setAndGet.getShowRemoval()) {
+                Bukkit.getScheduler().runTaskLater(JavaPlugin.getPlugin(Main.class), this::processWaterRemoval, 1L);
             } else {
                 processWaterRemoval();
             }
@@ -171,7 +173,7 @@ public class BucketListener implements Listener {
         if (limitReached) {
             displaySummary();
         } else if (!blocksToProcess.isEmpty()) {
-            Bukkit.getScheduler().runTaskLater(plugin, this::processWaterRemoval, 1L);
+            Bukkit.getScheduler().runTaskLater(JavaPlugin.getPlugin(Main.class), this::processWaterRemoval, 1L);
         } else {
             displaySummary();
         }
@@ -185,7 +187,7 @@ public class BucketListener implements Listener {
 
             // Display the water removal summary in the console
             Bukkit.getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + player.getName() + ChatColor.GREEN + " removed " + ChatColor.RED + waterRemovedCount + ChatColor.GREEN + " updating water blocks, " + ChatColor.RED + stationaryWaterRemovedCount + ChatColor.GREEN + " stationary water blocks and " + ChatColor.RED + lave + ChatColor.GREEN + " lave blocks.");
-            Bukkit.getScheduler().runTaskLater(plugin, this::removeReplacedBlocks, 20L);
+            Bukkit.getScheduler().runTaskLater(JavaPlugin.getPlugin(Main.class), this::removeReplacedBlocks, 20L);
         } else {
             setWauhRemovalActive(false);
             setCurrentRemovingPlayer(null);
@@ -219,16 +221,16 @@ public class BucketListener implements Listener {
 
         // If there are more blocks to remove, schedule the next batch
         if (!markedBlocks.isEmpty()) {
-            Bukkit.getScheduler().runTaskLater(plugin, this::removeReplacedBlocks, 1L); // Schedule the next batch after 1 tick
+            Bukkit.getScheduler().runTaskLater(JavaPlugin.getPlugin(Main.class), this::removeReplacedBlocks, 1L); // Schedule the next batch after 1 tick
         } else if (!removedBlocks.isEmpty()) {
             // If all blocks have been processed, but there are blocks in the removedBlocks set,
             // process those in the next iteration.
-            if (plugin.getShowRemoval()) {
+            if (setAndGet.getShowRemoval()) {
                 if (repetitions > 0) {
                     repetitions--;
                     markedBlocks.addAll(removedBlocks);
                     removedBlocks.clear();
-                    Bukkit.getScheduler().runTaskLater(plugin, this::removeReplacedBlocks, 1L);
+                    Bukkit.getScheduler().runTaskLater(JavaPlugin.getPlugin(Main.class), this::removeReplacedBlocks, 1L);
                 } else {
                     getCurrentRemovingPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Water block cleanup finished"));
                     // Reset repetitions to stop further repetitions

@@ -9,13 +9,13 @@ import org.gecko.wauh.commands.*;
 import org.gecko.wauh.data.ConfigurationManager;
 import org.gecko.wauh.enchantments.enchants.weapons.bows.*;
 import org.gecko.wauh.enchantments.enchants.weapons.swords.Disarm;
-import org.gecko.wauh.enchantments.logic.EnchantmentHandler;
 import org.gecko.wauh.enchantments.tools.pickaxes.Drill;
 import org.gecko.wauh.enchantments.tools.pickaxes.Smelt;
 import org.gecko.wauh.gui.ConfigGUI;
 import org.gecko.wauh.items.weapons.Shortbow;
 import org.gecko.wauh.listeners.*;
-import org.gecko.wauh.logic.IterateBlocks;
+import org.gecko.wauh.logic.Scale;
+import org.gecko.wauh.logic.SetAndGet;
 
 import java.lang.reflect.Field;
 
@@ -36,20 +36,8 @@ public final class Main extends JavaPlugin {
     public static final Enchantment glow = new Glow(); // Id: 105
     public static final Enchantment endanger = new Endanger(); // Id: 106
     public static final Enchantment explosive = new Explosive(); // Id: 107
-    private final EnchantmentHandler enchantmentHandler = new EnchantmentHandler();
     ConfigurationManager configManager;
     FileConfiguration config;
-    private int playerRadiusLimit;
-    private int tntRadiusLimit;
-    private int creeperRadiusLimit;
-    private boolean showRemoval = true;
-    private BucketListener bucketListener;
-    private BarrierListener barrierListener;
-    private BedrockListener bedrockListener;
-    private WaterBucketListener waterBucketListener;
-    private TNTListener tntListener;
-    private CreeperListener creeperListener;
-    private IterateBlocks iterateBlocks;
 
     public static void registerEnchantment(Enchantment enchantment) throws RegisterError {
         try {
@@ -75,23 +63,26 @@ public final class Main extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        Shortbow shortbow;
         // Plugin startup logic
         Bukkit.getConsoleSender().sendMessage("");
         Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "Yay");
 
-        // Create instances of the listeners
-        bucketListener = new BucketListener(this);
-        barrierListener = new BarrierListener(this);
-        bedrockListener = new BedrockListener(this);
-        waterBucketListener = new WaterBucketListener(this);
-        tntListener = new TNTListener(this);
-        creeperListener = new CreeperListener(this);
         configManager = new ConfigurationManager(this);
         config = configManager.getConfig();
-        iterateBlocks = new IterateBlocks();
-        ConfigGUI configGUI = new ConfigGUI(this);
-        shortbow = new Shortbow();
+
+        // Create instances of some misc classes
+        SetAndGet setAndGet = new SetAndGet(configManager);
+        new Scale().scale(setAndGet);
+
+        // Create instances of the listeners
+        BucketListener bucketListener = new BucketListener(setAndGet);
+        BarrierListener barrierListener = new BarrierListener(setAndGet);
+        BedrockListener bedrockListener = new BedrockListener(setAndGet);
+        WaterBucketListener waterBucketListener = new WaterBucketListener(setAndGet);
+        TNTListener tntListener = new TNTListener(this, setAndGet);
+        CreeperListener creeperListener = new CreeperListener(this, setAndGet);
+        ConfigGUI configGUI = new ConfigGUI(setAndGet);
+        Shortbow shortbow = new Shortbow();
 
 
         // Register the listeners
@@ -132,16 +123,16 @@ public final class Main extends JavaPlugin {
 
         // Register commands
         this.getCommand("stopwauh").setExecutor(new StopWauh(bucketListener, barrierListener, bedrockListener, waterBucketListener));
-        this.getCommand("setradiuslimit").setExecutor(new SetRadiusLimitCommand(this));
-        this.getCommand("toggleremovalview").setExecutor(new ToggleRemovalView(this));
+        this.getCommand("setradiuslimit").setExecutor(new SetRadiusLimitCommand(setAndGet));
+        this.getCommand("toggleremovalview").setExecutor(new ToggleRemovalView(setAndGet));
         this.getCommand("Test").setExecutor(new Test(configGUI));
         this.getCommand("givecustomitems").setExecutor(new GiveCustomItems(this));
-        this.getCommand("ench").setExecutor(new Ench(this));
+        this.getCommand("ench").setExecutor(new Ench(setAndGet));
         this.getCommand("spawn").setExecutor(new Spawn());
         // Register TabCompleters
-        this.getCommand("setradiuslimit").setTabCompleter(new SetRadiusLimitCommand(this));
+        this.getCommand("setradiuslimit").setTabCompleter(new SetRadiusLimitCommand(setAndGet));
         this.getCommand("givecustomitems").setTabCompleter(new GiveCustomItems(this));
-        this.getCommand("ench").setTabCompleter(new Ench(this));
+        this.getCommand("ench").setTabCompleter(new Ench(setAndGet));
         this.getCommand("spawn").setTabCompleter(new Spawn());
     }
 
@@ -149,82 +140,5 @@ public final class Main extends JavaPlugin {
     public void onDisable() {
         // Plugin shutdown logic
         Enchantment.stopAcceptingRegistrations();
-    }
-
-    public int getRadiusLimit() {
-        config = configManager.getConfig();
-        playerRadiusLimit = config.getInt("playerRadiusLimit", playerRadiusLimit);
-        return playerRadiusLimit + 2;
-    }
-
-    public void setRadiusLimit(int newLimit) {
-        playerRadiusLimit = newLimit;
-        config.set("playerRadiusLimit", playerRadiusLimit);
-        configManager.saveConfig();
-    }
-
-    public int getTntRadiusLimit() {
-        config = configManager.getConfig();
-        tntRadiusLimit = config.getInt("tntRadiusLimit", tntRadiusLimit);
-        Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "TNT Radius Limit: " + tntRadiusLimit);
-        return tntRadiusLimit + 2;
-    }
-
-    public void setTntRadiusLimit(int newLimit) {
-        tntRadiusLimit = newLimit;
-        config.set("tntRadiusLimit", tntRadiusLimit);
-        configManager.saveConfig();
-    }
-
-    public int getCreeperRadiusLimit() {
-        config = configManager.getConfig();
-        creeperRadiusLimit = config.getInt("creeperRadiusLimit", creeperRadiusLimit);
-        return creeperRadiusLimit + 2;
-    }
-
-    public void setCreeperLimit(int newLimit) {
-        creeperRadiusLimit = newLimit;
-        config.set("creeperRadiusLimit", creeperRadiusLimit);
-        configManager.saveConfig();
-    }
-
-    public boolean getShowRemoval() {
-        return showRemoval;
-    }
-
-    public void setRemovalView(boolean newShowRemoval) {
-        showRemoval = newShowRemoval;
-    }
-
-    public BucketListener getBucketListener() {
-        return bucketListener;
-    }
-
-    public BarrierListener getBarrierListener() {
-        return barrierListener;
-    }
-
-    public BedrockListener getBedrockListener() {
-        return bedrockListener;
-    }
-
-    public WaterBucketListener getWaterBucketListener() {
-        return waterBucketListener;
-    }
-
-    public TNTListener getTntListener() {
-        return tntListener;
-    }
-
-    public CreeperListener getCreeperListener() {
-        return creeperListener;
-    }
-
-    public EnchantmentHandler getEnchantmentHandler() {
-        return enchantmentHandler;
-    }
-
-    public IterateBlocks getIterateBlocks() {
-        return iterateBlocks;
     }
 }
