@@ -44,6 +44,10 @@ public class BedrockListener implements Listener {
     private boolean explosionTrigger = false;
     private String realSource = null;
 
+    public BedrockListener(Main plugin) {
+        this.plugin = plugin;
+    }
+
     private void addIfValid(Block block, Set<Block> nextSet) {
         if (realSource.equalsIgnoreCase("TNT") || realSource.equalsIgnoreCase("creeper")) {
             if (!IMMUTABLE_MATERIALS.contains(block.getType())) {
@@ -64,10 +68,6 @@ public class BedrockListener implements Listener {
             tntPrimed.setFuseTicks(20);
             nextSet.add(block);
         }
-    }
-
-    public BedrockListener(Main plugin) {
-        this.plugin = plugin;
     }
 
     @EventHandler
@@ -107,57 +107,57 @@ public class BedrockListener implements Listener {
         }
         realRadiusLimit = radiusLimit - 2;
         if (realRadiusLimit > 1 && (!bucketListener.isWauhRemovalActive() && !barrierListener.isBlockRemovalActive() && !isAllRemovalActive() && !waterBucketListener.isTsunamiActive() || explosionTrigger)) {
-                if (event == null && source.equalsIgnoreCase("TNT") || source.equalsIgnoreCase("creeper")) {
+            if (event == null && source.equalsIgnoreCase("TNT") || source.equalsIgnoreCase("creeper")) {
+                setAllRemovalActive(true);
+                explosionTrigger = true;
+                limitReached = false;
+
+                if (tntListener.getTntLocation() != null) {
+                    clickedLocation = tntListener.getTntLocation();
+                } else if (creeperListener != null && creeperListener.getCreeperLocation() != null) {
+                    clickedLocation = creeperListener.getCreeperLocation();
+                } else {
+                    return;
+                }
+
+                highestDist = 0;
+                allRemovedCount = 0;
+                blocksToProcess.clear();
+                if (tntListener.getTntPlayer() != null) {
+                    setCurrentRemovingPlayer(tntListener.getTntPlayer());
+                } else {
+                    setCurrentRemovingPlayer(null);
+                }
+
+                blocksToProcess.add(clickedLocation.getBlock());
+
+                processAllRemoval();
+            } else if (event != null) {
+                if (event.getPlayer().getInventory().getItemInMainHand() == null || event.getPlayer().getInventory().getItemInMainHand().getAmount() == 0 || event.getPlayer().getInventory().getItemInMainHand().getType() == Material.AIR) {
+                    return;
+                }
+                Player player = event.getPlayer();
+                NBTItem nbtItem = new NBTItem(event.getPlayer().getInventory().getItemInMainHand());
+                String identifier = nbtItem.getString("Ident");
+                // Check if the bucket is filling with water
+                if (player.getInventory().getItemInMainHand().getType() == Material.BEDROCK && identifier.equalsIgnoreCase("Custom Bedrock") && (!IMMUTABLE_MATERIALS.contains(event.getBlock().getType()))) {
                     setAllRemovalActive(true);
-                    explosionTrigger = true;
                     limitReached = false;
+                    clickedLocation = event.getBlock().getLocation();
 
-                    if (tntListener.getTntLocation() != null) {
-                        clickedLocation = tntListener.getTntLocation();
-                    } else if (creeperListener != null && creeperListener.getCreeperLocation() != null) {
-                        clickedLocation = creeperListener.getCreeperLocation();
-                    } else {
-                        return;
-                    }
-
+                    // Reset the water removal counts and initialize the set of blocks to process
                     highestDist = 0;
                     allRemovedCount = 0;
                     blocksToProcess.clear();
-                    if (tntListener.getTntPlayer() != null) {
-                        setCurrentRemovingPlayer(tntListener.getTntPlayer());
-                    } else {
-                        setCurrentRemovingPlayer(null);
-                    }
+                    setCurrentRemovingPlayer(player);
 
+                    // Add the clicked block to the set of blocks to process
                     blocksToProcess.add(clickedLocation.getBlock());
 
+                    // Start the water removal process
                     processAllRemoval();
-                } else if (event != null) {
-                    if (event.getPlayer().getInventory().getItemInMainHand() == null || event.getPlayer().getInventory().getItemInMainHand().getAmount() == 0 || event.getPlayer().getInventory().getItemInMainHand().getType() == Material.AIR) {
-                        return;
-                    }
-                    Player player = event.getPlayer();
-                    NBTItem nbtItem = new NBTItem(event.getPlayer().getInventory().getItemInMainHand());
-                    String identifier = nbtItem.getString("Ident");
-                    // Check if the bucket is filling with water
-                    if (player.getInventory().getItemInMainHand().getType() == Material.BEDROCK && identifier.equalsIgnoreCase("Custom Bedrock") && (!IMMUTABLE_MATERIALS.contains(event.getBlock().getType()))) {
-                        setAllRemovalActive(true);
-                        limitReached = false;
-                        clickedLocation = event.getBlock().getLocation();
-
-                        // Reset the water removal counts and initialize the set of blocks to process
-                        highestDist = 0;
-                        allRemovedCount = 0;
-                        blocksToProcess.clear();
-                        setCurrentRemovingPlayer(player);
-
-                        // Add the clicked block to the set of blocks to process
-                        blocksToProcess.add(clickedLocation.getBlock());
-
-                        // Start the water removal process
-                        processAllRemoval();
-                    }
                 }
+            }
 
         }
     }

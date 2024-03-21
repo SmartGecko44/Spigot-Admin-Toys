@@ -15,8 +15,8 @@ import java.util.Set;
 
 public class Drill extends Enchantment implements Listener {
 
-    private static final Set<Material> IMMUTABLE_MATERIALS = EnumSet.of(Material.BEDROCK, Material.STATIONARY_WATER, Material.WATER, Material.LAVA, Material.STATIONARY_LAVA);
     public static final String DRILLSTRING = "Drill";
+    private static final Set<Material> IMMUTABLE_MATERIALS = EnumSet.of(Material.BEDROCK, Material.STATIONARY_WATER, Material.WATER, Material.LAVA, Material.STATIONARY_LAVA);
 
     public Drill() {
         super(103);

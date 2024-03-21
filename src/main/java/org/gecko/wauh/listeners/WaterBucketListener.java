@@ -21,6 +21,7 @@ import java.util.*;
 
 public class WaterBucketListener implements Listener {
 
+    private static final Set<Material> IMMUTABLE_MATERIALS = EnumSet.of(Material.AIR);
     private final Main plugin;
     private final Set<Block> markedBlocks = new HashSet<>();
     private final Set<Block> processedBlocks = new HashSet<>();
@@ -36,16 +37,15 @@ public class WaterBucketListener implements Listener {
     private int dist;
     private int radiusLimit;
     private int realRadiusLimit;
-    private static final Set<Material> IMMUTABLE_MATERIALS = EnumSet.of(Material.AIR);
+
+    public WaterBucketListener(Main plugin) {
+        this.plugin = plugin;
+    }
 
     private void addIfValid(Block block, Set<Block> nextSet) {
         if (IMMUTABLE_MATERIALS.contains(block.getType())) {
             nextSet.add(block);
         }
-    }
-
-    public WaterBucketListener(Main plugin) {
-        this.plugin = plugin;
     }
 
     @EventHandler

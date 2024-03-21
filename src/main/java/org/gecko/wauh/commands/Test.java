@@ -25,8 +25,10 @@ public class Test implements CommandExecutor {
             return false;
         }
 
+        if (!configGUI.getGui().getTitle().equals("Test (WIP)")) {
+            configGUI.generateGUI();
+        }
         configGUI.openGUI(player);
-
         return true;
     }
 }

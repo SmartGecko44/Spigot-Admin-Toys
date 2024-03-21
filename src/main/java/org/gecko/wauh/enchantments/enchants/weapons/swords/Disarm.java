@@ -84,33 +84,37 @@ public class Disarm extends Enchantment implements Listener {
     private void removeRandomArmorPiece(LivingEntity target) {
         EntityEquipment equipment = target.getEquipment();
 
-        if (equipment != null) {
-            ItemStack[] armor = equipment.getArmorContents();
+        if (equipment == null) {
+            return;
+        }
 
-            // Check if the entity is wearing any armor
-            boolean wearingArmor = false;
-            for (ItemStack itemStack : armor) {
-                if (itemStack != null && !itemStack.getType().equals(Material.AIR)) {
-                    wearingArmor = true;
-                    break;
-                }
+        ItemStack[] armor = equipment.getArmorContents();
+
+        // Check if the entity is wearing any armor
+        boolean wearingArmor = false;
+        for (ItemStack itemStack : armor) {
+            if (itemStack != null && !itemStack.getType().equals(Material.AIR)) {
+                wearingArmor = true;
+                break;
             }
+        }
 
-            if (wearingArmor) {
-                int maxAttempts = armor.length * 10; // Max attempts to prevent an infinite loop
+        if (!wearingArmor) {
+            return;
+        }
 
-                while (maxAttempts-- > 0) {
-                    int randomSlot = r.nextInt() * armor.length;
+        int maxAttempts = armor.length * 10; // Max attempts to prevent an infinite loop
 
-                    // Check if the armor slot contains an item before removing
-                    if (armor[randomSlot] != null && !armor[randomSlot].getType().equals(Material.AIR)) {
-                        ItemStack removedItem = armor[randomSlot];
-                        armor[randomSlot] = new ItemStack(Material.AIR);
-                        target.getWorld().dropItem(target.getLocation(), removedItem);
-                        equipment.setArmorContents(armor);
-                        break;  // Exit the loop after successfully removing armor
-                    }
-                }
+        while (maxAttempts-- > 0) {
+            int randomSlot = r.nextInt() * armor.length;
+
+            // Check if the armor slot contains an item before removing
+            if (armor[randomSlot] != null && !armor[randomSlot].getType().equals(Material.AIR)) {
+                ItemStack removedItem = armor[randomSlot];
+                armor[randomSlot] = new ItemStack(Material.AIR);
+                target.getWorld().dropItem(target.getLocation(), removedItem);
+                equipment.setArmorContents(armor);
+                break;  // Exit the loop after successfully removing armor
             }
         }
     }

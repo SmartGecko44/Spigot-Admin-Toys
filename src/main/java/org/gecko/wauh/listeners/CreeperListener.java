@@ -12,8 +12,8 @@ import org.gecko.wauh.data.ConfigurationManager;
 
 public class CreeperListener implements Listener {
 
-    private Location creeperLocation;
     private final Main plugin;
+    private Location creeperLocation;
 
     public CreeperListener(Main plugin) {
         this.plugin = plugin;

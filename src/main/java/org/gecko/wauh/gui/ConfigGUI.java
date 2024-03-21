@@ -1,6 +1,6 @@
 package org.gecko.wauh.gui;
 
-import de.tr7zw.changeme.nbtapi.*;
+import de.tr7zw.changeme.nbtapi.NBTItem;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -40,26 +40,29 @@ public class ConfigGUI implements Listener {
     public static final String TSUNAMI_ENABLED = "Tsunami enabled";
     public static final String CREEPER_ENABLED = "Creeper enabled";
     public static final String TNT_ENABLED = "TNT enabled";
-    private final Inventory gui;
-    private static final int SIZE = 45;
-    final ConfigurationManager configManager;
-    FileConfiguration config;
-    private final File configFile;
-    private final Logger logger = Logger.getLogger(ConfigGUI.class.getName());
-    private final Main plugin;
     private static final String DISABLE = "Disable";
     private static final String ENABLE = "Enable";
     private static final String ENABLE_BUCKET = "Enable Bucket";
+    final ConfigurationManager configManager;
+    private Inventory gui;
+    private final File configFile;
+    private final Logger logger = Logger.getLogger(ConfigGUI.class.getName());
+    private final Main plugin;
+    FileConfiguration config;
 
     public ConfigGUI(Main plugin) {
         configManager = new ConfigurationManager(plugin);
         config = configManager.getConfig();
-        this.gui = Bukkit.createInventory(null, SIZE, "Test (WIP)");
         File dir = new File("plugins/Wauh");
         this.configFile = new File(dir, "data.yml");
         this.plugin = plugin;
 
-        fillBorders(createButtonItem(Material.STAINED_GLASS_PANE, "§r", (short) 5, null, null));
+        generateGUI();
+    }
+
+    public void generateGUI() {
+        this.gui = Bukkit.createInventory(null, 45, "Test (WIP)");
+        fillBorders(createButtonItem(Material.STAINED_GLASS_PANE, "§r", (short) 5, null, null), 45, false);
         // Initialize GUI content
         initializeGUI();
     }
@@ -104,9 +107,9 @@ public class ConfigGUI implements Listener {
         gui.setItem(9 * 4 + 8, createButtonItem(Material.PAPER, ChatColor.RESET + "" + ChatColor.RED + "Reset config", (short) 0, null, "Reset"));
     }
 
-    private void fillBorders(ItemStack borderItem) {
+    private void fillBorders(ItemStack borderItem, int size, boolean fillRightCorner) {
         // Fill top and bottom rows
-        int size9 = SIZE / 9;
+        int size9 = size / 9;
         for (int i = 0; i < 9; i++) {
             gui.setItem(i, borderItem); // Top row
         }
@@ -120,10 +123,18 @@ public class ConfigGUI implements Listener {
 
             gui.setItem(leftSlot, borderItem); // Left column
         }
-        for (int i =0; i < (size9 - 2); i++) {
-            int rightSlot = 9 * (i + 2) - 1;
+        if (!fillRightCorner) {
+            for (int i = 0; i < (size9 - 2); i++) {
+                int rightSlot = 9 * (i + 2) - 1;
 
-            gui.setItem(rightSlot, borderItem); // Right column
+                gui.setItem(rightSlot, borderItem); // Right column
+            }
+        } else {
+            for (int i = 0; i < (size9 - 1); i++) {
+                int rightSlot = 9 * (i + 2) - 1;
+
+                gui.setItem(rightSlot, borderItem); // Right column
+            }
         }
     }
 
@@ -190,6 +201,7 @@ public class ConfigGUI implements Listener {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         if (isClickEventValid(event)) {
+            event.setCancelled(true);
             handleItemClick((Player) event.getWhoClicked(), event.getCurrentItem());
         }
     }
@@ -199,7 +211,7 @@ public class ConfigGUI implements Listener {
     }
 
     private void handleItemClick(Player player, ItemStack clickedItem) {
-        if (clickedItem != null && clickedItem.getType() == Material.INK_SACK) {
+        if (clickedItem != null && (clickedItem.getType() == Material.INK_SACK || clickedItem.getType() == Material.PAPER || clickedItem.getType() == Material.CONCRETE)) {
             NBTItem nbtItem = new NBTItem(clickedItem);
             String identifier = nbtItem.getString("Ident");
             short data = clickedItem.getDurability();
@@ -209,32 +221,45 @@ public class ConfigGUI implements Listener {
             }
 
             if (clickedItem.getType() == Material.PAPER && (identifier.equalsIgnoreCase("Reset"))) {
-                resetConfig(player);
+                confirmationPrompt("Reset config?", player);
             }
+
         }
     }
 
     private boolean handleButtonFeatures(Player player, String identifier, short data) {
-        if (identifier.equalsIgnoreCase(ENABLE_BUCKET)) {
-            handleButtonClick(player, identifier, data, BUCKET_ENABLED, 1, "Liquid removal enabled!", "Liquid removal disabled!");
-            return true;
-        } else if (identifier.equalsIgnoreCase(ENABLE_BARRIER)) {
-            handleButtonClick(player, identifier, data, BARRIER_ENABLED, 2, "Surface removal enabled!", "Surface removal disabled!");
-            return true;
-        } else if (identifier.equalsIgnoreCase(ENABLE_BEDROCK)) {
-            handleButtonClick(player, identifier, data, BEDROCK_ENABLED, 3, "All block removal enabled!", "All block removal disabled!");
-            return true;
-        } else if (identifier.equalsIgnoreCase(ENABLE_TSUNAMI)) {
-            handleButtonClick(player, identifier, data, TSUNAMI_ENABLED, 4, "Tsunami enabled!", "Tsunami disabled!");
-            return true;
-        } else if (identifier.equalsIgnoreCase(ENABLE_CREEPER)) {
-            handleButtonClick(player, identifier, data, CREEPER_ENABLED, 5, "Custom creeper explosions enabled!", "Custom creeper explosions disabled!");
-            return true;
-        } else if (identifier.equalsIgnoreCase(ENABLE_TNT)) {
-            handleButtonClick(player, identifier, data, TNT_ENABLED, 6, "Custom TNT explosions enabled!", "Custom TNT explosions disabled!");
-            return true;
+        if (gui.getTitle().equals("Test (WIP)")) {
+            if (identifier.equalsIgnoreCase(ENABLE_BUCKET)) {
+                handleButtonClick(player, identifier, data, BUCKET_ENABLED, 1, "Liquid removal enabled!", "Liquid removal disabled!");
+                return true;
+            } else if (identifier.equalsIgnoreCase(ENABLE_BARRIER)) {
+                handleButtonClick(player, identifier, data, BARRIER_ENABLED, 2, "Surface removal enabled!", "Surface removal disabled!");
+                return true;
+            } else if (identifier.equalsIgnoreCase(ENABLE_BEDROCK)) {
+                handleButtonClick(player, identifier, data, BEDROCK_ENABLED, 3, "All block removal enabled!", "All block removal disabled!");
+                return true;
+            } else if (identifier.equalsIgnoreCase(ENABLE_TSUNAMI)) {
+                handleButtonClick(player, identifier, data, TSUNAMI_ENABLED, 4, "Tsunami enabled!", "Tsunami disabled!");
+                return true;
+            } else if (identifier.equalsIgnoreCase(ENABLE_CREEPER)) {
+                handleButtonClick(player, identifier, data, CREEPER_ENABLED, 5, "Custom creeper explosions enabled!", "Custom creeper explosions disabled!");
+                return true;
+            } else if (identifier.equalsIgnoreCase(ENABLE_TNT)) {
+                handleButtonClick(player, identifier, data, TNT_ENABLED, 6, "Custom TNT explosions enabled!", "Custom TNT explosions disabled!");
+                return true;
+            }
+        } else if (gui.getTitle().equals("Reset config?")) {
+            if (identifier.equalsIgnoreCase("cancel")) {
+                player.closeInventory();
+                player.sendMessage(ChatColor.RED + "Config reset cancelled");
+                return true;
+            } else if (identifier.equalsIgnoreCase("confirm")) {
+                resetConfig(player);
+                player.closeInventory();
+                return true;
+            }
         }
-        return false; // No button feature handled
+        return false;
     }
 
     private void resetConfig(Player player) {
@@ -306,4 +331,15 @@ public class ConfigGUI implements Listener {
         }
     }
 
+    private void confirmationPrompt(String prompt, Player player) {
+        this.gui = Bukkit.createInventory(null, 9 * 3, prompt);
+        fillBorders(createButtonItem(Material.STAINED_GLASS_PANE, "§r", (short) 14, null, null), 9 * 3, true);
+        gui.setItem(9 + 2, createButtonItem(Material.CONCRETE, ChatColor.RED + "Cancel", (short) 14, null, "cancel"));
+        gui.setItem(9 + 6, createButtonItem(Material.CONCRETE, ChatColor.GREEN + "Confirm", (short) 13, null, "confirm"));
+        player.openInventory(gui);
+    }
+
+    public Inventory getGui() {
+        return gui;
+    }
 }

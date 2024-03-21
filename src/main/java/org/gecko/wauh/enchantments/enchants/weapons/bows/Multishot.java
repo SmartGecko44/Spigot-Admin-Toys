@@ -1,17 +1,17 @@
 package org.gecko.wauh.enchantments.enchants.weapons.bows;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.enchantments.EnchantmentTarget;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import java.util.Map;
 
-public class Multishot extends Enchantment implements Listener {
+public class Multishot extends Enchantment {
 
     public static final String MULTISHOTSTRING = "Multishot";
 
@@ -82,6 +82,9 @@ public class Multishot extends Enchantment implements Listener {
         // Copy relevant properties from the original arrow
         additionalArrow.setShooter(originalArrow.getShooter());
         additionalArrow.setCritical(originalArrow.isCritical());
+        if (originalArrow.getFireTicks() > 0) {
+            additionalArrow.setFireTicks(Integer.MAX_VALUE);
+        }
         additionalArrow.setPickupStatus(Arrow.PickupStatus.DISALLOWED);
 
         // Set velocity based on the arrowIndex and totalArrows
@@ -107,6 +110,7 @@ public class Multishot extends Enchantment implements Listener {
         additionalArrow.setVelocity(new Vector(rotatedX, baseDirection.getY(), rotatedZ).multiply(originalArrow.getVelocity().length()));
         originalArrow.remove();
         new Aim().aimHandler((Player) originalArrow.getShooter(), additionalArrow, ((Player) originalArrow.getShooter()).getInventory().getItemInMainHand());
+        new Glow().glowCreateHandler(additionalArrow, ((Player) originalArrow.getShooter()).getInventory().getItemInMainHand());
     }
 
     public void onArrowHitHandler(Arrow arrow, ItemStack bow) {

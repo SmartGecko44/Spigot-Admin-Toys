@@ -44,7 +44,7 @@ public class SetRadiusLimitCommand implements CommandExecutor, TabCompleter {
                         if (operation.equals("tnt")) {
                             plugin.setTntRadiusLimit(newLimit);  // Use the setter method for TNT operations
                             player.sendMessage("TNT radius set to " + newLimit);
-                        } else if (operation.equals(PLAYER)){
+                        } else if (operation.equals(PLAYER)) {
                             plugin.setRadiusLimit(newLimit); // Use the setter method for player operations
                             player.sendMessage("Player operation limit set to " + newLimit);
                         } else {
