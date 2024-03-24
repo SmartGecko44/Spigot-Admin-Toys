@@ -11,9 +11,9 @@ import java.util.Set;
 
 public class Scale {
 
-    private SetAndGet setAndGet;
+    private final SetAndGet setAndGet;
 
-    public void scale(SetAndGet setAndGet) {
+    public Scale(SetAndGet setAndGet) {
         this.setAndGet = setAndGet;
     }
 

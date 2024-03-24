@@ -1,8 +1,6 @@
 package org.gecko.wauh.logic;
 
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.gecko.wauh.Main;
 import org.gecko.wauh.data.ConfigurationManager;
 import org.gecko.wauh.enchantments.logic.EnchantmentHandler;
 import org.gecko.wauh.listeners.*;
@@ -13,8 +11,7 @@ public class SetAndGet {
     private int playerRadiusLimit;
     private int tntRadiusLimit;
     private int creeperRadiusLimit;
-    private boolean showRemoval = true;
-    ConfigurationManager configManager;
+    private final ConfigurationManager configManager;
     FileConfiguration config;
     private final BucketListener bucketListener;
     private final BarrierListener barrierListener;
@@ -23,61 +20,67 @@ public class SetAndGet {
     private final TNTListener tntListener;
     private final CreeperListener creeperListener;
     private final IterateBlocks iterateBlocks;
+    private final Scale scale;
 
-    public SetAndGet(ConfigurationManager configurationManager) {
+    public SetAndGet(ConfigurationManager configurationManager, TNTListener tntListener, CreeperListener creeperListener) {
         this.configManager = configurationManager;
-        this.tntListener = new TNTListener(JavaPlugin.getPlugin(Main.class), this);
-        this.creeperListener = new CreeperListener(JavaPlugin.getPlugin(Main.class), this);
+        this.tntListener = tntListener;
+        this.creeperListener = creeperListener;
+        this.bedrockListener = new BedrockListener(this);
         this.bucketListener = new BucketListener(this);
         this.barrierListener = new BarrierListener(this);
-        this.bedrockListener = new BedrockListener(this);
         this.waterBucketListener = new WaterBucketListener(this);
         this.iterateBlocks = new IterateBlocks();
+        this.scale = new Scale(this);
 
     }
 
     public int getRadiusLimit() {
-        config = configManager.getConfig();
+        config = getConfigManager().getConfig();
         playerRadiusLimit = config.getInt("playerRadiusLimit", playerRadiusLimit);
         return playerRadiusLimit + 2;
     }
 
     public void setRadiusLimit(int newLimit) {
-        playerRadiusLimit = newLimit;
-        config.set("playerRadiusLimit", playerRadiusLimit);
-        configManager.saveConfig();
+        config = getConfigManager().getConfig();
+        config.set("playerRadiusLimit", newLimit);
+        getConfigManager().saveConfig();
     }
 
     public int getTntRadiusLimit() {
-        config = configManager.getConfig();
+        config = getConfigManager().getConfig();
         tntRadiusLimit = config.getInt("tntRadiusLimit", tntRadiusLimit);
         return tntRadiusLimit + 2;
     }
 
     public void setTntRadiusLimit(int newLimit) {
-        tntRadiusLimit = newLimit;
-        config.set("tntRadiusLimit", tntRadiusLimit);
-        configManager.saveConfig();
+        config = configManager.getConfig();
+        config.set("tntRadiusLimit", newLimit);
+        getConfigManager().saveConfig();
     }
 
     public int getCreeperRadiusLimit() {
-        config = configManager.getConfig();
+        config = getConfigManager().getConfig();
         creeperRadiusLimit = config.getInt("creeperRadiusLimit", creeperRadiusLimit);
         return creeperRadiusLimit + 2;
     }
 
     public void setCreeperLimit(int newLimit) {
-        creeperRadiusLimit = newLimit;
-        config.set("creeperRadiusLimit", creeperRadiusLimit);
-        configManager.saveConfig();
+        config = configManager.getConfig();
+        config.set("creeperRadiusLimit", newLimit);
+        getConfigManager().saveConfig();
     }
 
     public boolean getShowRemoval() {
-        return showRemoval;
+        config = getConfigManager().getConfig();
+        return config.getBoolean("Removal visible");
     }
 
-    public void setRemovalView(boolean newShowRemoval) {
-        showRemoval = newShowRemoval;
+    public void toggleRemovalView() {
+        config = configManager.getConfig();
+        boolean showRemoval = true;
+        config.set("Removal visible", !showRemoval);
+        configManager.saveConfig();
     }
 
     public BucketListener getBucketListener() {
@@ -112,4 +115,11 @@ public class SetAndGet {
         return iterateBlocks;
     }
 
+    public Scale getScale() {
+        return scale;
+    }
+
+    public ConfigurationManager getConfigManager() {
+        return configManager;
+    }
 }

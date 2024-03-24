@@ -1,5 +1,6 @@
 package org.gecko.wauh.listeners;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Entity;
@@ -8,27 +9,26 @@ import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.gecko.wauh.Main;
 import org.gecko.wauh.data.ConfigurationManager;
-import org.gecko.wauh.logic.SetAndGet;
 
 public class TNTListener implements Listener {
 
-    private final Main plugin;
-    private final SetAndGet setAndGet;
+    private final ConfigurationManager configManager;
     private Location tntLocation;
-    private Player tntPlayer = null;
+    private Player tntPlayer;
 
-    public TNTListener(Main plugin, SetAndGet setAndGet) {
-        this.plugin = plugin;
-        this.setAndGet = setAndGet;
+    private TNTPrimed tnt;
+
+    public TNTListener(ConfigurationManager configurationManager) {
+        this.configManager = configurationManager;
     }
 
     @EventHandler
+    //FIXME: TNT often throws a lot of errors
     public void onTNTExplode(EntityExplodeEvent event) {
-        ConfigurationManager configManager;
         FileConfiguration config;
-        configManager = new ConfigurationManager(plugin);
         config = configManager.getConfig();
         if (config.getInt("TNT enabled") == 0) {
             return;
@@ -36,23 +36,21 @@ public class TNTListener implements Listener {
         Entity entity = event.getEntity();
 
         // Check if the exploding entity is TNT
-        if (entity instanceof TNTPrimed tnt) {
+        if (entity instanceof TNTPrimed tntreal) {
             event.setCancelled(true); // Cancel the normal explosion
+            setTnt(tntreal);
 
             // Get the location of the TNT explosion
-            if (tnt.getLocation() != null) {
-                if (tnt.getSource() instanceof Player player) {
+            if (tntreal.getLocation() != null) {
+                if (tntreal.getSource() instanceof Player player) {
                     setTntPlayer(player);
-                    if (!getTntPlayer().isOp()) {
-                        return;
-                    }
+                } else if (tntreal.getMetadata("Source").getFirst().asString() != null) {
+                    Bukkit.getPlayer(tntreal.getMetadata("Source").getFirst().asString());
                 } else {
-                    setTntPlayer(null);
+                    return;
                 }
-
-                setTntLocation(tnt.getLocation());
-                BedrockListener bedrockListener = new BedrockListener(setAndGet);
-                bedrockListener.bedrockValueAssignHandler(null, "TNT");
+                setTntLocation(tntreal.getLocation());
+                JavaPlugin.getPlugin(Main.class).getSetAndGet().getBedrockListener().bedrockValueAssignHandler(null, "TNT");
             }
         }
     }
@@ -66,10 +64,18 @@ public class TNTListener implements Listener {
     }
 
     public Player getTntPlayer() {
-        return tntPlayer;
+        return this.tntPlayer;
     }
 
     public void setTntPlayer(Player tntPlayer) {
         this.tntPlayer = tntPlayer;
+    }
+
+    public TNTPrimed getTnt() {
+        return tnt;
+    }
+
+    public void setTnt(TNTPrimed tnt) {
+        this.tnt = tnt;
     }
 }

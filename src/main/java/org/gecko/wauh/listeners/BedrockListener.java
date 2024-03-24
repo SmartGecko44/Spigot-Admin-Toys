@@ -15,6 +15,7 @@ import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.gecko.wauh.Main;
 import org.gecko.wauh.data.ConfigurationManager;
@@ -26,6 +27,7 @@ import java.util.*;
 public class BedrockListener implements Listener {
 
     private static final Set<Material> IMMUTABLE_MATERIALS = EnumSet.of(Material.BEDROCK, Material.STATIONARY_WATER, Material.WATER, Material.LAVA, Material.STATIONARY_LAVA, Material.TNT);
+    public static final String SOURCE = "Source";
     private final Set<Block> markedBlocks = new HashSet<>();
     private final Set<Block> processedBlocks = new HashSet<>();
     private final Set<Block> removedBlocks = new HashSet<>();
@@ -59,6 +61,7 @@ public class BedrockListener implements Listener {
                 block.setType(Material.AIR);
                 TNTPrimed tntPrimed = (TNTPrimed) location.getWorld().spawnEntity(location.add(0.5, 0.5, 0.5), EntityType.PRIMED_TNT);
                 tntPrimed.setFuseTicks(20);
+                tntPrimed.setMetadata(SOURCE, new FixedMetadataValue(JavaPlugin.getPlugin(Main.class), setAndGet.getTntListener().getTntPlayer().getName()));
                 nextSet.add(block);
             }
         } else if (!IMMUTABLE_MATERIALS.contains(block.getType()) && (block.getType() != Material.AIR)) {
@@ -79,14 +82,9 @@ public class BedrockListener implements Listener {
 
     public void bedrockValueAssignHandler(BlockBreakEvent event, String source) {
         realSource = source;
-        TNTListener tntListener = setAndGet.getTntListener();
-        if (tntListener == null) {
-            return;
-        }
-        if (event == null && source.equalsIgnoreCase("TNT") && (tntListener.getTntPlayer() != null && (!tntListener.getTntPlayer().isOp()))) {
-            return;
-        }
-        if (event != null && (!event.getPlayer().isOp())) {
+        TNTListener tntListener = this.setAndGet.getTntListener();
+        if (event == null && !source.equalsIgnoreCase("TNT") && !source.equalsIgnoreCase("Creeper") && !(tntListener.getTntPlayer() == null || tntListener.getTnt().getMetadata(SOURCE).getFirst().asString() == null)) {
+            Bukkit.getConsoleSender().sendMessage("???");
             return;
         }
         ConfigurationManager configManager;
@@ -100,6 +98,8 @@ public class BedrockListener implements Listener {
         BarrierListener barrierListener = setAndGet.getBarrierListener();
         WaterBucketListener waterBucketListener = setAndGet.getWaterBucketListener();
         CreeperListener creeperListener = setAndGet.getCreeperListener();
+
+        //FIXME: I have no clue why, but the radiusLimit sometimes doesn't change at all and sometimes only changes after a reload
         if (source.equalsIgnoreCase("player")) {
             radiusLimit = setAndGet.getRadiusLimit();
         } else if (source.equalsIgnoreCase("TNT")) {
@@ -110,6 +110,22 @@ public class BedrockListener implements Listener {
         realRadiusLimit = radiusLimit - 2;
         if (realRadiusLimit > 1 && (!bucketListener.isWauhRemovalActive() && !barrierListener.isBlockRemovalActive() && !isAllRemovalActive() && !waterBucketListener.isTsunamiActive() || explosionTrigger)) {
             if (event == null && source.equalsIgnoreCase("TNT") || source.equalsIgnoreCase("creeper")) {
+                if (tntListener.getTntPlayer() != null) {
+                    if (!tntListener.getTntPlayer().isOp()) {
+                        Bukkit.getConsoleSender().sendMessage("Real player not OP");
+                        return;
+                    }
+                } else {
+                    if (Bukkit.getPlayer(tntListener.getTnt().getMetadata(SOURCE).getFirst().asString()) == null) {
+                        Bukkit.getConsoleSender().sendMessage("Meta player not found");
+                        return;
+                    } else {
+                        if (!Bukkit.getPlayer(tntListener.getTnt().getMetadata(SOURCE).getFirst().asString()).isOp()) {
+                            Bukkit.getConsoleSender().sendMessage("Meta player not OP");
+                            return;
+                        }
+                    }
+                }
                 setAllRemovalActive(true);
                 explosionTrigger = true;
                 limitReached = false;
@@ -125,8 +141,12 @@ public class BedrockListener implements Listener {
                 highestDist = 0;
                 allRemovedCount = 0;
                 blocksToProcess.clear();
-                if (tntListener.getTntPlayer() != null) {
-                    setCurrentRemovingPlayer(tntListener.getTntPlayer());
+                if (tntListener.getTntPlayer() != null || tntListener.getTnt().getMetadata(SOURCE).getFirst().asString() != null) {
+                    if (tntListener.getTntPlayer() != null) {
+                        setCurrentRemovingPlayer(tntListener.getTntPlayer());
+                    } else {
+                        setCurrentRemovingPlayer(Bukkit.getPlayer(tntListener.getTnt().getMetadata(SOURCE).getFirst().asString()));
+                    }
                 } else {
                     setCurrentRemovingPlayer(null);
                 }
@@ -160,7 +180,6 @@ public class BedrockListener implements Listener {
                     processAllRemoval();
                 }
             }
-
         }
     }
 
@@ -281,7 +300,7 @@ public class BedrockListener implements Listener {
         TNTListener tntListener = setAndGet.getTntListener();
         CreeperListener creeperListener = setAndGet.getCreeperListener();
         Scale scale;
-        scale = new Scale();
+        scale = setAndGet.getScale();
 
         int totalRemovedCount = allRemovedCount;
         if (totalRemovedCount < 50000) {
@@ -337,7 +356,7 @@ public class BedrockListener implements Listener {
             Block block = iterator.next();
             if (repeated) {
                 if (getCurrentRemovingPlayer() != null) {
-                    getCurrentRemovingPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "Cleaning up falling blocks"));
+                    getCurrentRemovingPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "Cleaning up falling blocks (" + repetitions + (repetitions == 1 ? " repetition left)" : " repetitions left")));
                 }
                 if (block.getType() == Material.SAND || block.getType() == Material.GRAVEL) {
                     block.setType(Material.AIR);

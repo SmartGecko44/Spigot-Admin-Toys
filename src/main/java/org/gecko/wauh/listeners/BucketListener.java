@@ -199,8 +199,7 @@ public class BucketListener implements Listener {
     }
 
     private void removeReplacedBlocks() {
-        Scale scale;
-        scale = new Scale();
+        Scale scale = setAndGet.getScale();
 
         // Add this variable
         int totalRemovedCount = waterRemovedCount + stationaryWaterRemovedCount + lave;

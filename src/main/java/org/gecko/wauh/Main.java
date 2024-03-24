@@ -2,7 +2,6 @@ package org.gecko.wauh;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.gecko.wauh.commands.*;
@@ -14,7 +13,6 @@ import org.gecko.wauh.enchantments.tools.pickaxes.Smelt;
 import org.gecko.wauh.gui.ConfigGUI;
 import org.gecko.wauh.items.weapons.Shortbow;
 import org.gecko.wauh.listeners.*;
-import org.gecko.wauh.logic.Scale;
 import org.gecko.wauh.logic.SetAndGet;
 
 import java.lang.reflect.Field;
@@ -37,7 +35,7 @@ public final class Main extends JavaPlugin {
     public static final Enchantment endanger = new Endanger(); // Id: 106
     public static final Enchantment explosive = new Explosive(); // Id: 107
     ConfigurationManager configManager;
-    FileConfiguration config;
+    private SetAndGet setAndGet;
 
     public static void registerEnchantment(Enchantment enchantment) throws RegisterError {
         try {
@@ -68,19 +66,18 @@ public final class Main extends JavaPlugin {
         Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "Yay");
 
         configManager = new ConfigurationManager(this);
-        config = configManager.getConfig();
+
+        TNTListener tntListener = new TNTListener(configManager);
+        CreeperListener creeperListener = new CreeperListener(configManager, this);
 
         // Create instances of some misc classes
-        SetAndGet setAndGet = new SetAndGet(configManager);
-        new Scale().scale(setAndGet);
+        setAndGet = new SetAndGet(configManager, tntListener, creeperListener);
 
         // Create instances of the listeners
-        BucketListener bucketListener = new BucketListener(setAndGet);
-        BarrierListener barrierListener = new BarrierListener(setAndGet);
-        BedrockListener bedrockListener = new BedrockListener(setAndGet);
-        WaterBucketListener waterBucketListener = new WaterBucketListener(setAndGet);
-        TNTListener tntListener = new TNTListener(this, setAndGet);
-        CreeperListener creeperListener = new CreeperListener(this, setAndGet);
+        BucketListener bucketListener = setAndGet.getBucketListener();
+        BarrierListener barrierListener = setAndGet.getBarrierListener();
+        BedrockListener bedrockListener = setAndGet.getBedrockListener();
+        WaterBucketListener waterBucketListener = setAndGet.getWaterBucketListener();
         ConfigGUI configGUI = new ConfigGUI(setAndGet);
         Shortbow shortbow = new Shortbow();
 
@@ -126,12 +123,12 @@ public final class Main extends JavaPlugin {
         this.getCommand("setradiuslimit").setExecutor(new SetRadiusLimitCommand(setAndGet));
         this.getCommand("toggleremovalview").setExecutor(new ToggleRemovalView(setAndGet));
         this.getCommand("Test").setExecutor(new Test(configGUI));
-        this.getCommand("givecustomitems").setExecutor(new GiveCustomItems(this));
+        this.getCommand("givecustomitems").setExecutor(new GiveCustomItems());
         this.getCommand("ench").setExecutor(new Ench(setAndGet));
         this.getCommand("spawn").setExecutor(new Spawn());
         // Register TabCompleters
         this.getCommand("setradiuslimit").setTabCompleter(new SetRadiusLimitCommand(setAndGet));
-        this.getCommand("givecustomitems").setTabCompleter(new GiveCustomItems(this));
+        this.getCommand("givecustomitems").setTabCompleter(new GiveCustomItems());
         this.getCommand("ench").setTabCompleter(new Ench(setAndGet));
         this.getCommand("spawn").setTabCompleter(new Spawn());
     }
@@ -140,5 +137,9 @@ public final class Main extends JavaPlugin {
     public void onDisable() {
         // Plugin shutdown logic
         Enchantment.stopAcceptingRegistrations();
+    }
+
+    public SetAndGet getSetAndGet() {
+        return setAndGet;
     }
 }

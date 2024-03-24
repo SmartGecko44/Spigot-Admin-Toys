@@ -17,13 +17,8 @@ public class ToggleRemovalView implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (sender instanceof Player player) {
-            boolean showRemoval = setAndGet.getShowRemoval();
-            setAndGet.setRemovalView(!showRemoval);
-            if (!setAndGet.getShowRemoval()) {
-                player.sendMessage("Removal visibility set to " + ChatColor.RED + "false");
-            } else {
-                player.sendMessage("Removal visibility set to " + ChatColor.GREEN + "true");
-            }
+            setAndGet.toggleRemovalView();
+            player.sendMessage("Removal visibility set to " + (!setAndGet.getShowRemoval() ? ChatColor.RED + "false" : ChatColor.GREEN + "true"));
         }
         return true;
     }

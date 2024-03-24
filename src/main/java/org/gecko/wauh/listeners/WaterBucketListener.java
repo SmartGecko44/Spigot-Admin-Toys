@@ -208,7 +208,7 @@ public class WaterBucketListener implements Listener {
 
     private void removeMarkedBlocks() {
         Scale scale;
-        scale = new Scale();
+        scale = setAndGet.getScale();
 
         int totalRemovedCount = waterPlacedCount;
         if (totalRemovedCount < 50000) {

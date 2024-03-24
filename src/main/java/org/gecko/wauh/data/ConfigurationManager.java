@@ -51,7 +51,7 @@ public class ConfigurationManager {
         }
     }
 
-    private FileWriter getFileWriter() throws IOException {
+    public FileWriter getFileWriter() throws IOException {
         try (FileWriter writer = new FileWriter(configFile)) {
             writer.write("playerRadiusLimit: 20\n");
             writer.write("tntRadiusLimit: 5\n");
@@ -62,6 +62,7 @@ public class ConfigurationManager {
             writer.write("Tsunami enabled: 1\n");
             writer.write("Creeper enabled: 0\n");
             writer.write("TNT enabled: 1\n");
+            writer.write("Removal visible: true\n");
             return writer;
         } catch (IOException e) {
             throw new IOException("Unable to create FileWriter", e);

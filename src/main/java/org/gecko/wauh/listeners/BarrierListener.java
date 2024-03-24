@@ -219,7 +219,7 @@ public class BarrierListener implements Listener {
 
     private void removeMarkedBlocks() {
         Scale scale;
-        scale = new Scale();
+        scale = setAndGet.getScale();
 
         int totalRemovedCount = dirtRemovedCount + grassRemovedCount + barrierRemovedCount;
         if (totalRemovedCount < 50000) {
