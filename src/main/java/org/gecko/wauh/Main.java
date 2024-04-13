@@ -63,7 +63,7 @@ public final class Main extends JavaPlugin {
     public void onEnable() {
         // Plugin startup logic
         Bukkit.getConsoleSender().sendMessage("");
-        Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "Yay");
+        Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "Spigot-Admin-Toys has been enabled!");
 
         configManager = new ConfigurationManager(this);
 

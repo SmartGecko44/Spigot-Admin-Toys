@@ -84,7 +84,6 @@ public class BedrockListener implements Listener {
         realSource = source;
         TNTListener tntListener = this.setAndGet.getTntListener();
         if (event == null && !source.equalsIgnoreCase("TNT") && !source.equalsIgnoreCase("Creeper") && !(tntListener.getTntPlayer() == null || tntListener.getTnt().getMetadata(SOURCE).getFirst().asString() == null)) {
-            Bukkit.getConsoleSender().sendMessage("???");
             return;
         }
         ConfigurationManager configManager;
