@@ -5,11 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.gecko</groupId>
-    <artifactId>Wauh</artifactId>
-    <version>6.1.0</version>
+    <artifactId>spigotadmintoys</artifactId>
+    <version>7.0.0</version>
     <packaging>jar</packaging>
 
-    <name>wauh</name>
+    <name>Spigot-Admin-Toys</name>
 
     <properties>
         <java.version>21</java.version>
@@ -57,13 +57,13 @@
                             </filters>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>org.gecko.wauh.Main</mainClass>
+                                    <mainClass>org.gecko.spigotadmintoys.Main</mainClass>
                                 </transformer>
                             </transformers>
                             <relocations>
                                 <relocation>
                                     <pattern>de.tr7zw.changeme.nbtapi</pattern>
-                                    <shadedPattern>org.gecko.wauh.shaded.nbtapi</shadedPattern>
+                                    <shadedPattern>org.gecko.spigotadmintoys.shaded.nbtapi</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>
