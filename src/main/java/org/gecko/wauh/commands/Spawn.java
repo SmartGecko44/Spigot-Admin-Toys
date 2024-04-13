@@ -46,7 +46,7 @@ public class Spawn implements CommandExecutor, TabCompleter {
                                 double z = radius * Math.sin(angle);
                                 player.getWorld().spawnEntity(player.getLocation().add(x, 0, z), entityType);
                             }
-                            sender.sendMessage("Spawned " + amount + " " + entity + "s with a radius of " + radius + ".");
+                            sender.sendMessage("Spawned " + amount + " " + entity.toLowerCase() + "s with a radius of " + radius + ".");
                             return true;
                         } else {
                             sender.sendMessage("This entity cannot be spawned.");
