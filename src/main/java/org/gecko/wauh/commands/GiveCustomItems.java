@@ -7,7 +7,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.gecko.wauh.Main;
 import org.gecko.wauh.items.TriggerItems;
 import org.gecko.wauh.items.weapons.Shortbow;
 
@@ -21,11 +20,6 @@ public class GiveCustomItems implements CommandExecutor, TabCompleter {
     public static final String BEDROCK = "bedrock";
     public static final String TSUNAMI = "tsunami";
     public static final String SHORTBOW = "shortbow";
-    private final Main plugin;
-
-    public GiveCustomItems(Main plugin) {
-        this.plugin = plugin;
-    }
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {

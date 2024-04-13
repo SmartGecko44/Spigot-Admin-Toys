@@ -1,8 +1,6 @@
 package org.gecko.wauh.logic;
 
 import org.bukkit.block.Block;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.gecko.wauh.Main;
 import org.gecko.wauh.listeners.BarrierListener;
 import org.gecko.wauh.listeners.BedrockListener;
 import org.gecko.wauh.listeners.BucketListener;
@@ -13,13 +11,18 @@ import java.util.Set;
 
 public class Scale {
 
-    public void scaleReverseLogic(int totalRemovedCount, int radiusLimit, Set<Block> markedBlocks, String source) {
-        Main mainPlugin = JavaPlugin.getPlugin(Main.class);
+    private final SetAndGet setAndGet;
 
-        BucketListener bucketListener = mainPlugin.getBucketListener();
-        BarrierListener barrierListener = mainPlugin.getBarrierListener();
-        BedrockListener bedrockListener = mainPlugin.getBedrockListener();
-        WaterBucketListener waterBucketListener = mainPlugin.getWaterBucketListener();
+    public Scale(SetAndGet setAndGet) {
+        this.setAndGet = setAndGet;
+    }
+
+    public void scaleReverseLogic(int totalRemovedCount, int radiusLimit, Set<Block> markedBlocks, String source) {
+
+        BucketListener bucketListener = setAndGet.getBucketListener();
+        BarrierListener barrierListener = setAndGet.getBarrierListener();
+        BedrockListener bedrockListener = setAndGet.getBedrockListener();
+        WaterBucketListener waterBucketListener = setAndGet.getWaterBucketListener();
 
         // Set BLOCKS_PER_ITERATION dynamically based on the total count
         int sqrtTotalBlocks = (int) (Math.sqrt(totalRemovedCount) * (Math.sqrt(radiusLimit) * 1.25));

@@ -20,21 +20,10 @@ public class Spawn implements CommandExecutor, TabCompleter {
                 String entity = args[0].toUpperCase();
                 try {
                     int amount = Integer.parseInt(args[1]);
-                    int radius = 0; // Default radius if not specified
-
-                    if (args.length == 3) {
-                        // If radius is specified, use it
-                        radius = Integer.parseInt(args[2]);
-                    } else {
-                        // Automatically adjust radius to avoid entity cramming limit
-                        int maxEntities = 24;
-                        radius = Math.max(radius, (int) Math.ceil(Math.sqrt(amount / Math.PI)));
-                        radius = Math.max(radius, (int) Math.ceil(Math.sqrt(maxEntities / Math.PI)));
-                    }
+                    int radius = getRadius(args, amount);
 
                     if (amount < 1 || radius < 0) {
                         sender.sendMessage("The amount must be positive, and the radius must be a non-negative value.");
-                        return true;
                     } else {
                         EntityType entityType = EntityType.valueOf(entity);
 
@@ -47,12 +36,11 @@ public class Spawn implements CommandExecutor, TabCompleter {
                                 player.getWorld().spawnEntity(player.getLocation().add(x, 0, z), entityType);
                             }
                             sender.sendMessage("Spawned " + amount + " " + entity.toLowerCase() + "s with a radius of " + radius + ".");
-                            return true;
                         } else {
                             sender.sendMessage("This entity cannot be spawned.");
-                            return true;
                         }
                     }
+                    return true;
                 } catch (NumberFormatException e) {
                     sender.sendMessage("Please specify valid integers for amount and radius.");
                     return true;
@@ -67,6 +55,21 @@ public class Spawn implements CommandExecutor, TabCompleter {
             sender.sendMessage("Only players can use this command.");
             return true;
         }
+    }
+
+    private static int getRadius(String[] args, int amount) {
+        int radius = 0; // Default radius if not specified
+
+        if (args.length == 3) {
+            // If radius is specified, use it
+            radius = Integer.parseInt(args[2]);
+        } else {
+            // Automatically adjust radius to avoid entity cramming limit
+            int maxEntities = 24;
+            radius = Math.max(radius, (int) Math.ceil(Math.sqrt(amount / Math.PI)));
+            radius = Math.max(radius, (int) Math.ceil(Math.sqrt(maxEntities / Math.PI)));
+        }
+        return radius;
     }
 
     @Override

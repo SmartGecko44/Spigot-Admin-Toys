@@ -55,12 +55,9 @@ public class Endanger extends Enchantment {
     }
 
     public void onProjectileHit(LivingEntity entity, ItemStack bow) {
-        if (bow.getEnchantments().containsKey(Enchantment.getByName(ENDANGERSTRING))) {
-            int level = bow.getEnchantments().get(Enchantment.getByName(ENDANGERSTRING));
-            if (entity != null) {
-                entity.setNoDamageTicks(0);
-            }
+        if (bow.getEnchantments().containsKey(Enchantment.getByName(ENDANGERSTRING)) && (entity != null)) {
+            entity.setNoDamageTicks(0);
+
         }
     }
-
 }

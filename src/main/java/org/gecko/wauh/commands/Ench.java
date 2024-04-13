@@ -9,18 +9,18 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.gecko.wauh.Main;
 import org.gecko.wauh.enchantments.logic.EnchantmentHandler;
+import org.gecko.wauh.logic.SetAndGet;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Ench implements CommandExecutor, TabCompleter {
 
-    private final Main plugin;
+    private final SetAndGet setAndGet;
 
-    public Ench(Main plugin) {
-        this.plugin = plugin;
+    public Ench(SetAndGet setAndGet) {
+        this.setAndGet = setAndGet;
     }
 
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
@@ -36,7 +36,7 @@ public class Ench implements CommandExecutor, TabCompleter {
         String operation = args[0].toLowerCase();
         ItemStack enchItem = senderPlayer.getInventory().getItemInMainHand();
         String enchantmentNameFinal = operation.substring(0, 1).toUpperCase() + operation.substring(1);
-        EnchantmentHandler enchantmentHandler = plugin.getEnchantmentHandler();
+        EnchantmentHandler enchantmentHandler = setAndGet.getEnchantmentHandler();
 
         if (!enchantmentHandler.getEnchantmentExists(enchantmentNameFinal)) {
             sender.sendMessage("This enchantment does not exist");

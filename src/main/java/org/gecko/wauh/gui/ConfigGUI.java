@@ -13,8 +13,10 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.gecko.wauh.Main;
 import org.gecko.wauh.data.ConfigurationManager;
+import org.gecko.wauh.logic.SetAndGet;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -33,6 +35,7 @@ public class ConfigGUI implements Listener {
     public static final String ENABLE_TSUNAMI = "Enable Tsunami";
     public static final String ENABLE_CREEPER = "Enable Creeper";
     public static final String ENABLE_TNT = "Enable TNT";
+    public static final String REMOVAL_VISIBLE = "Removal visible";
     public static final String MANAGED = "This value is managed by the player radius limit.";
     public static final String BUCKET_ENABLED = "Bucket enabled";
     public static final String BARRIER_ENABLED = "Barrier enabled";
@@ -47,15 +50,15 @@ public class ConfigGUI implements Listener {
     private Inventory gui;
     private final File configFile;
     private final Logger logger = Logger.getLogger(ConfigGUI.class.getName());
-    private final Main plugin;
+    private final SetAndGet setAndGet;
     FileConfiguration config;
 
-    public ConfigGUI(Main plugin) {
-        configManager = new ConfigurationManager(plugin);
+    public ConfigGUI(SetAndGet setAndGet) {
+        configManager = new ConfigurationManager(JavaPlugin.getPlugin(Main.class));
         config = configManager.getConfig();
         File dir = new File("plugins/Wauh");
         this.configFile = new File(dir, "data.yml");
-        this.plugin = plugin;
+        this.setAndGet = setAndGet;
 
         generateGUI();
     }
@@ -63,8 +66,6 @@ public class ConfigGUI implements Listener {
     public void generateGUI() {
         this.gui = Bukkit.createInventory(null, 45, "Test (WIP)");
         fillBorders(createButtonItem(Material.STAINED_GLASS_PANE, "§r", (short) 5, null, null), 45, false);
-        // Initialize GUI content
-        initializeGUI();
     }
 
     private void initializeGUI() {
@@ -103,6 +104,8 @@ public class ConfigGUI implements Listener {
         } else {
             gui.setItem(9 * 3 + 6, createButtonItem(Material.INK_SACK, ENABLE, (short) 8, null, ENABLE_TNT));
         }
+
+        gui.setItem(9 * 3 + 7, createButtonItem(Material.INK_SACK, (setAndGet.getShowRemoval() ? DISABLE : ENABLE), (short) (setAndGet.getShowRemoval() ? 10 : 8), null, REMOVAL_VISIBLE));
 
         gui.setItem(9 * 4 + 8, createButtonItem(Material.PAPER, ChatColor.RESET + "" + ChatColor.RED + "Reset config", (short) 0, null, "Reset"));
     }
@@ -163,9 +166,10 @@ public class ConfigGUI implements Listener {
     }
 
     public void openGUI(Player player) {
-        int playerLimit = plugin.getRadiusLimit() - 2;
-        int creeperLimit = plugin.getCreeperRadiusLimit() - 2;
-        int tntLimit = plugin.getTntRadiusLimit() - 2;
+        initializeGUI();
+        int playerLimit = setAndGet.getRadiusLimit() - 2;
+        int creeperLimit = setAndGet.getCreeperRadiusLimit() - 2;
+        int tntLimit = setAndGet.getTntRadiusLimit() - 2;
         gui.setItem(9 + 1, createButtonItem(Material.BUCKET, ChatColor.RESET + "Liquid removal", (short) 0, null, null));
         gui.setItem(9 * 2 + 1, createButtonItem(Material.ENDER_PEARL, ChatColor.RESET + String.valueOf(playerLimit), (short) 0, ChatColor.RESET + "" + ChatColor.DARK_PURPLE + MANAGED, null));
         gui.setItem(9 + 2, createButtonItem(Material.BARRIER, ChatColor.RESET + "Surface removal", (short) 0, null, null));
@@ -178,13 +182,18 @@ public class ConfigGUI implements Listener {
         gui.setItem(9 * 2 + 5, createButtonItem(Material.ENDER_PEARL, ChatColor.RESET + String.valueOf(creeperLimit), (short) 0, ChatColor.RESET + "" + ChatColor.DARK_PURPLE + "This value is managed by the creeper radius limit.", null));
         gui.setItem(9 + 6, createButtonItem(Material.TNT, ChatColor.RESET + "Custom TNT explosions", (short) 0, null, null));
         gui.setItem(9 * 2 + 6, createButtonItem(Material.ENDER_PEARL, ChatColor.RESET + String.valueOf(tntLimit), (short) 0, ChatColor.RESET + "" + ChatColor.DARK_PURPLE + "This value is managed by the TNT radius limit.", null));
+        gui.setItem(9 + 7, createButtonItem(Material.BEACON, ChatColor.RESET + "Removal visibility", (short) 0, null, null));
+        gui.setItem(9 * 2 + 7, createButtonItem(Material.ENDER_PEARL, ChatColor.RESET + (!setAndGet.getShowRemoval() ? ChatColor.RED + "Disabled" : ChatColor.GREEN + "Enabled"), (short) 0, null, null));
         player.openInventory(gui);
     }
 
     private void handleButtonClick(Player player, String identifier, short data, String configKey, int guiIndex, String enableMessage, String disableMessage) {
         boolean isEnabled = data == 8;
-
-        config.set(configKey, isEnabled ? 1 : 0);
+        if (identifier.equals(REMOVAL_VISIBLE)) {
+            config.set(configKey, isEnabled);
+        } else {
+            config.set(configKey, isEnabled ? 1 : 0);
+        }
         configManager.saveConfig();
 
         gui.setItem(9 * 3 + guiIndex, createButtonItem(
@@ -195,7 +204,7 @@ public class ConfigGUI implements Listener {
                 identifier
         ));
 
-        player.sendMessage(isEnabled ? disableMessage : enableMessage);
+        player.sendMessage(!isEnabled ? ChatColor.RED + disableMessage : ChatColor.GREEN + enableMessage);
     }
 
     @EventHandler
@@ -247,6 +256,8 @@ public class ConfigGUI implements Listener {
             } else if (identifier.equalsIgnoreCase(ENABLE_TNT)) {
                 handleButtonClick(player, identifier, data, TNT_ENABLED, 6, "Custom TNT explosions enabled!", "Custom TNT explosions disabled!");
                 return true;
+            } else if (identifier.equalsIgnoreCase(REMOVAL_VISIBLE)) {
+                handleButtonClick(player, identifier, data, REMOVAL_VISIBLE, 7, "Removal visibility enabled!", "Removal visibility disabled!");
             }
         } else if (gui.getTitle().equals("Reset config?")) {
             if (identifier.equalsIgnoreCase("cancel")) {
@@ -271,7 +282,7 @@ public class ConfigGUI implements Listener {
                     logger.log(Level.SEVERE, "Config file could not be created");
                 } else {
                     Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "Config file created!");
-                    FileWriter writer = getFileWriter();
+                    FileWriter writer = setAndGet.getConfigManager().getFileWriter();
                     writer.close();
                 }
             } else {
@@ -286,7 +297,7 @@ public class ConfigGUI implements Listener {
                         player.sendMessage(ChatColor.RED + "Config file could not be reset");
                     } else {
                         Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "Config file created!");
-                        FileWriter writer = getFileWriter();
+                        FileWriter writer = setAndGet.getConfigManager().getFileWriter();
                         writer.close();
                         player.sendMessage(ChatColor.GREEN + "Config reset!");
                     }
@@ -299,7 +310,7 @@ public class ConfigGUI implements Listener {
         }
     }
 
-    private boolean isFileDeleted() throws IOException {
+    private boolean isFileDeleted() {
         try {
             Files.delete(configFile.toPath());
             // Deletion successful
@@ -310,24 +321,6 @@ public class ConfigGUI implements Listener {
         } catch (IOException e) {
             // Directory is not empty, consider it not deleted or Unable to delete file for various causes, consider it not deleted
             return false;
-        }
-    }
-
-    private FileWriter getFileWriter() throws IOException {
-        try (FileWriter writer = new FileWriter(configFile)
-        ) {
-            writer.write("playerRadiusLimit: 20\n");
-            writer.write("tntRadiusLimit: 5\n");
-            writer.write("creeperRadiusLimit: 5\n");
-            writer.write("Bucket enabled: 1\n");
-            writer.write("Barrier enabled: 1\n");
-            writer.write("Bedrock enabled: 1\n");
-            writer.write("Tsunami enabled: 1\n");
-            writer.write("Creeper enabled: 0\n");
-            writer.write("TNT enabled: 1\n");
-            return writer;
-        } catch (IOException e) {
-            throw new IOException("Unable to create FileWriter", e);
         }
     }
 

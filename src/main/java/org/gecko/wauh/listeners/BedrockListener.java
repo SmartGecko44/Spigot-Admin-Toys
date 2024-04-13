@@ -15,19 +15,23 @@ import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.gecko.wauh.Main;
 import org.gecko.wauh.data.ConfigurationManager;
 import org.gecko.wauh.logic.Scale;
+import org.gecko.wauh.logic.SetAndGet;
 
 import java.util.*;
 
 public class BedrockListener implements Listener {
 
     private static final Set<Material> IMMUTABLE_MATERIALS = EnumSet.of(Material.BEDROCK, Material.STATIONARY_WATER, Material.WATER, Material.LAVA, Material.STATIONARY_LAVA, Material.TNT);
+    public static final String SOURCE = "Source";
     private final Set<Block> markedBlocks = new HashSet<>();
     private final Set<Block> processedBlocks = new HashSet<>();
     private final Set<Block> removedBlocks = new HashSet<>();
-    private final Main plugin;
+    private final SetAndGet setAndGet;
     private Player currentRemovingPlayer;
     private boolean stopAllRemoval = false;
     private boolean allRemovalActive = false;
@@ -44,8 +48,8 @@ public class BedrockListener implements Listener {
     private boolean explosionTrigger = false;
     private String realSource = null;
 
-    public BedrockListener(Main plugin) {
-        this.plugin = plugin;
+    public BedrockListener(SetAndGet setAndGet) {
+        this.setAndGet = setAndGet;
     }
 
     private void addIfValid(Block block, Set<Block> nextSet) {
@@ -57,6 +61,7 @@ public class BedrockListener implements Listener {
                 block.setType(Material.AIR);
                 TNTPrimed tntPrimed = (TNTPrimed) location.getWorld().spawnEntity(location.add(0.5, 0.5, 0.5), EntityType.PRIMED_TNT);
                 tntPrimed.setFuseTicks(20);
+                tntPrimed.setMetadata(SOURCE, new FixedMetadataValue(JavaPlugin.getPlugin(Main.class), setAndGet.getTntListener().getTntPlayer().getName()));
                 nextSet.add(block);
             }
         } else if (!IMMUTABLE_MATERIALS.contains(block.getType()) && (block.getType() != Material.AIR)) {
@@ -77,37 +82,49 @@ public class BedrockListener implements Listener {
 
     public void bedrockValueAssignHandler(BlockBreakEvent event, String source) {
         realSource = source;
-        TNTListener tntListener = plugin.getTntListener();
-        if (tntListener == null) {
-            return;
-        }
-        if (event == null && source.equalsIgnoreCase("TNT") && (tntListener.getTntPlayer() != null && (!tntListener.getTntPlayer().isOp()))) {
-            return;
-        }
-        if (event != null && (!event.getPlayer().isOp())) {
+        TNTListener tntListener = this.setAndGet.getTntListener();
+        if (event == null && !source.equalsIgnoreCase("TNT") && !source.equalsIgnoreCase("Creeper") && !(tntListener.getTntPlayer() == null || tntListener.getTnt().getMetadata(SOURCE).getFirst().asString() == null)) {
             return;
         }
         ConfigurationManager configManager;
         FileConfiguration config;
-        configManager = new ConfigurationManager(plugin);
+        configManager = new ConfigurationManager(JavaPlugin.getPlugin(Main.class));
         config = configManager.getConfig();
         if (config.getInt("Bedrock enabled") == 0) {
             return;
         }
-        BucketListener bucketListener = plugin.getBucketListener();
-        BarrierListener barrierListener = plugin.getBarrierListener();
-        WaterBucketListener waterBucketListener = plugin.getWaterBucketListener();
-        CreeperListener creeperListener = plugin.getCreeperListener();
+        BucketListener bucketListener = setAndGet.getBucketListener();
+        BarrierListener barrierListener = setAndGet.getBarrierListener();
+        WaterBucketListener waterBucketListener = setAndGet.getWaterBucketListener();
+        CreeperListener creeperListener = setAndGet.getCreeperListener();
+
+        //FIXME: I have no clue why, but the radiusLimit sometimes doesn't change at all and sometimes only changes after a reload
         if (source.equalsIgnoreCase("player")) {
-            radiusLimit = plugin.getRadiusLimit();
+            radiusLimit = setAndGet.getRadiusLimit();
         } else if (source.equalsIgnoreCase("TNT")) {
-            radiusLimit = plugin.getTntRadiusLimit();
+            radiusLimit = setAndGet.getTntRadiusLimit();
         } else {
-            radiusLimit = plugin.getCreeperRadiusLimit();
+            radiusLimit = setAndGet.getCreeperRadiusLimit();
         }
         realRadiusLimit = radiusLimit - 2;
         if (realRadiusLimit > 1 && (!bucketListener.isWauhRemovalActive() && !barrierListener.isBlockRemovalActive() && !isAllRemovalActive() && !waterBucketListener.isTsunamiActive() || explosionTrigger)) {
             if (event == null && source.equalsIgnoreCase("TNT") || source.equalsIgnoreCase("creeper")) {
+                if (tntListener.getTntPlayer() != null) {
+                    if (!tntListener.getTntPlayer().isOp()) {
+                        Bukkit.getConsoleSender().sendMessage("Real player not OP");
+                        return;
+                    }
+                } else {
+                    if (Bukkit.getPlayer(tntListener.getTnt().getMetadata(SOURCE).getFirst().asString()) == null) {
+                        Bukkit.getConsoleSender().sendMessage("Meta player not found");
+                        return;
+                    } else {
+                        if (!Bukkit.getPlayer(tntListener.getTnt().getMetadata(SOURCE).getFirst().asString()).isOp()) {
+                            Bukkit.getConsoleSender().sendMessage("Meta player not OP");
+                            return;
+                        }
+                    }
+                }
                 setAllRemovalActive(true);
                 explosionTrigger = true;
                 limitReached = false;
@@ -123,8 +140,12 @@ public class BedrockListener implements Listener {
                 highestDist = 0;
                 allRemovedCount = 0;
                 blocksToProcess.clear();
-                if (tntListener.getTntPlayer() != null) {
-                    setCurrentRemovingPlayer(tntListener.getTntPlayer());
+                if (tntListener.getTntPlayer() != null || tntListener.getTnt().getMetadata(SOURCE).getFirst().asString() != null) {
+                    if (tntListener.getTntPlayer() != null) {
+                        setCurrentRemovingPlayer(tntListener.getTntPlayer());
+                    } else {
+                        setCurrentRemovingPlayer(Bukkit.getPlayer(tntListener.getTnt().getMetadata(SOURCE).getFirst().asString()));
+                    }
                 } else {
                     setCurrentRemovingPlayer(null);
                 }
@@ -158,7 +179,6 @@ public class BedrockListener implements Listener {
                     processAllRemoval();
                 }
             }
-
         }
     }
 
@@ -197,7 +217,7 @@ public class BedrockListener implements Listener {
 
             // Check if the block is grass or dirt
             allRemovedCount++;
-            if (plugin.getShowRemoval()) {
+            if (setAndGet.getShowRemoval()) {
                 block.setType(Material.AIR);
             } else {
                 markedBlocks.add(block);
@@ -217,8 +237,8 @@ public class BedrockListener implements Listener {
         if (limitReachedThisIteration) {
             bedrockFin();
         } else if (!blocksToProcess.isEmpty()) {
-            if (plugin.getShowRemoval()) {
-                Bukkit.getScheduler().runTaskLater(plugin, this::processAllRemoval, 2L);
+            if (setAndGet.getShowRemoval()) {
+                Bukkit.getScheduler().runTaskLater(JavaPlugin.getPlugin(Main.class), this::processAllRemoval, 2L);
             } else {
                 processAllRemoval();
             }
@@ -235,8 +255,8 @@ public class BedrockListener implements Listener {
         if (limitReached) {
             displaySummary();
         } else if (!blocksToProcess.isEmpty()) {
-            if (plugin.getShowRemoval()) {
-                Bukkit.getScheduler().runTaskLater(plugin, this::processAllRemoval, 2L);
+            if (setAndGet.getShowRemoval()) {
+                Bukkit.getScheduler().runTaskLater(JavaPlugin.getPlugin(Main.class), this::processAllRemoval, 2L);
             } else {
                 processAllRemoval();
             }
@@ -246,8 +266,8 @@ public class BedrockListener implements Listener {
     }
 
     public void displaySummary() {
-        TNTListener tntListener = plugin.getTntListener();
-        CreeperListener creeperListener = plugin.getCreeperListener();
+        TNTListener tntListener = setAndGet.getTntListener();
+        CreeperListener creeperListener = setAndGet.getCreeperListener();
         Player player = getCurrentRemovingPlayer();
         // Display the block removal summary to the player
         if (allRemovedCount > 1) {
@@ -256,7 +276,7 @@ public class BedrockListener implements Listener {
                 // Display the block removal summary in the console
                 Bukkit.getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + player.getName() + ChatColor.GREEN + " removed " + ChatColor.RED + allRemovedCount + ChatColor.GREEN + " blocks.");
             }
-            if (!plugin.getShowRemoval()) {
+            if (!setAndGet.getShowRemoval()) {
                 removeMarkedBlocks();
             } else {
                 clearAll(tntListener, creeperListener);
@@ -276,10 +296,10 @@ public class BedrockListener implements Listener {
      * Finally, clear all the sets and variables related to block removal.
      */
     private void removeMarkedBlocks() {
-        TNTListener tntListener = plugin.getTntListener();
-        CreeperListener creeperListener = plugin.getCreeperListener();
+        TNTListener tntListener = setAndGet.getTntListener();
+        CreeperListener creeperListener = setAndGet.getCreeperListener();
         Scale scale;
-        scale = new Scale();
+        scale = setAndGet.getScale();
 
         int totalRemovedCount = allRemovedCount;
         if (totalRemovedCount < 50000) {
@@ -293,14 +313,14 @@ public class BedrockListener implements Listener {
 
         // If there are more blocks to remove, schedule the next batch
         if (!markedBlocks.isEmpty()) {
-            Bukkit.getScheduler().runTaskLater(plugin, this::removeMarkedBlocks, 10L); // Schedule the next batch after 1 tick
+            Bukkit.getScheduler().runTaskLater(JavaPlugin.getPlugin(Main.class), this::removeMarkedBlocks, 10L); // Schedule the next batch after 1 tick
         } else if (!removedBlocks.isEmpty()) {
             if (repetitions > 0) {
                 repetitions--;
                 repeated = true;
                 markedBlocks.addAll(removedBlocks);
                 removedBlocks.clear();
-                Bukkit.getScheduler().runTaskLater(plugin, this::removeMarkedBlocks, 100L);
+                Bukkit.getScheduler().runTaskLater(JavaPlugin.getPlugin(Main.class), this::removeMarkedBlocks, 100L);
                 // If all blocks have been processed, but there are blocks in the removedBlocks set,
                 // process those in the next iteration.
             } else {
@@ -335,7 +355,7 @@ public class BedrockListener implements Listener {
             Block block = iterator.next();
             if (repeated) {
                 if (getCurrentRemovingPlayer() != null) {
-                    getCurrentRemovingPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "Cleaning up falling blocks"));
+                    getCurrentRemovingPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "Cleaning up falling blocks (" + repetitions + (repetitions == 1 ? " repetition left)" : " repetitions left")));
                 }
                 if (block.getType() == Material.SAND || block.getType() == Material.GRAVEL) {
                     block.setType(Material.AIR);

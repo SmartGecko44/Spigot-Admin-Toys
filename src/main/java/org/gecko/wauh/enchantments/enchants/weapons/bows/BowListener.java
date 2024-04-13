@@ -1,6 +1,5 @@
 package org.gecko.wauh.enchantments.enchants.weapons.bows;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
