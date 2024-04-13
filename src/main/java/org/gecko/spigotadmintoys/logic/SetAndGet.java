@@ -7,6 +7,7 @@ import org.gecko.spigotadmintoys.listeners.*;
 
 public class SetAndGet {
 
+    public static final String REMOVAL_VISIBLE = "Removal visible";
     private final EnchantmentHandler enchantmentHandler = new EnchantmentHandler();
     private int playerRadiusLimit;
     private int tntRadiusLimit;
@@ -73,12 +74,12 @@ public class SetAndGet {
 
     public boolean getShowRemoval() {
         config = getConfigManager().getConfig();
-        return config.getBoolean("Removal visible");
+        return config.getBoolean(REMOVAL_VISIBLE);
     }
 
     public void toggleRemovalView() {
         config = configManager.getConfig();
-        config.set("Removal visible", !config.getBoolean("Removal visible"));
+        config.set(REMOVAL_VISIBLE, !config.getBoolean(REMOVAL_VISIBLE));
         configManager.saveConfig();
     }
 
