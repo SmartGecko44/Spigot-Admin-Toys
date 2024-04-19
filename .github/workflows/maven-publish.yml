@@ -50,7 +50,7 @@ jobs:
       - name: Filter and Upload JAR as an artifact
         run: |
           # Filter out files that start with 'Wauh' and upload the rest
-          find target -type f -name Wauh*.jar -exec cp {} filtered-artifacts/ \;
+          find target -type f -name Spigot-Admin-Toys*.jar -exec cp {} filtered-artifacts/ \;
 
       - name: Upload JAR as an artifact
         uses: actions/upload-artifact@v3
