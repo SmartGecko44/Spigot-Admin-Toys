@@ -1,7 +1,7 @@
-name: Wauh
+name: Spigot-Admin-Toys
 version: '${project.version}'
-main: org.gecko.wauh.Main
-description: Bo o o wa uh
+main: org.gecko.spigotadmintoys.Main
+description: Some handy tools for admins to have fun with players and the world
 commands:
   stopwauh:
     description: Stop removing the wauh
