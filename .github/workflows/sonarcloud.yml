@@ -3,7 +3,8 @@ name: SonarCloud analysis
 on:
   push:
     branches:
-      - 'branch/*'
+      - 'short-term/*'
+      - 'long-term/*'
       - 'release/*'
       - 'master'
   pull_request:
