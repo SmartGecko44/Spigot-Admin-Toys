@@ -39,6 +39,7 @@ public class WaterBucketListener implements Listener {
     private int dist;
     private int radiusLimit;
     private int realRadiusLimit;
+    private boolean showRemoval;
 
     public WaterBucketListener(SetAndGet setAndGet) {
         this.setAndGet = setAndGet;
@@ -71,6 +72,7 @@ public class WaterBucketListener implements Listener {
         String identifier = nbtItem.getString("Ident");
         radiusLimit = setAndGet.getRadiusLimit();
         realRadiusLimit = radiusLimit - 2;
+        showRemoval = setAndGet.getShowRemoval();
         if (realRadiusLimit > 1 && !bucketListener.isWauhRemovalActive() && !barrierListener.isBlockRemovalActive() && !bedrockListener.isAllRemovalActive() && !isTsunamiActive()) {
             Player player = event.getPlayer();
             // Check if the bucket is filling with water
@@ -127,7 +129,7 @@ public class WaterBucketListener implements Listener {
 
             waterPlacedCount++;
             if (block.getType() == Material.AIR) {
-                if (setAndGet.getShowRemoval()) {
+                if (showRemoval) {
                     block.setType(Material.WATER);
                 } else {
                     markedBlocks.add(block);
@@ -149,7 +151,7 @@ public class WaterBucketListener implements Listener {
         if (limitReachedThisIteration) {
             tsunamiFin();
         } else if (!blocksToProcess.isEmpty()) {
-            if (setAndGet.getShowRemoval()) {
+            if (showRemoval) {
                 Bukkit.getScheduler().runTaskLater(JavaPlugin.getPlugin(Main.class), this::processTsunami, 2L);
             } else {
                 processTsunami();
@@ -167,7 +169,7 @@ public class WaterBucketListener implements Listener {
         if (limitReached) {
             displaySummary();
         } else if (!blocksToProcess.isEmpty()) {
-            if (setAndGet.getShowRemoval()) {
+            if (showRemoval) {
                 Bukkit.getScheduler().runTaskLater(JavaPlugin.getPlugin(Main.class), this::processTsunami, 2L);
             } else {
                 processTsunami();
@@ -184,7 +186,7 @@ public class WaterBucketListener implements Listener {
             player.sendMessage(ChatColor.GREEN + "Placed " + ChatColor.RED + waterPlacedCount + ChatColor.GREEN + " water blocks.");
             // Display the block removal summary in the console
             Bukkit.getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + player.getName() + ChatColor.GREEN + " placed " + ChatColor.RED + waterPlacedCount + ChatColor.GREEN + " water blocks.");
-            if (!setAndGet.getShowRemoval()) {
+            if (!showRemoval) {
                 removeMarkedBlocks();
             } else {
                 setTsunamiActive(false);
@@ -207,8 +209,7 @@ public class WaterBucketListener implements Listener {
     }
 
     private void removeMarkedBlocks() {
-        Scale scale;
-        scale = setAndGet.getScale();
+        Scale scale = setAndGet.getScale();
 
         int totalRemovedCount = waterPlacedCount;
         if (totalRemovedCount < 50000) {
