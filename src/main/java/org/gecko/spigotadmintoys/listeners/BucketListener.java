@@ -16,7 +16,6 @@ import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.gecko.spigotadmintoys.Main;
 import org.gecko.spigotadmintoys.data.ConfigurationManager;
-import org.gecko.spigotadmintoys.logic.IterateBlocks;
 import org.gecko.spigotadmintoys.logic.Scale;
 import org.gecko.spigotadmintoys.logic.SetAndGet;
 
@@ -41,7 +40,8 @@ public class BucketListener implements Listener {
     private int highestDist = 0;
     private int radiusLimit;
     private int realRadiusLimit;
-    private int repetitions = 1;
+    private int repetitions = 0;
+    private boolean showRemoval;
 
 
     public BucketListener(SetAndGet setAndGet) {
@@ -69,6 +69,7 @@ public class BucketListener implements Listener {
         String identifier = nbtItem.getString("Ident");
         radiusLimit = setAndGet.getRadiusLimit();
         realRadiusLimit = radiusLimit - 2;
+        showRemoval = setAndGet.getShowRemoval();
         if (realRadiusLimit > 1 && !isWauhRemovalActive() && !barrierListener.isBlockRemovalActive() && !bedrockListener.isAllRemovalActive() && !waterBucketListener.isTsunamiActive() && IMMUTABLE_MATERIALS.contains(event.getBlockClicked().getType()) && event.getBucket() == Material.BUCKET && identifier.equalsIgnoreCase("Custom Bucket")) {
             setWauhRemovalActive(true);
             Player player = event.getPlayer();
@@ -96,7 +97,6 @@ public class BucketListener implements Listener {
     }
 
     private void processWaterRemoval() {
-        IterateBlocks iterateBlocks;
         if (isStopWaterRemoval()) {
             setStopWaterRemoval(false);
             displaySummary();
@@ -139,15 +139,14 @@ public class BucketListener implements Listener {
                 lave++;
             }
             // Remove the water block
-            if (setAndGet.getShowRemoval()) {
+            if (showRemoval) {
                 block.setType(Material.STRUCTURE_VOID);
                 // Add the block to the list of replaced blocks
                 markedBlocks.add(block);
             } else {
                 markedBlocks.add(block);
             }
-            iterateBlocks = setAndGet.getIterateBlocks();
-            iterateBlocks.iterateBlocks(block, nextSet, IMMUTABLE_MATERIALS);
+            setAndGet.getIterateBlocks().iterateBlocks(block, nextSet, IMMUTABLE_MATERIALS);
             processedBlocks.add(block);
         }
 
@@ -157,7 +156,7 @@ public class BucketListener implements Listener {
         if (limitReachedThisIteration) {
             wauhFin();
         } else if (!blocksToProcess.isEmpty()) {
-            if (setAndGet.getShowRemoval()) {
+            if (showRemoval) {
                 Bukkit.getScheduler().runTaskLater(JavaPlugin.getPlugin(Main.class), this::processWaterRemoval, 1L);
             } else {
                 processWaterRemoval();
