@@ -261,7 +261,9 @@ public class BucketListener implements Listener {
             Block block = iterator.next();
             getCurrentRemovingPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "Cleaning up water " + markedBlocks.size() + " blocks left"));
             // Change the block to air
-            block.setType(Material.AIR);
+            if (block.getType() == Material.STRUCTURE_VOID) {
+                block.setType(Material.AIR);
+            }
             // Add the block to the new set
             removedBlocks.add(block);
             // Add the block to the temporary list for removal later
