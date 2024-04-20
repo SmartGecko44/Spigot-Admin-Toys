@@ -47,6 +47,9 @@ public class BedrockListener implements Listener {
     private boolean repeated = false;
     private boolean explosionTrigger = false;
     private String realSource = null;
+    private boolean showRemoval;
+    private TNTListener tntListener;
+    private CreeperListener creeperListener;
 
     public BedrockListener(SetAndGet setAndGet) {
         this.setAndGet = setAndGet;
@@ -61,7 +64,7 @@ public class BedrockListener implements Listener {
                 block.setType(Material.AIR);
                 TNTPrimed tntPrimed = (TNTPrimed) location.getWorld().spawnEntity(location.add(0.5, 0.5, 0.5), EntityType.PRIMED_TNT);
                 tntPrimed.setFuseTicks(20);
-                tntPrimed.setMetadata(SOURCE, new FixedMetadataValue(JavaPlugin.getPlugin(Main.class), setAndGet.getTntListener().getTntPlayer().getName()));
+                tntPrimed.setMetadata(SOURCE, new FixedMetadataValue(JavaPlugin.getPlugin(Main.class), tntListener.getTntPlayer().getName()));
                 nextSet.add(block);
             }
         } else if (!IMMUTABLE_MATERIALS.contains(block.getType()) && block.getType() != Material.AIR && !markedBlocks.contains(block)) {
@@ -82,7 +85,7 @@ public class BedrockListener implements Listener {
 
     public void bedrockValueAssignHandler(BlockBreakEvent event, String source) {
         realSource = source;
-        TNTListener tntListener = this.setAndGet.getTntListener();
+        tntListener = this.setAndGet.getTntListener();
         if (event == null && !source.equalsIgnoreCase("TNT") && !source.equalsIgnoreCase("Creeper") && !(tntListener.getTntPlayer() == null || tntListener.getTnt().getMetadata(SOURCE).getFirst().asString() == null)) {
             return;
         }
@@ -96,7 +99,8 @@ public class BedrockListener implements Listener {
         BucketListener bucketListener = setAndGet.getBucketListener();
         BarrierListener barrierListener = setAndGet.getBarrierListener();
         WaterBucketListener waterBucketListener = setAndGet.getWaterBucketListener();
-        CreeperListener creeperListener = setAndGet.getCreeperListener();
+        creeperListener = setAndGet.getCreeperListener();
+        showRemoval = setAndGet.getShowRemoval();
 
         //FIXME: I have no clue why, but the radiusLimit sometimes doesn't change at all and sometimes only changes after a reload
         if (source.equalsIgnoreCase("player")) {
@@ -217,7 +221,7 @@ public class BedrockListener implements Listener {
 
             // Check if the block is grass or dirt
             allRemovedCount++;
-            if (setAndGet.getShowRemoval()) {
+            if (showRemoval) {
                 block.setType(Material.AIR);
             } else {
                 markedBlocks.add(block);
@@ -237,7 +241,7 @@ public class BedrockListener implements Listener {
         if (limitReachedThisIteration) {
             bedrockFin();
         } else if (!blocksToProcess.isEmpty()) {
-            if (setAndGet.getShowRemoval()) {
+            if (showRemoval) {
                 Bukkit.getScheduler().runTaskLater(JavaPlugin.getPlugin(Main.class), this::processAllRemoval, 2L);
             } else {
                 processAllRemoval();
@@ -255,7 +259,7 @@ public class BedrockListener implements Listener {
         if (limitReached) {
             displaySummary();
         } else if (!blocksToProcess.isEmpty()) {
-            if (setAndGet.getShowRemoval()) {
+            if (showRemoval) {
                 Bukkit.getScheduler().runTaskLater(JavaPlugin.getPlugin(Main.class), this::processAllRemoval, 2L);
             } else {
                 processAllRemoval();
@@ -266,8 +270,6 @@ public class BedrockListener implements Listener {
     }
 
     public void displaySummary() {
-        TNTListener tntListener = setAndGet.getTntListener();
-        CreeperListener creeperListener = setAndGet.getCreeperListener();
         Player player = getCurrentRemovingPlayer();
         // Display the block removal summary to the player
         if (allRemovedCount > 1) {
@@ -276,7 +278,7 @@ public class BedrockListener implements Listener {
                 // Display the block removal summary in the console
                 Bukkit.getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + player.getName() + ChatColor.GREEN + " removed " + ChatColor.RED + allRemovedCount + ChatColor.GREEN + " blocks.");
             }
-            if (!setAndGet.getShowRemoval()) {
+            if (!showRemoval) {
                 removeMarkedBlocks();
             } else {
                 clearAll(tntListener, creeperListener);
@@ -296,10 +298,7 @@ public class BedrockListener implements Listener {
      * Finally, clear all the sets and variables related to block removal.
      */
     private void removeMarkedBlocks() {
-        TNTListener tntListener = setAndGet.getTntListener();
-        CreeperListener creeperListener = setAndGet.getCreeperListener();
-        Scale scale;
-        scale = setAndGet.getScale();
+        Scale scale = setAndGet.getScale();
 
         int totalRemovedCount = allRemovedCount;
         if (totalRemovedCount < 50000) {

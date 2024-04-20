@@ -41,6 +41,7 @@ public class BarrierListener implements Listener {
     private int dist;
     private int radiusLimit;
     private int realRadiusLimit;
+    private boolean showRemoval;
 
     public BarrierListener(SetAndGet setAndGet) {
         this.setAndGet = setAndGet;
@@ -71,6 +72,7 @@ public class BarrierListener implements Listener {
         String identifier = nbtItem.getString("Ident");
         radiusLimit = setAndGet.getRadiusLimit();
         realRadiusLimit = radiusLimit - 2;
+        showRemoval = setAndGet.getShowRemoval();
         if (realRadiusLimit > 1 && (!bucketListener.isWauhRemovalActive() && !isBlockRemovalActive() && !bedrockListener.isAllRemovalActive() && !waterBucketListener.isTsunamiActive())) {
             Player player = event.getPlayer();
             if (IMMUTABLE_MATERIALS.contains(event.getBlock().getType()) && player.getInventory().getItemInMainHand().getType() == Material.BARRIER && identifier.equalsIgnoreCase("Custom Barrier")) {
@@ -135,7 +137,7 @@ public class BarrierListener implements Listener {
             } else if (block.getType() == Material.BARRIER) {
                 barrierRemovedCount++;
             }
-            if (!setAndGet.getShowRemoval()) {
+            if (!showRemoval) {
                 markedBlocks.add(block);
             } else {
                 block.setType(Material.AIR);
@@ -157,7 +159,7 @@ public class BarrierListener implements Listener {
         if (limitReachedThisIteration) {
             barriuhFin();
         } else if (!blocksToProcess.isEmpty()) {
-            if (setAndGet.getShowRemoval()) {
+            if (showRemoval) {
                 Bukkit.getScheduler().runTaskLater(JavaPlugin.getPlugin(Main.class), this::processBlockRemoval, 1L);
             } else {
                 processBlockRemoval();
@@ -175,7 +177,7 @@ public class BarrierListener implements Listener {
         if (limitReached) {
             displaySummary();
         } else if (!blocksToProcess.isEmpty()) {
-            if (setAndGet.getShowRemoval()) {
+            if (showRemoval) {
                 Bukkit.getScheduler().runTaskLater(JavaPlugin.getPlugin(Main.class), this::processBlockRemoval, 1L);
             } else {
                 processBlockRemoval();
@@ -207,7 +209,7 @@ public class BarrierListener implements Listener {
             }
             // Display the block removal summary in the console
             Bukkit.getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + player.getName() + ChatColor.GREEN + " removed " + ChatColor.RED + grassRemovedCount + ChatColor.GREEN + " grass blocks, " + ChatColor.RED + dirtRemovedCount + ChatColor.GREEN + dA + ChatColor.RED + barrierRemovedCount + ChatColor.GREEN + bB);
-            if (!setAndGet.getShowRemoval()) {
+            if (!showRemoval) {
                 removeMarkedBlocks();
             } else {
                 cleanup();
@@ -218,8 +220,7 @@ public class BarrierListener implements Listener {
     }
 
     private void removeMarkedBlocks() {
-        Scale scale;
-        scale = setAndGet.getScale();
+        Scale scale = setAndGet.getScale();
 
         int totalRemovedCount = dirtRemovedCount + grassRemovedCount + barrierRemovedCount;
         if (totalRemovedCount < 50000) {
