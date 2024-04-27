@@ -4,16 +4,15 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.gecko.spigotadmintoys.commands.*;
 import org.gecko.spigotadmintoys.data.ConfigurationManager;
 import org.gecko.spigotadmintoys.enchantments.enchants.weapons.bows.*;
 import org.gecko.spigotadmintoys.enchantments.enchants.weapons.swords.Disarm;
 import org.gecko.spigotadmintoys.enchantments.tools.pickaxes.Drill;
 import org.gecko.spigotadmintoys.enchantments.tools.pickaxes.Smelt;
 import org.gecko.spigotadmintoys.gui.ConfigGUI;
-import org.gecko.spigotadmintoys.items.weapons.Shortbow;
 import org.gecko.spigotadmintoys.listeners.*;
 import org.gecko.spigotadmintoys.logic.SetAndGet;
+import org.gecko.spigotadmintoys.startup.Register;
 
 import java.lang.reflect.Field;
 
@@ -74,23 +73,12 @@ public final class Main extends JavaPlugin {
         setAndGet = new SetAndGet(configManager, tntListener, creeperListener);
 
         // Create instances of the listeners
-        BucketListener bucketListener = setAndGet.getBucketListener();
-        BarrierListener barrierListener = setAndGet.getBarrierListener();
-        BedrockListener bedrockListener = setAndGet.getBedrockListener();
-        WaterBucketListener waterBucketListener = setAndGet.getWaterBucketListener();
         ConfigGUI configGUI = new ConfigGUI(setAndGet);
-        Shortbow shortbow = new Shortbow();
+        Register register = new Register();
 
 
         // Register the listeners
-        getServer().getPluginManager().registerEvents(bucketListener, this);
-        getServer().getPluginManager().registerEvents(barrierListener, this);
-        getServer().getPluginManager().registerEvents(bedrockListener, this);
-        getServer().getPluginManager().registerEvents(waterBucketListener, this);
-        getServer().getPluginManager().registerEvents(tntListener, this);
-        getServer().getPluginManager().registerEvents(creeperListener, this);
-        getServer().getPluginManager().registerEvents(configGUI, this);
-        getServer().getPluginManager().registerEvents(shortbow, this);
+        register.registerListeners(this, setAndGet, configGUI);
 
         // Create enchant instances
         Disarm disarmListener = new Disarm();
@@ -119,18 +107,9 @@ public final class Main extends JavaPlugin {
         }
 
         // Register commands
-        this.getCommand("stopwauh").setExecutor(new StopWauh(bucketListener, barrierListener, bedrockListener, waterBucketListener));
-        this.getCommand("setradiuslimit").setExecutor(new SetRadiusLimitCommand(setAndGet));
-        this.getCommand("toggleremovalview").setExecutor(new ToggleRemovalView(setAndGet));
-        this.getCommand("Test").setExecutor(new Test(configGUI));
-        this.getCommand("givecustomitems").setExecutor(new GiveCustomItems());
-        this.getCommand("ench").setExecutor(new Ench(setAndGet));
-        this.getCommand("spawn").setExecutor(new Spawn());
+        register.registerCommands(this, setAndGet, configGUI);
         // Register TabCompleters
-        this.getCommand("setradiuslimit").setTabCompleter(new SetRadiusLimitCommand(setAndGet));
-        this.getCommand("givecustomitems").setTabCompleter(new GiveCustomItems());
-        this.getCommand("ench").setTabCompleter(new Ench(setAndGet));
-        this.getCommand("spawn").setTabCompleter(new Spawn());
+        register.registerTabCompleters(this, setAndGet);
     }
 
     @Override
