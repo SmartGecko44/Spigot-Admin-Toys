@@ -1,5 +1,5 @@
 # Warning: This plugin has not yet been tested with a server with multiple people on it!
-
+# [![Maven Package](https://github.com/SmartGecko44/Spigot-Admin-Toys/actions/workflows/maven-publish.yml/badge.svg)](https://github.com/SmartGecko44/Spigot-Admin-Toys/actions/workflows/maven-publish.yml)
 [![SonarCloud](https://sonarcloud.io/images/project_badges/sonarcloud-black.svg)](https://sonarcloud.io/summary/new_code?id=SmartGecko44_Spigot-Admin-Toys)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=SmartGecko44_Spigot-Admin-Toys&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=SmartGecko44_Spigot-Admin-Toys)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=SmartGecko44_Spigot-Admin-Toys&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=SmartGecko44_Spigot-Admin-Toys)
