@@ -37,7 +37,7 @@ public final class Main extends JavaPlugin {
     ConfigurationManager configManager;
     private SetAndGet setAndGet;
 
-    public static void registerEnchantment(Enchantment enchantment) throws RegisterError {
+    private static void registerEnchantment(Enchantment enchantment) throws RegisterError {
         try {
             Field f = Enchantment.class.getDeclaredField("acceptingNew");
             f.setAccessible(true);
