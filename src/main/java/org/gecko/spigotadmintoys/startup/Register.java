@@ -2,6 +2,10 @@ package org.gecko.spigotadmintoys.startup;
 
 import org.gecko.spigotadmintoys.Main;
 import org.gecko.spigotadmintoys.commands.*;
+import org.gecko.spigotadmintoys.enchantments.enchants.weapons.bows.BowListener;
+import org.gecko.spigotadmintoys.enchantments.enchants.weapons.swords.Disarm;
+import org.gecko.spigotadmintoys.enchantments.tools.pickaxes.Drill;
+import org.gecko.spigotadmintoys.enchantments.tools.pickaxes.Smelt;
 import org.gecko.spigotadmintoys.gui.ConfigGUI;
 import org.gecko.spigotadmintoys.items.weapons.Shortbow;
 import org.gecko.spigotadmintoys.logic.SetAndGet;
@@ -18,6 +22,18 @@ public class Register {
         getServer().getPluginManager().registerEvents(setAndGet.getCreeperListener(), main);
         getServer().getPluginManager().registerEvents(configGUI, main);
         getServer().getPluginManager().registerEvents(new Shortbow(), main);
+    }
+
+    public void registerEnchantmentListeners(Main main) {
+        Disarm disarmListener = new Disarm();
+        BowListener bowListener = new BowListener();
+        Drill drillListener = new Drill();
+        Smelt smeltListener = new Smelt();
+
+        getServer().getPluginManager().registerEvents(disarmListener, main);
+        getServer().getPluginManager().registerEvents(bowListener, main);
+        getServer().getPluginManager().registerEvents(drillListener, main);
+        getServer().getPluginManager().registerEvents(smeltListener, main);
     }
 
     public void registerCommands(Main main, SetAndGet setAndGet, ConfigGUI configGUI) {

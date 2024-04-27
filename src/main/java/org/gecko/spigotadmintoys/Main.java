@@ -81,16 +81,7 @@ public final class Main extends JavaPlugin {
         register.registerListeners(this, setAndGet, configGUI);
 
         // Create enchant instances
-        Disarm disarmListener = new Disarm();
-        BowListener bowListener = new BowListener();
-        Drill drillListener = new Drill();
-        Smelt smeltListener = new Smelt();
-
-        // Enchantment listeners
-        getServer().getPluginManager().registerEvents(disarmListener, this);
-        getServer().getPluginManager().registerEvents(bowListener, this);
-        getServer().getPluginManager().registerEvents(drillListener, this);
-        getServer().getPluginManager().registerEvents(smeltListener, this);
+        register.registerEnchantmentListeners(this);
 
         // Register Enchantments
         try {
