@@ -33,6 +33,11 @@ public class Ench implements CommandExecutor, TabCompleter {
             return false;
         }
 
+        if (Integer.parseInt(args[1]) < 0) {
+            sender.sendMessage("Please specify a valid integer.");
+            return true;
+        }
+
         String operation = args[0].toLowerCase();
         ItemStack enchItem = senderPlayer.getInventory().getItemInMainHand();
         String enchantmentNameFinal = operation.substring(0, 1).toUpperCase() + operation.substring(1);
@@ -87,16 +92,14 @@ public class Ench implements CommandExecutor, TabCompleter {
                 return true;
             }
 
-            if (level > 1) {
-                String levelRoman = convertToRomanNumerals(level);
-                if (level <= 10) {
-                    enchItem.addEnchantment(Enchantment.getByName(enchantmentNameFinal), level);
-                } else {
-                    enchItem.addUnsafeEnchantment(Enchantment.getByName(enchantmentNameFinal), level);
-                }
-                updateItemLore(enchItem, operation, levelRoman, level);
-                sender.sendMessage("Success! Your item now has " + enchantmentNameFinal + " " + levelRoman);
+            String levelRoman = convertToRomanNumerals(level);
+            if (level <= 10) {
+                enchItem.addEnchantment(Enchantment.getByName(enchantmentNameFinal), level);
+            } else {
+                enchItem.addUnsafeEnchantment(Enchantment.getByName(enchantmentNameFinal), level);
             }
+            updateItemLore(enchItem, operation, levelRoman, level);
+            sender.sendMessage("Success! Your item now has " + enchantmentNameFinal + " " + levelRoman);
 
         } catch (NumberFormatException e) {
             sender.sendMessage("Please specify a valid integer.");
