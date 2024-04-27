@@ -23,17 +23,6 @@ class RegisterError extends Exception {
 }
 
 public final class Main extends JavaPlugin {
-
-    // Enchantments
-    public static final Enchantment disarm = new Disarm(); // Id: 100
-    public static final Enchantment aim = new Aim(); // Id: 101
-    public static final Enchantment multishot = new Multishot(); // Id: 102
-    public static final Enchantment drill = new Drill(); // Id: 103
-    public static final Enchantment smelt = new Smelt(); // Id: 104
-    public static final Enchantment glow = new Glow(); // Id: 105
-    public static final Enchantment endanger = new Endanger(); // Id: 106
-    public static final Enchantment explosive = new Explosive(); // Id: 107
-    ConfigurationManager configManager;
     private SetAndGet setAndGet;
 
     private static void registerEnchantment(Enchantment enchantment) throws RegisterError {
@@ -64,7 +53,7 @@ public final class Main extends JavaPlugin {
         Bukkit.getConsoleSender().sendMessage("");
         Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "Spigot-Admin-Toys has been enabled!");
 
-        configManager = new ConfigurationManager(this);
+        ConfigurationManager configManager = new ConfigurationManager(this);
 
         TNTListener tntListener = new TNTListener(configManager);
         CreeperListener creeperListener = new CreeperListener(configManager, this);
@@ -85,14 +74,14 @@ public final class Main extends JavaPlugin {
 
         // Register Enchantments
         try {
-            registerEnchantment(disarm);
-            registerEnchantment(aim);
-            registerEnchantment(multishot);
-            registerEnchantment(drill);
-            registerEnchantment(smelt);
-            registerEnchantment(glow);
-            registerEnchantment(endanger);
-            registerEnchantment(explosive);
+            registerEnchantment(new Disarm()); // Id: 100
+            registerEnchantment(new Aim()); // Id: 101
+            registerEnchantment(new Multishot()); // Id: 102
+            registerEnchantment(new Drill()); // Id: 103
+            registerEnchantment(new Smelt()); // Id: 104
+            registerEnchantment(new Glow()); // Id: 105
+            registerEnchantment(new Endanger()); // Id: 106
+            registerEnchantment(new Explosive());// Id: 107
         } catch (IllegalArgumentException | RegisterError ignored) {
             // Ignore any exceptions during enchantment registration
         }
