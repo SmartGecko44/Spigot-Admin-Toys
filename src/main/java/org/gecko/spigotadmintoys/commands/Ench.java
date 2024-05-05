@@ -33,7 +33,7 @@ public class Ench implements CommandExecutor, TabCompleter {
             return false;
         }
 
-        if (Integer.parseInt(args[1]) < 0) {
+        if (args.length == 2 && Integer.parseInt(args[1]) < 0) {
             sender.sendMessage("Please specify a valid integer.");
             return true;
         }
