@@ -25,15 +25,10 @@ public class Register {
     }
 
     public void registerEnchantmentListeners(Main main) {
-        Disarm disarmListener = new Disarm();
-        BowListener bowListener = new BowListener();
-        Drill drillListener = new Drill();
-        Smelt smeltListener = new Smelt();
-
-        getServer().getPluginManager().registerEvents(disarmListener, main);
-        getServer().getPluginManager().registerEvents(bowListener, main);
-        getServer().getPluginManager().registerEvents(drillListener, main);
-        getServer().getPluginManager().registerEvents(smeltListener, main);
+        getServer().getPluginManager().registerEvents(new Disarm(), main);
+        getServer().getPluginManager().registerEvents(new BowListener(), main);
+        getServer().getPluginManager().registerEvents(new Drill(), main);
+        getServer().getPluginManager().registerEvents(new Smelt(), main);
     }
 
     public void registerCommands(Main main, SetAndGet setAndGet, ConfigGUI configGUI) {

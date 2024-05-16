@@ -55,11 +55,8 @@ public final class Main extends JavaPlugin {
 
         ConfigurationManager configManager = new ConfigurationManager(this);
 
-        TNTListener tntListener = new TNTListener(configManager);
-        CreeperListener creeperListener = new CreeperListener(configManager, this);
-
         // Create instances of some misc classes
-        setAndGet = new SetAndGet(configManager, tntListener, creeperListener);
+        setAndGet = new SetAndGet(configManager);
 
         // Create instances of the listeners
         ConfigGUI configGUI = new ConfigGUI(setAndGet);

@@ -23,17 +23,16 @@ public class SetAndGet {
     private final IterateBlocks iterateBlocks;
     private final Scale scale;
 
-    public SetAndGet(ConfigurationManager configurationManager, TNTListener tntListener, CreeperListener creeperListener) {
+    public SetAndGet(ConfigurationManager configurationManager) {
         this.configManager = configurationManager;
-        this.tntListener = tntListener;
-        this.creeperListener = creeperListener;
+        this.tntListener = new TNTListener(configManager);
+        this.creeperListener = new CreeperListener(configManager);
         this.bedrockListener = new BedrockListener(this);
         this.bucketListener = new BucketListener(this);
         this.barrierListener = new BarrierListener(this);
         this.waterBucketListener = new WaterBucketListener(this);
         this.iterateBlocks = new IterateBlocks();
         this.scale = new Scale(this);
-
     }
 
     public int getRadiusLimit() {
