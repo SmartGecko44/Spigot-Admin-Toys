@@ -66,12 +66,12 @@ public class Glow extends Enchantment {
 
     public void glowHitHandler(ItemStack bow, LivingEntity entity) {
         if (bow.getEnchantments().containsKey(Enchantment.getByName(GLOWSTRING)) && entity != null) {
-                if (entity instanceof Player) {
-                    PotionEffect glowEffect = new PotionEffect(PotionEffectType.GLOWING, 100, 1, true, true);
-                    entity.addPotionEffect(glowEffect);
-                } else {
-                    entity.setGlowing(true);
-                }
+            if (entity instanceof Player) {
+                PotionEffect glowEffect = new PotionEffect(PotionEffectType.GLOWING, 100, 1, true, true);
+                entity.addPotionEffect(glowEffect);
+            } else {
+                entity.setGlowing(true);
+            }
 
         }
     }

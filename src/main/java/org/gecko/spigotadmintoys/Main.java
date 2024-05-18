@@ -10,7 +10,6 @@ import org.gecko.spigotadmintoys.enchantments.enchants.weapons.swords.Disarm;
 import org.gecko.spigotadmintoys.enchantments.tools.pickaxes.Drill;
 import org.gecko.spigotadmintoys.enchantments.tools.pickaxes.Smelt;
 import org.gecko.spigotadmintoys.gui.ConfigGUI;
-import org.gecko.spigotadmintoys.listeners.*;
 import org.gecko.spigotadmintoys.logic.SetAndGet;
 import org.gecko.spigotadmintoys.startup.Register;
 

@@ -12,8 +12,8 @@ import org.gecko.spigotadmintoys.Main;
 import org.gecko.spigotadmintoys.data.ConfigurationManager;
 
 public class CreeperListener implements Listener {
-    private Location creeperLocation;
     private final ConfigurationManager configurationManager;
+    private Location creeperLocation;
 
     public CreeperListener(ConfigurationManager configManager) {
         this.configurationManager = configManager;

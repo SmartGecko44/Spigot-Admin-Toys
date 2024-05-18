@@ -47,11 +47,11 @@ public class ConfigGUI implements Listener {
     private static final String ENABLE = "Enable";
     private static final String ENABLE_BUCKET = "Enable Bucket";
     final ConfigurationManager configManager;
-    private Inventory gui;
     private final File configFile;
     private final Logger logger = Logger.getLogger(ConfigGUI.class.getName());
     private final SetAndGet setAndGet;
     FileConfiguration config;
+    private Inventory gui;
 
     public ConfigGUI(SetAndGet setAndGet) {
         configManager = new ConfigurationManager(JavaPlugin.getPlugin(Main.class));

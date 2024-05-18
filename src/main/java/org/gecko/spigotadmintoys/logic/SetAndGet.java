@@ -9,11 +9,7 @@ public class SetAndGet {
 
     public static final String REMOVAL_VISIBLE = "Removal visible";
     private final EnchantmentHandler enchantmentHandler = new EnchantmentHandler();
-    private int playerRadiusLimit;
-    private int tntRadiusLimit;
-    private int creeperRadiusLimit;
     private final ConfigurationManager configManager;
-    FileConfiguration config;
     private final BucketListener bucketListener;
     private final BarrierListener barrierListener;
     private final BedrockListener bedrockListener;
@@ -22,6 +18,10 @@ public class SetAndGet {
     private final CreeperListener creeperListener;
     private final IterateBlocks iterateBlocks;
     private final Scale scale;
+    FileConfiguration config;
+    private int playerRadiusLimit;
+    private int tntRadiusLimit;
+    private int creeperRadiusLimit;
 
     public SetAndGet(ConfigurationManager configurationManager) {
         this.configManager = configurationManager;

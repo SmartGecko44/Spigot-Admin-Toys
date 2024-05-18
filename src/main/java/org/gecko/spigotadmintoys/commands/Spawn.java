@@ -12,6 +12,21 @@ import java.util.List;
 
 public class Spawn implements CommandExecutor, TabCompleter {
 
+    private static int getRadius(String[] args, int amount) {
+        int radius = 0; // Default radius if not specified
+
+        if (args.length == 3) {
+            // If radius is specified, use it
+            radius = Integer.parseInt(args[2]);
+        } else {
+            // Automatically adjust radius to avoid entity cramming limit
+            int maxEntities = 24;
+            radius = Math.max(radius, (int) Math.ceil(Math.sqrt(amount / Math.PI)));
+            radius = Math.max(radius, (int) Math.ceil(Math.sqrt(maxEntities / Math.PI)));
+        }
+        return radius;
+    }
+
     // Command to spawn a specified amount of a specified entity
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
@@ -55,21 +70,6 @@ public class Spawn implements CommandExecutor, TabCompleter {
             sender.sendMessage("Only players can use this command.");
             return true;
         }
-    }
-
-    private static int getRadius(String[] args, int amount) {
-        int radius = 0; // Default radius if not specified
-
-        if (args.length == 3) {
-            // If radius is specified, use it
-            radius = Integer.parseInt(args[2]);
-        } else {
-            // Automatically adjust radius to avoid entity cramming limit
-            int maxEntities = 24;
-            radius = Math.max(radius, (int) Math.ceil(Math.sqrt(amount / Math.PI)));
-            radius = Math.max(radius, (int) Math.ceil(Math.sqrt(maxEntities / Math.PI)));
-        }
-        return radius;
     }
 
     @Override

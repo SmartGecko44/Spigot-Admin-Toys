@@ -121,7 +121,6 @@ public class Aim extends Enchantment {
                 }
             }
         }
-
         return nearestEntity;
     }
 
