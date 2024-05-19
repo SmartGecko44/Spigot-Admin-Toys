@@ -40,7 +40,7 @@ public class BucketListener implements Listener {
     private int highestDist = 0;
     private int radiusLimit;
     private int realRadiusLimit;
-    private int repetitions = 0;
+    private int repetitions = 1;
     private boolean showRemoval;
 
 
@@ -224,7 +224,7 @@ public class BucketListener implements Listener {
             // If all blocks have been processed, but there are blocks in the removedBlocks set,
             // process those in the next iteration.
             if (setAndGet.getShowRemoval()) {
-                if (repetitions > 0) {
+                if (repetitions > 0 && !showRemoval) {
                     repetitions--;
                     markedBlocks.addAll(removedBlocks);
                     removedBlocks.clear();

@@ -230,7 +230,7 @@ public class ConfigGUI implements Listener {
             }
 
             if (clickedItem.getType() == Material.PAPER && (identifier.equalsIgnoreCase("Reset"))) {
-                confirmationPrompt("Reset config?", player);
+                confirmationPrompt(player);
             }
 
         }
@@ -324,8 +324,8 @@ public class ConfigGUI implements Listener {
         }
     }
 
-    private void confirmationPrompt(String prompt, Player player) {
-        this.gui = Bukkit.createInventory(null, 9 * 3, prompt);
+    private void confirmationPrompt(Player player) {
+        this.gui = Bukkit.createInventory(null, 9 * 3, "Reset config?");
         fillBorders(createButtonItem(Material.STAINED_GLASS_PANE, "§r", (short) 14, null, null), 9 * 3, true);
         gui.setItem(9 + 2, createButtonItem(Material.CONCRETE, ChatColor.RED + "Cancel", (short) 14, null, "cancel"));
         gui.setItem(9 + 6, createButtonItem(Material.CONCRETE, ChatColor.GREEN + "Confirm", (short) 13, null, "confirm"));
