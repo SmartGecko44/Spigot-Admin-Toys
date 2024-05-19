@@ -10,17 +10,11 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
-import org.gecko.spigotadmintoys.Main;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 public class Aim extends Enchantment {
-
-    private final Map<Entity, Long> lastArrowHitTimes = new HashMap<>();
-    private Main plugin;
 
     public Aim() {
         super(101);
@@ -121,25 +115,6 @@ public class Aim extends Enchantment {
                 }
             }
         }
-
         return nearestEntity;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null || getClass() != obj.getClass()) {
-            return false;
-        }
-        Aim aim = (Aim) obj;
-        // No clue what an uninitialized plugin is doing here, but the code breaks if I remove it :(
-        return Objects.equals(plugin, aim.plugin) && Objects.equals(lastArrowHitTimes, aim.lastArrowHitTimes);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(plugin, lastArrowHitTimes);
     }
 }

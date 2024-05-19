@@ -9,6 +9,7 @@ import org.gecko.spigotadmintoys.listeners.BarrierListener;
 import org.gecko.spigotadmintoys.listeners.BedrockListener;
 import org.gecko.spigotadmintoys.listeners.BucketListener;
 import org.gecko.spigotadmintoys.listeners.WaterBucketListener;
+import org.gecko.spigotadmintoys.logic.SetAndGet;
 
 public class StopWauh implements CommandExecutor {
     public static final String STOPPED = "stopped.";
@@ -17,11 +18,11 @@ public class StopWauh implements CommandExecutor {
     private final BedrockListener bedrockListener;
     private final WaterBucketListener waterBucketListener;
 
-    public StopWauh(BucketListener bucketListener, BarrierListener barrierListener, BedrockListener bedrockListener, WaterBucketListener waterBucketListener) {
-        this.bucketListener = bucketListener;
-        this.barrierListener = barrierListener;
-        this.bedrockListener = bedrockListener;
-        this.waterBucketListener = waterBucketListener;
+    public StopWauh(SetAndGet setAndGet) {
+        this.bucketListener = setAndGet.getBucketListener();
+        this.barrierListener = setAndGet.getBarrierListener();
+        this.bedrockListener = setAndGet.getBedrockListener();
+        this.waterBucketListener = setAndGet.getWaterBucketListener();
     }
 
     @Override

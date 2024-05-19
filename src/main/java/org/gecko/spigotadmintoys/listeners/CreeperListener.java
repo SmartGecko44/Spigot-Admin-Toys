@@ -7,18 +7,16 @@ import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.gecko.spigotadmintoys.Main;
 import org.gecko.spigotadmintoys.data.ConfigurationManager;
-import org.gecko.spigotadmintoys.logic.SetAndGet;
 
 public class CreeperListener implements Listener {
-    private final SetAndGet setAndGet;
-    private Location creeperLocation;
     private final ConfigurationManager configurationManager;
+    private Location creeperLocation;
 
-    public CreeperListener(ConfigurationManager configManager, Main plugin) {
+    public CreeperListener(ConfigurationManager configManager) {
         this.configurationManager = configManager;
-        this.setAndGet = plugin.getSetAndGet();
     }
 
     @EventHandler
@@ -37,7 +35,7 @@ public class CreeperListener implements Listener {
             // Get the location of the TNT explosion
             if (creeper.getLocation() != null) {
                 setCreeperLocation(creeper.getLocation());
-                setAndGet.getBedrockListener().bedrockValueAssignHandler(null, "creeper");
+                JavaPlugin.getPlugin(Main.class).getSetAndGet().getBedrockListener().bedrockValueAssignHandler(null, "creeper");
             }
         }
     }
