@@ -64,7 +64,9 @@ public class BedrockListener implements Listener {
                 block.setType(Material.AIR);
                 TNTPrimed tntPrimed = (TNTPrimed) location.getWorld().spawnEntity(location.add(0.5, 0.5, 0.5), EntityType.PRIMED_TNT);
                 tntPrimed.setFuseTicks(20);
-                tntPrimed.setMetadata(SOURCE, new FixedMetadataValue(JavaPlugin.getPlugin(Main.class), tntListener.getTntPlayer().getName()));
+                if (tntListener.getTntPlayer() != null) {
+                    tntPrimed.setMetadata(SOURCE, new FixedMetadataValue(JavaPlugin.getPlugin(Main.class), tntListener.getTntPlayer().getName()));
+                }
                 nextSet.add(block);
             }
         } else if (!IMMUTABLE_MATERIALS.contains(block.getType()) && block.getType() != Material.AIR && !markedBlocks.contains(block)) {
@@ -102,7 +104,6 @@ public class BedrockListener implements Listener {
         creeperListener = setAndGet.getCreeperListener();
         showRemoval = setAndGet.getShowRemoval();
 
-        //FIXME: I have no clue why, but the radiusLimit sometimes doesn't change at all and sometimes only changes after a reload
         if (source.equalsIgnoreCase("player")) {
             radiusLimit = setAndGet.getRadiusLimit();
         } else if (source.equalsIgnoreCase("TNT")) {
@@ -113,76 +114,85 @@ public class BedrockListener implements Listener {
         realRadiusLimit = radiusLimit - 2;
         if (realRadiusLimit > 1 && (!bucketListener.isWauhRemovalActive() && !barrierListener.isBlockRemovalActive() && !isAllRemovalActive() && !waterBucketListener.isTsunamiActive() || explosionTrigger)) {
             if (event == null && source.equalsIgnoreCase("TNT") || source.equalsIgnoreCase("creeper")) {
-                if (tntListener.getTntPlayer() != null) {
-                    if (!tntListener.getTntPlayer().isOp()) {
-                        Bukkit.getConsoleSender().sendMessage("Real player not OP");
-                        return;
-                    }
-                } else {
-                    if (Bukkit.getPlayer(tntListener.getTnt().getMetadata(SOURCE).getFirst().asString()) == null) {
-                        Bukkit.getConsoleSender().sendMessage("Meta player not found");
-                        return;
-                    } else {
-                        if (!Bukkit.getPlayer(tntListener.getTnt().getMetadata(SOURCE).getFirst().asString()).isOp()) {
-                            Bukkit.getConsoleSender().sendMessage("Meta player not OP");
-                            return;
-                        }
-                    }
-                }
-                setAllRemovalActive(true);
-                explosionTrigger = true;
-                limitReached = false;
-
-                if (tntListener.getTntLocation() != null) {
-                    clickedLocation = tntListener.getTntLocation();
-                } else if (creeperListener != null && creeperListener.getCreeperLocation() != null) {
-                    clickedLocation = creeperListener.getCreeperLocation();
-                } else {
-                    return;
-                }
-
-                highestDist = 0;
-                allRemovedCount = 0;
-                blocksToProcess.clear();
-                if (tntListener.getTntPlayer() != null || tntListener.getTnt().getMetadata(SOURCE).getFirst().asString() != null) {
-                    if (tntListener.getTntPlayer() != null) {
-                        setCurrentRemovingPlayer(tntListener.getTntPlayer());
-                    } else {
-                        setCurrentRemovingPlayer(Bukkit.getPlayer(tntListener.getTnt().getMetadata(SOURCE).getFirst().asString()));
-                    }
-                } else {
-                    setCurrentRemovingPlayer(null);
-                }
-
-                blocksToProcess.add(clickedLocation.getBlock());
-
-                processAllRemoval();
+                bedrockExplosionSource();
             } else if (event != null) {
-                if (event.getPlayer().getInventory().getItemInMainHand() == null || event.getPlayer().getInventory().getItemInMainHand().getAmount() == 0 || event.getPlayer().getInventory().getItemInMainHand().getType() == Material.AIR) {
-                    return;
-                }
-                Player player = event.getPlayer();
-                NBTItem nbtItem = new NBTItem(event.getPlayer().getInventory().getItemInMainHand());
-                String identifier = nbtItem.getString("Ident");
-                // Check if the bucket is filling with water
-                if (player.getInventory().getItemInMainHand().getType() == Material.BEDROCK && identifier.equalsIgnoreCase("Custom Bedrock") && (!IMMUTABLE_MATERIALS.contains(event.getBlock().getType()))) {
-                    setAllRemovalActive(true);
-                    limitReached = false;
-                    clickedLocation = event.getBlock().getLocation();
-
-                    // Reset the water removal counts and initialize the set of blocks to process
-                    highestDist = 0;
-                    allRemovedCount = 0;
-                    blocksToProcess.clear();
-                    setCurrentRemovingPlayer(player);
-
-                    // Add the clicked block to the set of blocks to process
-                    blocksToProcess.add(clickedLocation.getBlock());
-
-                    // Start the water removal process
-                    processAllRemoval();
-                }
+                bedrockPlayerSource(event);
             }
+        }
+    }
+
+    private void bedrockExplosionSource() {
+        Player tntPlayer = tntListener.getTntPlayer();
+        if (tntPlayer != null) {
+            if (!tntPlayer.isOp()) {
+                Bukkit.getConsoleSender().sendMessage("Real player not OP");
+                return;
+            }
+        } else {
+            Player metaPlayer = Bukkit.getPlayer(tntListener.getTnt().getMetadata(SOURCE).getFirst().asString());
+            if (metaPlayer == null) {
+                Bukkit.getConsoleSender().sendMessage("Meta player not found");
+                return;
+            }
+            if (!metaPlayer.isOp()) {
+                Bukkit.getConsoleSender().sendMessage("Meta player not OP");
+                return;
+            }
+        }
+        setAllRemovalActive(true);
+        explosionTrigger = true;
+        limitReached = false;
+
+        if (tntListener.getTntLocation() != null) {
+            clickedLocation = tntListener.getTntLocation();
+        } else if (creeperListener != null && creeperListener.getCreeperLocation() != null) {
+            clickedLocation = creeperListener.getCreeperLocation();
+        } else {
+            return;
+        }
+
+        highestDist = 0;
+        allRemovedCount = 0;
+        blocksToProcess.clear();
+        if (tntListener.getTntPlayer() != null || tntListener.getTnt().getMetadata(SOURCE).getFirst().asString() != null) {
+            if (tntListener.getTntPlayer() != null) {
+                setCurrentRemovingPlayer(tntListener.getTntPlayer());
+            } else {
+                setCurrentRemovingPlayer(Bukkit.getPlayer(tntListener.getTnt().getMetadata(SOURCE).getFirst().asString()));
+            }
+        } else {
+            setCurrentRemovingPlayer(null);
+        }
+
+        blocksToProcess.add(clickedLocation.getBlock());
+
+        processAllRemoval();
+    }
+
+    private void bedrockPlayerSource(BlockBreakEvent event) {
+        if (event.getPlayer().getInventory().getItemInMainHand() == null || event.getPlayer().getInventory().getItemInMainHand().getAmount() == 0 || event.getPlayer().getInventory().getItemInMainHand().getType() == Material.AIR) {
+            return;
+        }
+        Player player = event.getPlayer();
+        NBTItem nbtItem = new NBTItem(event.getPlayer().getInventory().getItemInMainHand());
+        String identifier = nbtItem.getString("Ident");
+        // Check if the bucket is filling with water
+        if (player.getInventory().getItemInMainHand().getType() == Material.BEDROCK && identifier.equalsIgnoreCase("Custom Bedrock") && (!IMMUTABLE_MATERIALS.contains(event.getBlock().getType()))) {
+            setAllRemovalActive(true);
+            limitReached = false;
+            clickedLocation = event.getBlock().getLocation();
+
+            // Reset the water removal counts and initialize the set of blocks to process
+            highestDist = 0;
+            allRemovedCount = 0;
+            blocksToProcess.clear();
+            setCurrentRemovingPlayer(player);
+
+            // Add the clicked block to the set of blocks to process
+            blocksToProcess.add(clickedLocation.getBlock());
+
+            // Start the water removal process
+            processAllRemoval();
         }
     }
 
