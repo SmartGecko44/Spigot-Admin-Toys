@@ -251,7 +251,7 @@ public class WaterBucketListener implements Listener {
         for (int i = 0; i < scaledBlocksPerIteration && iterator.hasNext(); i++) {
             Block block = iterator.next();
             getCurrentRemovingPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR,
-                    new TextComponent(ChatColor.RED + "Placing water blocks " + markedBlocks.size() + " blocks left. That's " + (markedBlocks.size() / scaledBlocksPerIteration + 1) + " iterations left"));
+                    new TextComponent(ChatColor.RED + "Placing water blocks, " + markedBlocks.size() + " blocks left. That's " + (markedBlocks.size() / scaledBlocksPerIteration + 1) + (markedBlocks.size() / scaledBlocksPerIteration == 1 ? " iteration" : " iterations") + " left"));
             block.setType(Material.STATIONARY_WATER);
             // Add the block to the new set
             removedBlocks.add(block);

@@ -374,6 +374,7 @@ public class BedrockListener implements Listener {
 
                 // Add the block to temporary list
                 blocksToRemove.add(block);
+                getCurrentRemovingPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "Cleaning up blocks, " + markedBlocks.size() + " blocks left. That's " + (markedBlocks.size() / scaledBlocksPerIteration + 1) + (markedBlocks.size() / scaledBlocksPerIteration == 1 ? " iteration" : " iterations") + " left"));
             }
         }
 
