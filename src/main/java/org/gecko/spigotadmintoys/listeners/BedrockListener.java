@@ -154,14 +154,13 @@ public class BedrockListener implements Listener {
         highestDist = 0;
         allRemovedCount = 0;
         blocksToProcess.clear();
+        setCurrentRemovingPlayer(null);
         if (tntListener.getTntPlayer() != null || tntListener.getTnt().getMetadata(SOURCE).getFirst().asString() != null) {
             if (tntListener.getTntPlayer() != null) {
                 setCurrentRemovingPlayer(tntListener.getTntPlayer());
             } else {
                 setCurrentRemovingPlayer(Bukkit.getPlayer(tntListener.getTnt().getMetadata(SOURCE).getFirst().asString()));
             }
-        } else {
-            setCurrentRemovingPlayer(null);
         }
 
         blocksToProcess.add(clickedLocation.getBlock());

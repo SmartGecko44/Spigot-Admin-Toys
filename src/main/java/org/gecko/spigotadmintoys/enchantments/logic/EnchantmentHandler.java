@@ -16,14 +16,14 @@ public class EnchantmentHandler {
     private static final List<Enchantment> enchantments = new ArrayList<>();
 
     public EnchantmentHandler() {
-        enchantments.add(new Disarm());
-        enchantments.add(new Aim());
-        enchantments.add(new Multishot());
-        enchantments.add(new Drill());
-        enchantments.add(new Smelt());
-        enchantments.add(new Glow());
-        enchantments.add(new Endanger());
-        enchantments.add(new Explosive());
+        enchantments.add(new Disarm());     //ID: 100
+        enchantments.add(new Aim());        //ID: 101
+        enchantments.add(new Multishot());  //ID: 102
+        enchantments.add(new Drill());      //ID: 103
+        enchantments.add(new Smelt());      //ID: 104
+        enchantments.add(new Glow());       //ID: 105
+        enchantments.add(new Endanger());   //ID: 106
+        enchantments.add(new Explosive());  //ID: 107
     }
 
     public static List<Enchantment> getAllEnchantments() {

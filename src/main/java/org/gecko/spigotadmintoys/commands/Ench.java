@@ -68,7 +68,7 @@ public class Ench implements CommandExecutor, TabCompleter {
 
             List<Enchantment> conflictingEnchants = enchantmentHandler.getConflicting(operation, new ArrayList<>(enchItem.getEnchantments().keySet()));
             if (!conflictingEnchants.isEmpty()) {
-                sender.sendMessage("This enchantment conflicts with " + (conflictingEnchants.size() > 1 ? "multiple" : "another") + (conflictingEnchants.size() > 1 ? " enchantments" : " enchantment") + " on this item");
+                sender.sendMessage("This enchantment conflicts with " + (conflictingEnchants.size() > 1 ? "multiple enchantments " : "another enchantment ") + "on this item");
                 sender.sendMessage("Conflicting" + (conflictingEnchants.size() > 1 ? " enchantments: " : " enchantment: ") + conflictingEnchants);
                 return true;
             }

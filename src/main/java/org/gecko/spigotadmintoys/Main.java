@@ -67,14 +67,9 @@ public final class Main extends JavaPlugin {
 
         // Register Enchantments
         try {
-            registerEnchantment(EnchantmentHandler.getAllEnchantments().get(0)); // Id: 100
-            registerEnchantment(EnchantmentHandler.getAllEnchantments().get(1)); // Id: 101
-            registerEnchantment(EnchantmentHandler.getAllEnchantments().get(2)); // Id: 102
-            registerEnchantment(EnchantmentHandler.getAllEnchantments().get(3)); // Id: 103
-            registerEnchantment(EnchantmentHandler.getAllEnchantments().get(4)); // Id: 104
-            registerEnchantment(EnchantmentHandler.getAllEnchantments().get(5)); // Id: 105
-            registerEnchantment(EnchantmentHandler.getAllEnchantments().get(6)); // Id: 106
-            registerEnchantment(EnchantmentHandler.getAllEnchantments().get(7));// Id: 107
+            for (Enchantment enchantment : EnchantmentHandler.getAllEnchantments()) {
+                registerEnchantment(enchantment);
+            }
         } catch (IllegalArgumentException | RegisterError ignored) {
             // Ignore any exceptions during enchantment registration
         }
