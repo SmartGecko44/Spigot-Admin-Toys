@@ -17,7 +17,7 @@ public class Register {
         getServer().getPluginManager().registerEvents(setAndGet.getBarrierListener(), main);
         getServer().getPluginManager().registerEvents(setAndGet.getBedrockListener(), main);
         getServer().getPluginManager().registerEvents(setAndGet.getWaterBucketListener(), main);
-        getServer().getPluginManager().registerEvents(setAndGet.getBlocker(), main);
+        getServer().getPluginManager().registerEvents(setAndGet.getSphereMaker(), main);
         getServer().getPluginManager().registerEvents(setAndGet.getTntListener(), main);
         getServer().getPluginManager().registerEvents(setAndGet.getCreeperListener(), main);
         getServer().getPluginManager().registerEvents(setAndGet.getConfigGUI(), main);

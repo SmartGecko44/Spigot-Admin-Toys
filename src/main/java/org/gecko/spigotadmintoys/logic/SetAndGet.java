@@ -109,7 +109,7 @@ public class SetAndGet {
         return waterBucketListener;
     }
 
-    public SphereMaker getBlocker() {
+    public SphereMaker getSphereMaker() {
         return sphereMaker;
     }
 

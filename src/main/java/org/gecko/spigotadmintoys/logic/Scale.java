@@ -1,10 +1,7 @@
 package org.gecko.spigotadmintoys.logic;
 
 import org.bukkit.block.Block;
-import org.gecko.spigotadmintoys.listeners.BarrierListener;
-import org.gecko.spigotadmintoys.listeners.BedrockListener;
-import org.gecko.spigotadmintoys.listeners.BucketListener;
-import org.gecko.spigotadmintoys.listeners.WaterBucketListener;
+import org.gecko.spigotadmintoys.listeners.*;
 
 import java.util.Iterator;
 import java.util.Set;
@@ -22,6 +19,7 @@ public class Scale {
         BucketListener bucketListener = setAndGet.getBucketListener();
         BarrierListener barrierListener = setAndGet.getBarrierListener();
         BedrockListener bedrockListener = setAndGet.getBedrockListener();
+        SphereMaker sphereMaker = setAndGet.getSphereMaker();
         WaterBucketListener waterBucketListener = setAndGet.getWaterBucketListener();
 
         // Set BLOCKS_PER_ITERATION dynamically based on the total count
@@ -39,6 +37,8 @@ public class Scale {
             barrierListener.cleanRemove(scaledBlocksPerIteration, iterator);
         } else if (source.equalsIgnoreCase("wauh")) {
             waterBucketListener.cleanRemove(scaledBlocksPerIteration, iterator);
+        } else if (source.equalsIgnoreCase("sphere")) {
+            sphereMaker.cleanRemove(scaledBlocksPerIteration, iterator);
         }
 
     }

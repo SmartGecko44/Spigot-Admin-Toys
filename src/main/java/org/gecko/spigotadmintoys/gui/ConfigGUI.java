@@ -36,7 +36,7 @@ public class ConfigGUI implements Listener {
     public static final String ENABLE = ChatColor.GREEN + "Enable";
     final ConfigurationManager configManager;
     private final SetAndGet setAndGet;
-    FileConfiguration config;
+    private final FileConfiguration config;
     private Inventory gui;
     private int currentPage = 0;
 

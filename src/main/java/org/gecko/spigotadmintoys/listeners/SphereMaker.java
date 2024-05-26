@@ -16,31 +16,34 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.gecko.spigotadmintoys.Main;
 import org.gecko.spigotadmintoys.data.ConfigurationManager;
+import org.gecko.spigotadmintoys.logic.Scale;
 import org.gecko.spigotadmintoys.logic.SetAndGet;
 
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class SphereMaker implements Listener {
 
     private Set<Block> blocksToProcess = new HashSet<>();
     private final Set<Block> processedBlocks = new HashSet<>();
     private final Set<Block> markedBlocks = new HashSet<>();
+    private final Set<Block> removedBlocks = new HashSet<>();
     private Location clickedLocation;
     private Player currentRemovingPlayer;
     private int radiusLimit;
     private int highestDist;
     private int realradiusLimit;
-    private int removedBlocks;
+    private int totalRemovedBlocks;
     private boolean showRemoval;
     private boolean sphereingActive;
     private boolean stopSphereing;
     private final SetAndGet setAndGet;
     private static final Set<Material> IMMUTABLE_MATERIALS = EnumSet.of(Material.BEDROCK, Material.STATIONARY_WATER, Material.WATER, Material.LAVA, Material.STATIONARY_LAVA, Material.TNT, Material.AIR);
+    private int repetitions;
+    private boolean repeated;
 
     public SphereMaker(SetAndGet setAndGet) {
         this.setAndGet = setAndGet;
+        repetitions = setAndGet.getBedrockListener().getRepetitions();
     }
 
     @EventHandler
@@ -67,14 +70,14 @@ public class SphereMaker implements Listener {
         radiusLimit = setAndGet.getRadiusLimit();
         realradiusLimit = setAndGet.getRadiusLimit() - 2;
         if (realradiusLimit > 1 && !barrierListener.isBlockRemovalActive() && !bedrockListener.isAllRemovalActive() && !bucketListener.isWauhRemovalActive() && !waterBucketListener.isTsunamiActive() && !IMMUTABLE_MATERIALS.contains(event.getBlock().getType()) && identifier.equals("SphereMaker")) {
-            setSphereingActive(true);
+            sphereingActive = true;
             Player player = event.getPlayer();
 
-            removedBlocks = 0;
+            totalRemovedBlocks = 0;
             highestDist = 0;
             blocksToProcess.clear();
             processedBlocks.clear();
-            setCurrentRemovingPlayer(player);
+            currentRemovingPlayer = player;
             clickedLocation = event.getBlock().getLocation();
             showRemoval = setAndGet.getShowRemoval();
 
@@ -104,16 +107,16 @@ public class SphereMaker implements Listener {
                 int progressPercentage = (int) ((double) highestDist / (realradiusLimit - 2) * 100);
                 highestDist = dist;
 
-                if (getCurrentRemovingPlayer() != null) {
+                if (currentRemovingPlayer != null) {
                     if (highestDist < realradiusLimit - 1) {
-                        getCurrentRemovingPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + blocking + ChatColor.RED + progressPercentage + "% " + ChatColor.GREEN + "(" + ChatColor.RED + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realradiusLimit + ")"));
+                        currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + blocking + ChatColor.RED + progressPercentage + "% " + ChatColor.GREEN + "(" + ChatColor.RED + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realradiusLimit + ")"));
                     } else if (highestDist == realradiusLimit - 1) {
-                        getCurrentRemovingPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Radius limit reached. Rounding corners..."));
+                        currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Radius limit reached. Rounding corners..."));
                     }
                 }
             }
 
-            removedBlocks++;
+            totalRemovedBlocks++;
 
             if (showRemoval) {
                 block.setType(Material.AIR);
@@ -138,12 +141,12 @@ public class SphereMaker implements Listener {
     }
 
     private void displaySummary() {
-        if (removedBlocks > 1) {
-            currentRemovingPlayer.sendMessage("Removed " + removedBlocks + " blocks");
+        if (totalRemovedBlocks > 1) {
+            currentRemovingPlayer.sendMessage("Removed " + totalRemovedBlocks + " blocks");
 
-            Bukkit.getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + currentRemovingPlayer.getName() + ChatColor.GREEN + " removed " + ChatColor.RED + removedBlocks + ChatColor.GREEN + " blocks using " + ChatColor.GOLD + "blocker.");
+            Bukkit.getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + currentRemovingPlayer.getName() + ChatColor.GREEN + " removed " + ChatColor.RED + totalRemovedBlocks + ChatColor.GREEN + " blocks using " + ChatColor.GOLD + "blocker.");
             if (!showRemoval) {
-                Bukkit.getScheduler().runTaskLater(JavaPlugin.getPlugin(Main.class), this::removeBlockedBlocks, 20L);
+                Bukkit.getScheduler().runTaskLater(JavaPlugin.getPlugin(Main.class), this::removeMarkedBlocks, 20L);
             } else {
                 clear();
             }
@@ -152,8 +155,35 @@ public class SphereMaker implements Listener {
         }
     }
 
-    private void removeBlockedBlocks() {
-        //TODO
+    private void removeMarkedBlocks() {
+        Scale scale = setAndGet.getScale();
+
+        int totalRemovedCount = totalRemovedBlocks;
+        if (totalRemovedCount < 50000) {
+            for (Block block : markedBlocks) {
+                block.setType(Material.AIR);
+            }
+            clear();
+        } else {
+            scale.scaleReverseLogic(totalRemovedCount, radiusLimit, markedBlocks, "sphere");
+        }
+
+        if (!markedBlocks.isEmpty()) {
+            Bukkit.getScheduler().runTaskLater(JavaPlugin.getPlugin(Main.class), this::removeMarkedBlocks, 10L);
+        } else if (!removedBlocks.isEmpty()) {
+            if (repetitions > 0) {
+                repetitions--;
+                repeated = true;
+                markedBlocks.addAll(removedBlocks);
+                removedBlocks.clear();
+                Bukkit.getScheduler().runTaskLater(JavaPlugin.getPlugin(Main.class), this::removeMarkedBlocks, 10L);
+            } else {
+                if (currentRemovingPlayer != null) {
+                    currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Falling block cleanup finished!"));
+                }
+                clear();
+            }
+        }
     }
 
     private void clear() {
@@ -164,23 +194,42 @@ public class SphereMaker implements Listener {
         radiusLimit = 0;
         highestDist = 0;
         realradiusLimit = 0;
-        removedBlocks = 0;
+        totalRemovedBlocks = 0;
+    }
+
+    public void cleanRemove(int scaledBlocksPerIteration, Iterator<Block> iterator) {
+        List<Block> blocksToRemove = new ArrayList<>();
+        for (int i = 0; i < scaledBlocksPerIteration; i++) {
+            Block block = iterator.next();
+            if (repeated) {
+                if (currentRemovingPlayer != null) {
+                    currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "Cleaning up falling blocks (" + repetitions + (repetitions == 1 ? " repetition left)" : " repetitions left)")));
+                }
+                if (block.getType() == Material.SAND || block.getType() == Material.GRAVEL) {
+                    block.setType(Material.AIR);
+
+                    removedBlocks.add(block);
+
+                    blocksToRemove.add(block);
+                } else {
+                    blocksToRemove.add(block);
+                }
+            } else {
+                block.setType(Material.AIR);
+                removedBlocks.add(block);
+
+                blocksToRemove.add(block);
+                currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "Cleaning up blocks, " + markedBlocks.size() + " blocks left. That's " + (markedBlocks.size() / scaledBlocksPerIteration + 1) + (markedBlocks.size() / scaledBlocksPerIteration == 1 ? " iteration" : " iterations") + " left"));
+            }
+        }
+
+        for (Block block : blocksToRemove) {
+            markedBlocks.remove(block);
+        }
     }
 
     public boolean isSphereingActive() {
         return sphereingActive;
-    }
-
-    public void setSphereingActive(boolean sphereingActive) {
-        this.sphereingActive = sphereingActive;
-    }
-
-    public Player getCurrentRemovingPlayer() {
-        return currentRemovingPlayer;
-    }
-
-    public void setCurrentRemovingPlayer(Player currentRemovingPlayer) {
-        this.currentRemovingPlayer = currentRemovingPlayer;
     }
 
     public void setStopSphereing(boolean stopSphereing) {

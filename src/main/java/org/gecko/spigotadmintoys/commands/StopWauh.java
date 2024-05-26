@@ -21,7 +21,7 @@ public class StopWauh implements CommandExecutor {
         this.barrierListener = setAndGet.getBarrierListener();
         this.bedrockListener = setAndGet.getBedrockListener();
         this.waterBucketListener = setAndGet.getWaterBucketListener();
-        this.sphereMaker = setAndGet.getBlocker();
+        this.sphereMaker = setAndGet.getSphereMaker();
     }
 
     @Override
