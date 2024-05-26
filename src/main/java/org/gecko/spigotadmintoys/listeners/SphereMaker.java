@@ -53,11 +53,10 @@ public class SphereMaker implements Listener {
         FileConfiguration config;
         configManager = setAndGet.getConfigManager();
         config = configManager.getConfig();
-        //TODO: Implement config toggle
 
-        /* if (config.getInt("Blocker enabled") == 0) {
+        if (config.getInt("Sphere enabled") == 0) {
             return;
-        } */
+        }
 
         BarrierListener barrierListener = setAndGet.getBarrierListener();
         BedrockListener bedrockListener = setAndGet.getBedrockListener();
@@ -82,12 +81,12 @@ public class SphereMaker implements Listener {
             blocksToProcess.add(event.getBlock());
             markedBlocks.add(event.getBlock());
 
-            processBlocking();
+            processSphereing();
         }
 
     }
 
-    private void processBlocking() {
+    private void processSphereing() {
         if (stopSphereing) {
             stopSphereing = false;
             displaySummary();
@@ -129,9 +128,9 @@ public class SphereMaker implements Listener {
 
         if (!blocksToProcess.isEmpty()) {
             if (showRemoval) {
-                Bukkit.getScheduler().runTaskLater(JavaPlugin.getPlugin(Main.class), this::processBlocking, 2L);
+                Bukkit.getScheduler().runTaskLater(JavaPlugin.getPlugin(Main.class), this::processSphereing, 2L);
             } else {
-                processBlocking();
+                processSphereing();
             }
         } else {
             displaySummary();
