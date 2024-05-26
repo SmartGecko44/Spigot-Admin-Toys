@@ -56,7 +56,7 @@ public class BucketListener implements Listener {
 
         ConfigurationManager configManager;
         FileConfiguration config;
-        configManager = new ConfigurationManager(JavaPlugin.getPlugin(Main.class));
+        configManager = setAndGet.getConfigManager();
         config = configManager.getConfig();
         if (config.getInt("Bucket enabled") == 0) {
             return;
@@ -88,7 +88,6 @@ public class BucketListener implements Listener {
 
             // Add the clicked block to the set of blocks to process
             blocksToProcess.add(event.getBlockClicked());
-
             markedBlocks.add(event.getBlockClicked());
 
             // Start the water removal process
@@ -146,7 +145,7 @@ public class BucketListener implements Listener {
             } else {
                 markedBlocks.add(block);
             }
-            setAndGet.getIterateBlocks().iterateBlocks(block, nextSet, IMMUTABLE_MATERIALS);
+            setAndGet.getIterateBlocks().iterateBlocks(block, nextSet, IMMUTABLE_MATERIALS, false);
             processedBlocks.add(block);
         }
 

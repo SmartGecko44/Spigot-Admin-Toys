@@ -5,10 +5,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.gecko.spigotadmintoys.listeners.BarrierListener;
-import org.gecko.spigotadmintoys.listeners.BedrockListener;
-import org.gecko.spigotadmintoys.listeners.BucketListener;
-import org.gecko.spigotadmintoys.listeners.WaterBucketListener;
+import org.gecko.spigotadmintoys.listeners.*;
 import org.gecko.spigotadmintoys.logic.SetAndGet;
 
 public class StopWauh implements CommandExecutor {
@@ -17,12 +14,14 @@ public class StopWauh implements CommandExecutor {
     private final BarrierListener barrierListener;
     private final BedrockListener bedrockListener;
     private final WaterBucketListener waterBucketListener;
+    private final SphereMaker sphereMaker;
 
     public StopWauh(SetAndGet setAndGet) {
         this.bucketListener = setAndGet.getBucketListener();
         this.barrierListener = setAndGet.getBarrierListener();
         this.bedrockListener = setAndGet.getBedrockListener();
         this.waterBucketListener = setAndGet.getWaterBucketListener();
+        this.sphereMaker = setAndGet.getBlocker();
     }
 
     @Override
@@ -51,6 +50,10 @@ public class StopWauh implements CommandExecutor {
         if (waterBucketListener.isTsunamiActive()) {
             waterBucketListener.setStopTsunami(true);
             player.sendMessage(ChatColor.GREEN + "Tsunami " + ChatColor.RED + ChatColor.BOLD + STOPPED);
+        }
+        if (sphereMaker.isSphereingActive()) {
+            sphereMaker.setStopSphereing(true);
+            player.sendMessage(ChatColor.GREEN + "Sphereing " + ChatColor.RED + ChatColor.BOLD + STOPPED);
         }
         if (!bucketListener.isWauhRemovalActive() && !barrierListener.isBlockRemovalActive() && !bedrockListener.isAllRemovalActive() && !waterBucketListener.isTsunamiActive()) {
             player.sendMessage(ChatColor.RED + "There are no operations running");

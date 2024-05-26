@@ -4,9 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.gecko.spigotadmintoys.data.ConfigurationManager;
 import org.gecko.spigotadmintoys.enchantments.logic.EnchantmentHandler;
-import org.gecko.spigotadmintoys.gui.ConfigGUI;
 import org.gecko.spigotadmintoys.logic.SetAndGet;
 import org.gecko.spigotadmintoys.startup.Register;
 
@@ -49,18 +47,15 @@ public final class Main extends JavaPlugin {
         Bukkit.getConsoleSender().sendMessage("");
         Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "Spigot-Admin-Toys has been enabled!");
 
-        ConfigurationManager configManager = new ConfigurationManager(this);
-
         // Create instances of some misc classes
-        setAndGet = new SetAndGet(configManager);
+        setAndGet = new SetAndGet();
 
         // Create instances of the listeners
-        ConfigGUI configGUI = new ConfigGUI(setAndGet);
         Register register = new Register();
 
 
         // Register the listeners
-        register.registerListeners(this, setAndGet, configGUI);
+        register.registerListeners(this, setAndGet);
 
         // Create enchant instances
         register.registerEnchantmentListeners(this);
@@ -75,7 +70,7 @@ public final class Main extends JavaPlugin {
         }
 
         // Register commands
-        register.registerCommands(this, setAndGet, configGUI);
+        register.registerCommands(this, setAndGet);
         // Register TabCompleters
         register.registerTabCompleters(this, setAndGet);
     }

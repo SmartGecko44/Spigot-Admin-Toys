@@ -93,7 +93,7 @@ public class BedrockListener implements Listener {
         }
         ConfigurationManager configManager;
         FileConfiguration config;
-        configManager = new ConfigurationManager(JavaPlugin.getPlugin(Main.class));
+        configManager = setAndGet.getConfigManager();
         config = configManager.getConfig();
         if (config.getInt("Bedrock enabled") == 0) {
             return;

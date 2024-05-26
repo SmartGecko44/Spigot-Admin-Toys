@@ -58,7 +58,7 @@ public class WaterBucketListener implements Listener {
         }
         ConfigurationManager configManager;
         FileConfiguration config;
-        configManager = new ConfigurationManager(JavaPlugin.getPlugin(Main.class));
+        configManager = setAndGet.getConfigManager();
         config = configManager.getConfig();
 
         if (config.getInt("Tsunami enabled") == 0) {

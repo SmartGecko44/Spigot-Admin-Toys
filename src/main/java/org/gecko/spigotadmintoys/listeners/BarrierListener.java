@@ -60,7 +60,7 @@ public class BarrierListener implements Listener {
         }
         ConfigurationManager configManager;
         FileConfiguration config;
-        configManager = new ConfigurationManager(JavaPlugin.getPlugin(Main.class));
+        configManager = setAndGet.getConfigManager();
         config = configManager.getConfig();
         if (config.getInt("Barrier enabled") == 0) {
             return;
