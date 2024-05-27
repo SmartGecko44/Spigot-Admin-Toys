@@ -51,12 +51,14 @@ public class ConfigGUI implements Listener {
     public void generateGUI(int page) {
         this.gui = Bukkit.createInventory(null, 45, "Test (WIP) Page " + (page + 1));
 
-        fillBorders(createButtonItem(Material.STAINED_GLASS_PANE, "§r", (short) 5, null, null), 45, false);
+        fillBorders(createButtonItem(Material.STAINED_GLASS_PANE, "§r", (short) 5, null, null), 45);
 
         if (page > 0) {
             gui.setItem(9 * 4, createButtonItem(Material.ARROW, "Previous Page", (short) 0, null, "prevPage"));
         }
-        gui.setItem(9 * 4 + 7, createButtonItem(Material.ARROW, "Next Page", (short) 0, null, "nextPage"));
+        if (page < setAndGet.getAssign().getPages()) {
+            gui.setItem(9 * 4 + 8, createButtonItem(Material.ARROW, "Next Page", (short) 0, null, "nextPage"));
+        }
     }
 
     private void initializeGUI(int page) {
@@ -67,7 +69,7 @@ public class ConfigGUI implements Listener {
         return setAndGet.getCreateButtonItem().createButtonItem(material, name, data, lore, identifier);
     }
 
-    private void fillBorders(ItemStack borderItem, int size, boolean fillRightCorner) {
+    private void fillBorders(ItemStack borderItem, int size) {
         // Fill top and bottom rows
         int size9 = size / 9;
         for (int i = 0; i < 9; i++) {
@@ -83,18 +85,10 @@ public class ConfigGUI implements Listener {
 
             gui.setItem(leftSlot, borderItem); // Left column
         }
-        if (!fillRightCorner) {
-            for (int i = 0; i < (size9 - 2); i++) {
-                int rightSlot = 9 * (i + 2) - 1;
+        for (int i = 0; i < (size9 - 1); i++) {
+            int rightSlot = 9 * (i + 2) - 1;
 
-                gui.setItem(rightSlot, borderItem); // Right column
-            }
-        } else {
-            for (int i = 0; i < (size9 - 1); i++) {
-                int rightSlot = 9 * (i + 2) - 1;
-
-                gui.setItem(rightSlot, borderItem); // Right column
-            }
+            gui.setItem(rightSlot, borderItem); // Right column
         }
     }
 
@@ -206,7 +200,7 @@ public class ConfigGUI implements Listener {
 
     private void confirmationPrompt(Player player) {
         this.gui = Bukkit.createInventory(null, 9 * 3, "Reset config?");
-        fillBorders(createButtonItem(Material.STAINED_GLASS_PANE, ChatColor.RED + "" + ChatColor.BOLD + "Warning", (short) 14, null, null), 9 * 3, true);
+        fillBorders(createButtonItem(Material.STAINED_GLASS_PANE, ChatColor.RED + "" + ChatColor.BOLD + "Warning", (short) 14, null, null), 9 * 3);
         gui.setItem(9 + 2, createButtonItem(Material.CONCRETE, ChatColor.RED + "Cancel", (short) 14, null, "cancel"));
         gui.setItem(9 + 6, createButtonItem(Material.CONCRETE, ChatColor.GREEN + "Confirm", (short) 13, null, "confirm"));
         player.openInventory(gui);

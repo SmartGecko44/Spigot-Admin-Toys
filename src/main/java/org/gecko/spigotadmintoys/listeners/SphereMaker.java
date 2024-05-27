@@ -235,5 +235,4 @@ public class SphereMaker implements Listener {
     public void setStopSphereing(boolean stopSphereing) {
         this.stopSphereing = stopSphereing;
     }
-
 }

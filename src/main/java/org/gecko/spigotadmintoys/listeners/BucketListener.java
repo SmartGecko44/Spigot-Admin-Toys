@@ -230,7 +230,7 @@ public class BucketListener implements Listener {
                     Bukkit.getScheduler().runTaskLater(JavaPlugin.getPlugin(Main.class), this::removeReplacedBlocks, 1L);
                 } else {
                     getCurrentRemovingPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Water block cleanup finished"));
-                    // Reset REPITITIONS to stop further REPITITIONS
+                    // Reset repetitions to stop further repetitions
                     repetitions = 1;
                     setWauhRemovalActive(false);
                     setCurrentRemovingPlayer(null);

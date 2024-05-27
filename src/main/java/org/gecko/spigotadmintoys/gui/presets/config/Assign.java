@@ -16,6 +16,7 @@ public class Assign {
     private int playerLimit;
     private int creeperLimit;
     private int tntLimit;
+    private final int pages = 1;
 
     public Assign(SetAndGet setAndGet) {
         this.setAndGet = setAndGet;
@@ -35,7 +36,7 @@ public class Assign {
                 gui2();
                 break;
         }
-        gui.setItem(9 * 4 + 8, createButtonItem(Material.PAPER, ChatColor.RESET + "" + ChatColor.RED + "Reset config", (short) 0, null, "Reset"));
+        gui.setItem(8, createButtonItem(Material.PAPER, ChatColor.RESET + "" + ChatColor.RED + "Reset config", (short) 0, null, "Reset"));
     }
 
     private ItemStack createButtonItem(Material material, String name, short data, String lore, String ident) {
@@ -112,5 +113,9 @@ public class Assign {
         gui.setItem(9 + 1, createButtonItem(Material.BEACON, ChatColor.RESET + "Removal visibility", (short) 0, null, null));
         gui.setItem(9 * 2 + 1, createButtonItem(Material.ENDER_PEARL, ChatColor.RESET + (!setAndGet.getShowRemoval() ? ChatColor.RED + "Disabled" : ChatColor.GREEN + "Enabled"), (short) 0, null, null));
         gui.setItem(9 * 3 + 1, createButtonItem(Material.INK_SACK, (setAndGet.getShowRemoval() ? DISABLE : ENABLE), (short) (setAndGet.getShowRemoval() ? 10 : 8), null, REMOVAL_VISIBLE));
+    }
+
+    public int getPages() {
+        return pages;
     }
 }
