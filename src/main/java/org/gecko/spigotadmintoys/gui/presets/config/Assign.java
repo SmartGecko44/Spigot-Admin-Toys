@@ -16,7 +16,6 @@ public class Assign {
     private int playerLimit;
     private int creeperLimit;
     private int tntLimit;
-    private final int pages = 1;
 
     public Assign(SetAndGet setAndGet) {
         this.setAndGet = setAndGet;
@@ -116,6 +115,6 @@ public class Assign {
     }
 
     public int getPages() {
-        return pages;
+        return 1;
     }
 }
