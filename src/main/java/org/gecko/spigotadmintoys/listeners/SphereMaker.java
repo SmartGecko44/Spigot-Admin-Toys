@@ -108,9 +108,9 @@ public class SphereMaker implements Listener {
                 highestDist = dist;
 
                 if (currentRemovingPlayer != null) {
-                    if (highestDist < realradiusLimit - 1) {
-                        currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + blocking + ChatColor.RED + progressPercentage + "% " + ChatColor.GREEN + "(" + ChatColor.RED + dist + ChatColor.WHITE + "/" + ChatColor.GREEN + realradiusLimit + ")"));
-                    } else if (highestDist == realradiusLimit - 1) {
+                    if (highestDist < realradiusLimit + 1) {
+                        currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + blocking + ChatColor.RED + progressPercentage + "% " + ChatColor.GREEN + "(" + ChatColor.RED + (dist + 1) + ChatColor.WHITE + "/" + ChatColor.GREEN + realradiusLimit + ")"));
+                    } else if (highestDist == realradiusLimit + 1 && showRemoval) {
                         currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Radius limit reached. Rounding corners..."));
                     }
                 }
@@ -142,7 +142,7 @@ public class SphereMaker implements Listener {
 
     private void displaySummary() {
         if (totalRemovedBlocks > 1) {
-            currentRemovingPlayer.sendMessage("Removed " + totalRemovedBlocks + " blocks");
+            currentRemovingPlayer.sendMessage(ChatColor.GREEN + "Removed " + ChatColor.RED + totalRemovedBlocks + ChatColor.GREEN + " blocks.");
 
             Bukkit.getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + currentRemovingPlayer.getName() + ChatColor.GREEN + " removed " + ChatColor.RED + totalRemovedBlocks + ChatColor.GREEN + " blocks using " + ChatColor.GOLD + "blocker.");
             if (!showRemoval) {
@@ -200,6 +200,7 @@ public class SphereMaker implements Listener {
     public void cleanRemove(int scaledBlocksPerIteration, Iterator<Block> iterator) {
         List<Block> blocksToRemove = new ArrayList<>();
         for (int i = 0; i < scaledBlocksPerIteration; i++) {
+            //FIXME: iterator spontaneously ceases to exist
             Block block = iterator.next();
             if (repeated) {
                 if (currentRemovingPlayer != null) {
