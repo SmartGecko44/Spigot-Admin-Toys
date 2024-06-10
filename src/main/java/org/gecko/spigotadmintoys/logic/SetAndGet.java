@@ -29,6 +29,7 @@ public class SetAndGet {
     private int playerRadiusLimit;
     private int tntRadiusLimit;
     private int creeperRadiusLimit;
+    private final CleanRemoveBedrock cleanRemoveBedrock;
 
     public SetAndGet() {
         this.configManager = new ConfigurationManager(this);
@@ -44,6 +45,7 @@ public class SetAndGet {
         this.createButtonItem = new CreateButtonItem();
         this.assign = new Assign(this);
         this.configGUI = new ConfigGUI(this);
+        this.cleanRemoveBedrock = new CleanRemoveBedrock(this);
     }
 
     public int getRadiusLimit() {
@@ -147,5 +149,9 @@ public class SetAndGet {
 
     public ConfigGUI getConfigGUI() {
         return configGUI;
+    }
+
+    public CleanRemoveBedrock getCleanRemoveBedrock() {
+        return cleanRemoveBedrock;
     }
 }

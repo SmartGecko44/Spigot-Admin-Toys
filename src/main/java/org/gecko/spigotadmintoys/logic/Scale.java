@@ -18,8 +18,6 @@ public class Scale {
 
         BucketListener bucketListener = setAndGet.getBucketListener();
         BarrierListener barrierListener = setAndGet.getBarrierListener();
-        BedrockListener bedrockListener = setAndGet.getBedrockListener();
-        SphereMaker sphereMaker = setAndGet.getSphereMaker();
         WaterBucketListener waterBucketListener = setAndGet.getWaterBucketListener();
 
         // Set BLOCKS_PER_ITERATION dynamically based on the total count
@@ -29,16 +27,14 @@ public class Scale {
 
         Iterator<Block> iterator = markedBlocks.iterator();
 
-        if (source.equalsIgnoreCase("bedrock")) {
-            bedrockListener.cleanRemove(scaledBlocksPerIteration, iterator);
+        if (source.equalsIgnoreCase("bedrock") || source.equalsIgnoreCase("sphere")) {
+            setAndGet.getCleanRemoveBedrock().cleanRemoveBedrockFunction(scaledBlocksPerIteration, iterator, markedBlocks, source);
         } else if (source.equalsIgnoreCase("bucket")) {
             bucketListener.cleanRemove(scaledBlocksPerIteration, iterator);
         } else if (source.equalsIgnoreCase("barrier")) {
             barrierListener.cleanRemove(scaledBlocksPerIteration, iterator);
         } else if (source.equalsIgnoreCase("wauh")) {
             waterBucketListener.cleanRemove(scaledBlocksPerIteration, iterator);
-        } else if (source.equalsIgnoreCase("sphere")) {
-            sphereMaker.cleanRemove(scaledBlocksPerIteration, iterator);
         }
 
     }

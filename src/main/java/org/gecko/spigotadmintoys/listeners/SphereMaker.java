@@ -97,7 +97,7 @@ public class SphereMaker implements Listener {
         }
 
         Set<Block> nextSet = new HashSet<>();
-        String blocking = "Bocking: ";
+        String sphereing = "Sphereing: ";
         for (Block block : blocksToProcess) {
             if (processedBlocks.contains(block) || (int) clickedLocation.distance(block.getLocation()) + 1 > radiusLimit - 3) {
                 continue;
@@ -109,7 +109,7 @@ public class SphereMaker implements Listener {
 
                 if (currentRemovingPlayer != null) {
                     if (highestDist < realradiusLimit + 1) {
-                        currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + blocking + ChatColor.RED + progressPercentage + "% " + ChatColor.GREEN + "(" + ChatColor.RED + (dist + 1) + ChatColor.WHITE + "/" + ChatColor.GREEN + realradiusLimit + ")"));
+                        currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + sphereing + ChatColor.RED + progressPercentage + "% " + ChatColor.GREEN + "(" + ChatColor.RED + (dist + 1) + ChatColor.WHITE + "/" + ChatColor.GREEN + realradiusLimit + ")"));
                     } else if (highestDist == realradiusLimit + 1 && showRemoval) {
                         currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Radius limit reached. Rounding corners..."));
                     }
@@ -197,43 +197,27 @@ public class SphereMaker implements Listener {
         totalRemovedBlocks = 0;
     }
 
-    public void cleanRemove(int scaledBlocksPerIteration, Iterator<Block> iterator) {
-        List<Block> blocksToRemove = new ArrayList<>();
-        for (int i = 0; i < scaledBlocksPerIteration; i++) {
-            //FIXME: iterator spontaneously ceases to exist
-            Block block = iterator.next();
-            if (repeated) {
-                if (currentRemovingPlayer != null) {
-                    currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "Cleaning up falling blocks (" + repetitions + (repetitions == 1 ? " repetition left)" : " repetitions left)")));
-                }
-                if (block.getType() == Material.SAND || block.getType() == Material.GRAVEL) {
-                    block.setType(Material.AIR);
-
-                    removedBlocks.add(block);
-
-                    blocksToRemove.add(block);
-                } else {
-                    blocksToRemove.add(block);
-                }
-            } else {
-                block.setType(Material.AIR);
-                removedBlocks.add(block);
-
-                blocksToRemove.add(block);
-                currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "Cleaning up blocks, " + markedBlocks.size() + " blocks left. That's " + (markedBlocks.size() / scaledBlocksPerIteration + 1) + (markedBlocks.size() / scaledBlocksPerIteration == 1 ? " iteration" : " iterations") + " left"));
-            }
-        }
-
-        for (Block block : blocksToRemove) {
-            markedBlocks.remove(block);
-        }
-    }
-
     public boolean isSphereingActive() {
         return sphereingActive;
     }
 
     public void setStopSphereing(boolean stopSphereing) {
         this.stopSphereing = stopSphereing;
+    }
+
+    public Player getCurrentRemovingPlayer() {
+        return currentRemovingPlayer;
+    }
+
+    public int getRepetitions() {
+        return repetitions;
+    }
+
+    public boolean isRepeated() {
+        return repeated;
+    }
+
+    public Set<Block> getRemovedBlocks() {
+        return removedBlocks;
     }
 }

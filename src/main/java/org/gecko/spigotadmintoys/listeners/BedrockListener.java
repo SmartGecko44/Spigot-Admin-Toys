@@ -356,43 +356,6 @@ public class BedrockListener implements Listener {
         removedBlocks.clear();
     }
 
-    public void cleanRemove(int scaledBlocksPerIteration, Iterator<Block> iterator) {
-        // Temporary list to store blocks to be removed
-        List<Block> blocksToRemove = new ArrayList<>();
-        for (int i = 0; i < scaledBlocksPerIteration && iterator.hasNext(); i++) {
-            Block block = iterator.next();
-            if (repeated) {
-                if (currentRemovingPlayer != null) {
-                    currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "Cleaning up falling blocks (" + repetitions + (repetitions == 1 ? " repetition left)" : " repetitions left)")));
-                }
-                if (block.getType() == Material.SAND || block.getType() == Material.GRAVEL) {
-                    block.setType(Material.AIR);
-                    // Add the block to the new set
-                    removedBlocks.add(block);
-
-                    // Add the block to temporary list
-                    blocksToRemove.add(block);
-                } else {
-                    // Add the block to temporary list
-                    blocksToRemove.add(block);
-                }
-            } else {
-                block.setType(Material.AIR);
-                // Add the block to the new set
-                removedBlocks.add(block);
-
-                // Add the block to temporary list
-                blocksToRemove.add(block);
-                currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "Cleaning up blocks, " + markedBlocks.size() + " blocks left. That's " + (markedBlocks.size() / scaledBlocksPerIteration + 1) + (markedBlocks.size() / scaledBlocksPerIteration == 1 ? " iteration" : " iterations") + " left"));
-            }
-        }
-
-        // Remove all blocks from markedBlocks that are in the temporary list
-        for (Block block : blocksToRemove) {
-            markedBlocks.remove(block);
-        }
-    }
-
     public void setStopAllRemoval(boolean stopAllRemoval) {
         this.stopAllRemoval = stopAllRemoval;
     }
@@ -403,5 +366,17 @@ public class BedrockListener implements Listener {
 
     public int getRepetitions() {
         return repetitions;
+    }
+
+    public boolean isRepeated() {
+        return repeated;
+    }
+
+    public Player getCurrentRemovingPlayer() {
+        return currentRemovingPlayer;
+    }
+
+    public Set<Block> getRemovedBlocks() {
+        return removedBlocks;
     }
 }
