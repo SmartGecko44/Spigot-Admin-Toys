@@ -58,6 +58,7 @@ public class BucketListener implements Listener {
         FileConfiguration config;
         configManager = setAndGet.getConfigManager();
         config = configManager.getConfig();
+
         if (config.getInt("Bucket enabled") == 0) {
             return;
         }

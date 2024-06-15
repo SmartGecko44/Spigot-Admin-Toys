@@ -168,15 +168,18 @@ public class SphereMaker implements Listener {
             scale.scaleReverseLogic(totalRemovedCount, radiusLimit, markedBlocks, "sphere");
         }
 
+        // If there are more blocks to remove, schedule the next batch
         if (!markedBlocks.isEmpty()) {
-            Bukkit.getScheduler().runTaskLater(JavaPlugin.getPlugin(Main.class), this::removeMarkedBlocks, 10L);
+            Bukkit.getScheduler().runTaskLater(JavaPlugin.getPlugin(Main.class), this::removeMarkedBlocks, 10L); // Schedule the next batch after 1 tick
         } else if (!removedBlocks.isEmpty()) {
             if (repetitions > 0) {
                 repetitions--;
                 repeated = true;
                 markedBlocks.addAll(removedBlocks);
                 removedBlocks.clear();
-                Bukkit.getScheduler().runTaskLater(JavaPlugin.getPlugin(Main.class), this::removeMarkedBlocks, 10L);
+                Bukkit.getScheduler().runTaskLater(JavaPlugin.getPlugin(Main.class), this::removeMarkedBlocks, 100L);
+                // If all blocks have been processed, but there are blocks in the removedBlocks set,
+                // process those in the next iteration.
             } else {
                 if (currentRemovingPlayer != null) {
                     currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Falling block cleanup finished!"));

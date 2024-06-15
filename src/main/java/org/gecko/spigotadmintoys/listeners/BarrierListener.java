@@ -47,12 +47,6 @@ public class BarrierListener implements Listener {
         this.setAndGet = setAndGet;
     }
 
-    private void addIfValid(Block block, Set<Block> nextSet) {
-        if (IMMUTABLE_MATERIALS.contains(block.getType())) {
-            nextSet.add(block);
-        }
-    }
-
     @EventHandler
     public void barrierBreakEventHandler(BlockBreakEvent event) {
         if (!event.getPlayer().isOp() || event.getPlayer().getInventory().getItemInMainHand() == null || event.getPlayer().getInventory().getItemInMainHand().getAmount() == 0 || event.getPlayer().getInventory().getItemInMainHand().getType() == Material.AIR) {
@@ -144,12 +138,9 @@ public class BarrierListener implements Listener {
             }
 
             // Iterate through neighboring blocks and add them to the next set
-            // Iterate through neighboring blocks and add them to the next set
             for (int i = -1; i <= 1; i++) {
                 if (i == 0) continue; // Skip the current block
-                addIfValid(block.getRelative(i, 0, 0), nextSet);
-                addIfValid(block.getRelative(0, i, 0), nextSet);
-                addIfValid(block.getRelative(0, 0, i), nextSet);
+                setAndGet.getIterateBlocks().iterateBlocks(block, nextSet, IMMUTABLE_MATERIALS, false);
             }
             processedBlocks.add(block);
         }
