@@ -42,7 +42,7 @@ public class SphereMaker implements Listener {
 
     public SphereMaker(SetAndGet setAndGet) {
         this.setAndGet = setAndGet;
-        repetitions = setAndGet.getBedrockListener().getRepetitions();
+        repetitions = setAndGet.getRepetitions();
     }
 
     @EventHandler
@@ -140,7 +140,7 @@ public class SphereMaker implements Listener {
         if (totalRemovedBlocks > 1) {
             currentRemovingPlayer.sendMessage(ChatColor.GREEN + "Removed " + ChatColor.RED + totalRemovedBlocks + ChatColor.GREEN + " blocks.");
 
-            Bukkit.getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + currentRemovingPlayer.getName() + ChatColor.GREEN + " removed " + ChatColor.RED + totalRemovedBlocks + ChatColor.GREEN + " blocks using " + ChatColor.GOLD + "blocker.");
+            Bukkit.getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + currentRemovingPlayer.getName() + ChatColor.GREEN + " removed " + ChatColor.RED + totalRemovedBlocks + ChatColor.GREEN + " blocks using " + ChatColor.GOLD + "sphereing.");
             if (!showRemoval) {
                 Bukkit.getScheduler().runTaskLater(JavaPlugin.getPlugin(Main.class), this::removeMarkedBlocks, 20L);
             } else {
@@ -160,40 +160,25 @@ public class SphereMaker implements Listener {
                 block.setType(Material.AIR);
             }
             clear();
+            return;
         } else {
             scale.scaleReverseLogic(totalRemovedCount, radiusLimit, markedBlocks, "sphere");
         }
-
-        // If there are more blocks to remove, schedule the next batch
-        if (!markedBlocks.isEmpty()) {
-            Bukkit.getScheduler().runTaskLater(JavaPlugin.getPlugin(Main.class), this::removeMarkedBlocks, 10L); // Schedule the next batch after 1 tick
-        } else if (!removedBlocks.isEmpty()) {
-            if (repetitions > 0) {
-                repetitions--;
-                repeated = true;
-                markedBlocks.addAll(removedBlocks);
-                removedBlocks.clear();
-                Bukkit.getScheduler().runTaskLater(JavaPlugin.getPlugin(Main.class), this::removeMarkedBlocks, 100L);
-                // If all blocks have been processed, but there are blocks in the removedBlocks set,
-                // process those in the next iteration.
-            } else {
-                if (currentRemovingPlayer != null) {
-                    currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Falling block cleanup finished!"));
-                }
-                clear();
-            }
-        }
+        setAndGet.getBlockRemovalScheduler().scheduleBlockRemoval(markedBlocks, removedBlocks, currentRemovingPlayer, this::removeMarkedBlocks, this::clear, repetitions, this::lowerRepetitionsAndToggleRepeated);
     }
 
     private void clear() {
         blocksToProcess.clear();
         processedBlocks.clear();
         markedBlocks.clear();
+        currentRemovingPlayer = null;
         clickedLocation = null;
         radiusLimit = 0;
         highestDist = 0;
         realradiusLimit = 0;
         totalRemovedBlocks = 0;
+        repeated = false;
+        repetitions = setAndGet.getRepetitions();
     }
 
     public boolean isSphereingActive() {
@@ -218,5 +203,10 @@ public class SphereMaker implements Listener {
 
     public Set<Block> getRemovedBlocks() {
         return removedBlocks;
+    }
+
+    private void lowerRepetitionsAndToggleRepeated() {
+        repetitions--;
+        repeated = true;
     }
 }

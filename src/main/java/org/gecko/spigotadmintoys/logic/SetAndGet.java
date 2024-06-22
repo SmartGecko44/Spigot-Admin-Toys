@@ -30,6 +30,7 @@ public class SetAndGet {
     private int tntRadiusLimit;
     private int creeperRadiusLimit;
     private final CleanRemoveBedrock cleanRemoveBedrock;
+    private final BlockRemovalScheduler blockRemovalScheduler;
 
     public SetAndGet() {
         this.configManager = new ConfigurationManager(this);
@@ -46,6 +47,7 @@ public class SetAndGet {
         this.assign = new Assign(this);
         this.configGUI = new ConfigGUI(this);
         this.cleanRemoveBedrock = new CleanRemoveBedrock(this);
+        this.blockRemovalScheduler = new BlockRemovalScheduler();
     }
 
     public int getRadiusLimit() {
@@ -153,5 +155,13 @@ public class SetAndGet {
 
     public CleanRemoveBedrock getCleanRemoveBedrock() {
         return cleanRemoveBedrock;
+    }
+
+    public BlockRemovalScheduler getBlockRemovalScheduler() {
+        return blockRemovalScheduler;
+    }
+
+    public int getRepetitions() {
+        return 3;
     }
 }

@@ -39,6 +39,7 @@ public class CleanRemoveBedrock {
         }
         for (int i = 0; i < scaledBlocksPerIteration && iterator.hasNext(); i++) {
             Block block = iterator.next();
+            //TODO: Optimize this
             if (repeated) {
                 if (currentRemovingPlayer != null) {
                     currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "Cleaning up falling blocks (" + repetitions + (repetitions == 1 ? " repetition left)" : " repetitions left)")));

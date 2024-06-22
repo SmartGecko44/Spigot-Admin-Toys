@@ -42,7 +42,7 @@ public class BedrockListener implements Listener {
     private int dist;
     private int radiusLimit;
     private int realRadiusLimit;
-    private int repetitions = 3;
+    private int repetitions;
     private boolean repeated = false;
     private boolean explosionTrigger = false;
     private String realSource = null;
@@ -52,6 +52,7 @@ public class BedrockListener implements Listener {
 
     public BedrockListener(SetAndGet setAndGet) {
         this.setAndGet = setAndGet;
+        repetitions = setAndGet.getRepetitions();
     }
 
     private void addIfValid(Block block, Set<Block> nextSet) {
@@ -313,29 +314,12 @@ public class BedrockListener implements Listener {
                 block.setType(Material.AIR);
             }
             clearAll();
+            return;
         } else {
             scale.scaleReverseLogic(totalRemovedCount, radiusLimit, markedBlocks, "bedrock");
         }
 
-        // If there are more blocks to remove, schedule the next batch
-        if (!markedBlocks.isEmpty()) {
-            Bukkit.getScheduler().runTaskLater(JavaPlugin.getPlugin(Main.class), this::removeMarkedBlocks, 10L); // Schedule the next batch after 1 tick
-        } else if (!removedBlocks.isEmpty()) {
-            if (repetitions > 0) {
-                repetitions--;
-                repeated = true;
-                markedBlocks.addAll(removedBlocks);
-                removedBlocks.clear();
-                Bukkit.getScheduler().runTaskLater(JavaPlugin.getPlugin(Main.class), this::removeMarkedBlocks, 100L);
-                // If all blocks have been processed, but there are blocks in the removedBlocks set,
-                // process those in the next iteration.
-            } else {
-                if (currentRemovingPlayer != null) {
-                    currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Falling block cleanup finished!"));
-                }
-                clearAll();
-            }
-        }
+        setAndGet.getBlockRemovalScheduler().scheduleBlockRemoval(markedBlocks, removedBlocks, currentRemovingPlayer, this::removeMarkedBlocks, this::clearAll, repetitions, this::lowerRepetitionsAndToggleRepeated);
     }
 
     private void clearAll() {
@@ -352,6 +336,8 @@ public class BedrockListener implements Listener {
         markedBlocks.clear();
         processedBlocks.clear();
         removedBlocks.clear();
+        repetitions = setAndGet.getRepetitions();
+        repeated = false;
     }
 
     public void setStopAllRemoval(boolean stopAllRemoval) {
@@ -376,5 +362,10 @@ public class BedrockListener implements Listener {
 
     public Set<Block> getRemovedBlocks() {
         return removedBlocks;
+    }
+
+    private void lowerRepetitionsAndToggleRepeated() {
+        repetitions--;
+        repeated = true;
     }
 }
