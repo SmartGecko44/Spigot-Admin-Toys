@@ -18,7 +18,6 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.gecko.spigotadmintoys.Main;
-import org.gecko.spigotadmintoys.data.ConfigurationManager;
 import org.gecko.spigotadmintoys.logic.Scale;
 import org.gecko.spigotadmintoys.logic.SetAndGet;
 
@@ -91,10 +90,9 @@ public class BedrockListener implements Listener {
         if (event == null && !source.equalsIgnoreCase("TNT") && !source.equalsIgnoreCase("Creeper") && !(tntListener.getTntPlayer() == null || tntListener.getTnt().getMetadata(SOURCE).getFirst().asString() == null)) {
             return;
         }
-        ConfigurationManager configManager;
-        FileConfiguration config;
-        configManager = setAndGet.getConfigManager();
-        config = configManager.getConfig();
+
+        FileConfiguration config = setAndGet.getConfigManager().getConfig();
+
         if (config.getInt("Bedrock enabled") == 0) {
             return;
         }

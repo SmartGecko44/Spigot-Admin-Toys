@@ -15,7 +15,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.gecko.spigotadmintoys.Main;
-import org.gecko.spigotadmintoys.data.ConfigurationManager;
 import org.gecko.spigotadmintoys.logic.Scale;
 import org.gecko.spigotadmintoys.logic.SetAndGet;
 
@@ -52,10 +51,9 @@ public class BarrierListener implements Listener {
         if (!event.getPlayer().isOp() || event.getPlayer().getInventory().getItemInMainHand() == null || event.getPlayer().getInventory().getItemInMainHand().getAmount() == 0 || event.getPlayer().getInventory().getItemInMainHand().getType() == Material.AIR) {
             return;
         }
-        ConfigurationManager configManager;
-        FileConfiguration config;
-        configManager = setAndGet.getConfigManager();
-        config = configManager.getConfig();
+
+        FileConfiguration config = setAndGet.getConfigManager().getConfig();
+
         if (config.getInt("Barrier enabled") == 0) {
             return;
         }
