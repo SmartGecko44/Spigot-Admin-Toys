@@ -4,9 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.gecko.spigotadmintoys.data.ConfigurationManager;
 import org.gecko.spigotadmintoys.enchantments.logic.EnchantmentHandler;
-import org.gecko.spigotadmintoys.gui.ConfigGUI;
 import org.gecko.spigotadmintoys.logic.SetAndGet;
 import org.gecko.spigotadmintoys.startup.Register;
 
@@ -49,38 +47,30 @@ public final class Main extends JavaPlugin {
         Bukkit.getConsoleSender().sendMessage("");
         Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "Spigot-Admin-Toys has been enabled!");
 
-        ConfigurationManager configManager = new ConfigurationManager(this);
-
         // Create instances of some misc classes
-        setAndGet = new SetAndGet(configManager);
+        setAndGet = new SetAndGet();
 
         // Create instances of the listeners
-        ConfigGUI configGUI = new ConfigGUI(setAndGet);
         Register register = new Register();
 
 
         // Register the listeners
-        register.registerListeners(this, setAndGet, configGUI);
+        register.registerListeners(this, setAndGet);
 
         // Create enchant instances
         register.registerEnchantmentListeners(this);
 
         // Register Enchantments
         try {
-            registerEnchantment(EnchantmentHandler.getAllEnchantments().get(0)); // Id: 100
-            registerEnchantment(EnchantmentHandler.getAllEnchantments().get(1)); // Id: 101
-            registerEnchantment(EnchantmentHandler.getAllEnchantments().get(2)); // Id: 102
-            registerEnchantment(EnchantmentHandler.getAllEnchantments().get(3)); // Id: 103
-            registerEnchantment(EnchantmentHandler.getAllEnchantments().get(4)); // Id: 104
-            registerEnchantment(EnchantmentHandler.getAllEnchantments().get(5)); // Id: 105
-            registerEnchantment(EnchantmentHandler.getAllEnchantments().get(6)); // Id: 106
-            registerEnchantment(EnchantmentHandler.getAllEnchantments().get(7));// Id: 107
+            for (Enchantment enchantment : EnchantmentHandler.getAllEnchantments()) {
+                registerEnchantment(enchantment);
+            }
         } catch (IllegalArgumentException | RegisterError ignored) {
             // Ignore any exceptions during enchantment registration
         }
 
         // Register commands
-        register.registerCommands(this, setAndGet, configGUI);
+        register.registerCommands(this, setAndGet);
         // Register TabCompleters
         register.registerTabCompleters(this, setAndGet);
     }

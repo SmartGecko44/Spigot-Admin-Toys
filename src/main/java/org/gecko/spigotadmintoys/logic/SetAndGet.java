@@ -3,6 +3,9 @@ package org.gecko.spigotadmintoys.logic;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.gecko.spigotadmintoys.data.ConfigurationManager;
 import org.gecko.spigotadmintoys.enchantments.logic.EnchantmentHandler;
+import org.gecko.spigotadmintoys.gui.ConfigGUI;
+import org.gecko.spigotadmintoys.gui.logic.CreateButtonItem;
+import org.gecko.spigotadmintoys.gui.presets.config.Assign;
 import org.gecko.spigotadmintoys.listeners.*;
 
 public class SetAndGet {
@@ -14,25 +17,37 @@ public class SetAndGet {
     private final BarrierListener barrierListener;
     private final BedrockListener bedrockListener;
     private final WaterBucketListener waterBucketListener;
+    private final SphereMaker sphereMaker;
     private final TNTListener tntListener;
     private final CreeperListener creeperListener;
     private final IterateBlocks iterateBlocks;
     private final Scale scale;
+    private final CreateButtonItem createButtonItem;
+    private final Assign assign;
+    private final ConfigGUI configGUI;
     FileConfiguration config;
     private int playerRadiusLimit;
     private int tntRadiusLimit;
     private int creeperRadiusLimit;
+    private final CleanRemoveBedrock cleanRemoveBedrock;
+    private final BlockRemovalScheduler blockRemovalScheduler;
 
-    public SetAndGet(ConfigurationManager configurationManager) {
-        this.configManager = configurationManager;
+    public SetAndGet() {
+        this.configManager = new ConfigurationManager(this);
         this.tntListener = new TNTListener(configManager);
         this.creeperListener = new CreeperListener(configManager);
         this.bedrockListener = new BedrockListener(this);
         this.bucketListener = new BucketListener(this);
         this.barrierListener = new BarrierListener(this);
         this.waterBucketListener = new WaterBucketListener(this);
+        this.sphereMaker = new SphereMaker(this);
         this.iterateBlocks = new IterateBlocks();
         this.scale = new Scale(this);
+        this.createButtonItem = new CreateButtonItem();
+        this.assign = new Assign(this);
+        this.configGUI = new ConfigGUI(this);
+        this.cleanRemoveBedrock = new CleanRemoveBedrock(this);
+        this.blockRemovalScheduler = new BlockRemovalScheduler();
     }
 
     public int getRadiusLimit() {
@@ -98,6 +113,10 @@ public class SetAndGet {
         return waterBucketListener;
     }
 
+    public SphereMaker getSphereMaker() {
+        return sphereMaker;
+    }
+
     public TNTListener getTntListener() {
         return tntListener;
     }
@@ -120,5 +139,29 @@ public class SetAndGet {
 
     public ConfigurationManager getConfigManager() {
         return configManager;
+    }
+
+    public CreateButtonItem getCreateButtonItem() {
+        return createButtonItem;
+    }
+
+    public Assign getAssign() {
+        return assign;
+    }
+
+    public ConfigGUI getConfigGUI() {
+        return configGUI;
+    }
+
+    public CleanRemoveBedrock getCleanRemoveBedrock() {
+        return cleanRemoveBedrock;
+    }
+
+    public BlockRemovalScheduler getBlockRemovalScheduler() {
+        return blockRemovalScheduler;
+    }
+
+    public int getRepetitions() {
+        return 3;
     }
 }

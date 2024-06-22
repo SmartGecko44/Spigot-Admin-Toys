@@ -19,6 +19,7 @@ public class GiveCustomItems implements CommandExecutor, TabCompleter {
     public static final String BARRIER = "barrier";
     public static final String BEDROCK = "bedrock";
     public static final String TSUNAMI = "tsunami";
+    public static final String SPHERE = "sphere";
     public static final String SHORTBOW = "shortbow";
 
     @Override
@@ -35,6 +36,7 @@ public class GiveCustomItems implements CommandExecutor, TabCompleter {
             ItemStack customBarrier = items.createCustomItem(Material.BARRIER, "Surface Remover", (short) 0, "Removes grass and dirt blocks", "Custom Barrier");
             ItemStack customBedrock = items.createCustomItem(Material.BEDROCK, "Block Obliterator", (short) 0, "Removes almost all blocks", "Custom Bedrock");
             ItemStack customTsunami = items.createCustomItem(Material.WATER_BUCKET, "Tsunami Bucket", (short) 0, "Creates a tsunami if you shift + right click on a block", "Custom Tsunami");
+            ItemStack customSphere = items.createCustomItem(Material.FLOWER_POT_ITEM, "Sphere creator", (short) 0, "Creates a sphere with the radius of the radius limit", "SphereMaker");
             final Shortbow shortbowClass = new Shortbow();
 
             switch (operation) {
@@ -49,6 +51,9 @@ public class GiveCustomItems implements CommandExecutor, TabCompleter {
                     break;
                 case TSUNAMI:
                     ((Player) sender).getInventory().addItem(customTsunami);
+                    break;
+                case SPHERE:
+                    ((Player) sender).getInventory().addItem(customSphere);
                     break;
                 case SHORTBOW:
                     ((Player) sender).getInventory().addItem(shortbowClass.createShortbow());
@@ -83,6 +88,9 @@ public class GiveCustomItems implements CommandExecutor, TabCompleter {
             }
             if (TSUNAMI.startsWith(input)) {
                 completions.add(TSUNAMI);
+            }
+            if (SPHERE.startsWith(input)) {
+                completions.add(SPHERE);
             }
             if (SHORTBOW.startsWith(input)) {
                 completions.add(SHORTBOW);

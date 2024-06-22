@@ -27,7 +27,6 @@ public class TNTListener implements Listener {
     }
 
     @EventHandler
-    //FIXME: TNT often throws a lot of errors
     public void onTNTExplode(EntityExplodeEvent event) {
         FileConfiguration config;
         config = configManager.getConfig();

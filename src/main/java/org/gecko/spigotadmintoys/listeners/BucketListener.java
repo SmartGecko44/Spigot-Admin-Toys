@@ -15,7 +15,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.gecko.spigotadmintoys.Main;
-import org.gecko.spigotadmintoys.data.ConfigurationManager;
 import org.gecko.spigotadmintoys.logic.Scale;
 import org.gecko.spigotadmintoys.logic.SetAndGet;
 
@@ -40,7 +39,7 @@ public class BucketListener implements Listener {
     private int highestDist = 0;
     private int radiusLimit;
     private int realRadiusLimit;
-    private int repetitions = 0;
+    private int repetitions = 1;
     private boolean showRemoval;
 
 
@@ -54,10 +53,8 @@ public class BucketListener implements Listener {
             return;
         }
 
-        ConfigurationManager configManager;
-        FileConfiguration config;
-        configManager = new ConfigurationManager(JavaPlugin.getPlugin(Main.class));
-        config = configManager.getConfig();
+        FileConfiguration config = setAndGet.getConfigManager().getConfig();
+
         if (config.getInt("Bucket enabled") == 0) {
             return;
         }
@@ -88,7 +85,6 @@ public class BucketListener implements Listener {
 
             // Add the clicked block to the set of blocks to process
             blocksToProcess.add(event.getBlockClicked());
-
             markedBlocks.add(event.getBlockClicked());
 
             // Start the water removal process
@@ -146,7 +142,7 @@ public class BucketListener implements Listener {
             } else {
                 markedBlocks.add(block);
             }
-            setAndGet.getIterateBlocks().iterateBlocks(block, nextSet, IMMUTABLE_MATERIALS);
+            setAndGet.getIterateBlocks().iterateBlocks(block, nextSet, IMMUTABLE_MATERIALS, false);
             processedBlocks.add(block);
         }
 
@@ -224,7 +220,7 @@ public class BucketListener implements Listener {
             // If all blocks have been processed, but there are blocks in the removedBlocks set,
             // process those in the next iteration.
             if (setAndGet.getShowRemoval()) {
-                if (repetitions > 0) {
+                if (repetitions > 0 && !showRemoval) {
                     repetitions--;
                     markedBlocks.addAll(removedBlocks);
                     removedBlocks.clear();

@@ -15,7 +15,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.gecko.spigotadmintoys.Main;
-import org.gecko.spigotadmintoys.data.ConfigurationManager;
 import org.gecko.spigotadmintoys.logic.Scale;
 import org.gecko.spigotadmintoys.logic.SetAndGet;
 
@@ -45,21 +44,13 @@ public class WaterBucketListener implements Listener {
         this.setAndGet = setAndGet;
     }
 
-    private void addIfValid(Block block, Set<Block> nextSet) {
-        if (IMMUTABLE_MATERIALS.contains(block.getType())) {
-            nextSet.add(block);
-        }
-    }
-
     @EventHandler
     public void tsunamiClick(PlayerBucketEmptyEvent event) {
         if (!event.getPlayer().isOp() || event.getPlayer().getInventory().getItemInMainHand() == null || event.getPlayer().getInventory().getItemInMainHand().getAmount() == 0 || event.getPlayer().getInventory().getItemInMainHand().getType() == Material.AIR) {
             return;
         }
-        ConfigurationManager configManager;
-        FileConfiguration config;
-        configManager = new ConfigurationManager(JavaPlugin.getPlugin(Main.class));
-        config = configManager.getConfig();
+
+        FileConfiguration config = setAndGet.getConfigManager().getConfig();
 
         if (config.getInt("Tsunami enabled") == 0) {
             return;
@@ -139,9 +130,7 @@ public class WaterBucketListener implements Listener {
             // Iterate through neighboring blocks and add them to the next set
             for (int i = -1; i <= 1; i++) {
                 if (i == 0) continue; // Skip the current block
-                addIfValid(block.getRelative(i, 0, 0), nextSet);
-                addIfValid(block.getRelative(0, -1, 0), nextSet);
-                addIfValid(block.getRelative(0, 0, i), nextSet);
+                setAndGet.getIterateBlocks().iterateBlocks(block, nextSet, IMMUTABLE_MATERIALS, false);
             }
             processedBlocks.add(block);
         }

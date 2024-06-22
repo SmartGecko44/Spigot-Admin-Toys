@@ -5,33 +5,21 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.gecko.spigotadmintoys.Main;
 import org.gecko.spigotadmintoys.data.ConfigurationManager;
 import org.gecko.spigotadmintoys.logic.SetAndGet;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
-import java.util.Collections;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 public class ConfigGUI implements Listener {
 
+    public static final String ENABLE_BUCKET = "Enable Bucket";
     public static final String ENABLE_BARRIER = "Enable Barrier";
     public static final String ENABLE_BEDROCK = "Enable Bedrock";
+    public static final String ENABLE_SPHERE = "Enable Sphere";
     public static final String ENABLE_TSUNAMI = "Enable Tsunami";
     public static final String ENABLE_CREEPER = "Enable Creeper";
     public static final String ENABLE_TNT = "Enable TNT";
@@ -40,77 +28,48 @@ public class ConfigGUI implements Listener {
     public static final String BUCKET_ENABLED = "Bucket enabled";
     public static final String BARRIER_ENABLED = "Barrier enabled";
     public static final String BEDROCK_ENABLED = "Bedrock enabled";
+    public static final String SPHERE_ENABLED = "Sphere enabled";
     public static final String TSUNAMI_ENABLED = "Tsunami enabled";
     public static final String CREEPER_ENABLED = "Creeper enabled";
     public static final String TNT_ENABLED = "TNT enabled";
-    private static final String DISABLE = "Disable";
-    private static final String ENABLE = "Enable";
-    private static final String ENABLE_BUCKET = "Enable Bucket";
+    public static final String DISABLE = ChatColor.RED + "Disable";
+    public static final String ENABLE = ChatColor.GREEN + "Enable";
     final ConfigurationManager configManager;
-    private final File configFile;
-    private final Logger logger = Logger.getLogger(ConfigGUI.class.getName());
     private final SetAndGet setAndGet;
-    FileConfiguration config;
+    private final FileConfiguration config;
     private Inventory gui;
+    private int currentPage = 0;
+
+
 
     public ConfigGUI(SetAndGet setAndGet) {
-        configManager = new ConfigurationManager(JavaPlugin.getPlugin(Main.class));
+        configManager = setAndGet.getConfigManager();
         config = configManager.getConfig();
-        File dir = new File("plugins/Wauh");
-        this.configFile = new File(dir, "data.yml");
         this.setAndGet = setAndGet;
-
-        generateGUI();
     }
 
-    public void generateGUI() {
-        this.gui = Bukkit.createInventory(null, 45, "Test (WIP)");
-        fillBorders(createButtonItem(Material.STAINED_GLASS_PANE, "§r", (short) 5, null, null), 45, false);
+    public void generateGUI(int page) {
+        this.gui = Bukkit.createInventory(null, 45, "Test (WIP) Page " + (page + 1));
+
+        fillBorders(createButtonItem(Material.STAINED_GLASS_PANE, "§r", (short) 5, null, null), 45);
+
+        if (page > 0) {
+            gui.setItem(9 * 4, createButtonItem(Material.ARROW, "Previous Page", (short) 0, null, "prevPage"));
+        }
+        if (page < setAndGet.getAssign().getPages()) {
+            gui.setItem(9 * 4 + 8, createButtonItem(Material.ARROW, "Next Page", (short) 0, null, "nextPage"));
+        }
     }
 
-    private void initializeGUI() {
-        if (config.getInt(BUCKET_ENABLED) == 1) {
-            gui.setItem(9 * 3 + 1, createButtonItem(Material.INK_SACK, DISABLE, (short) 10, null, ENABLE_BUCKET));
-        } else {
-            gui.setItem(9 * 3 + 1, createButtonItem(Material.INK_SACK, ENABLE, (short) 8, null, ENABLE_BUCKET));
-        }
-
-        if (config.getInt(BARRIER_ENABLED) == 1) {
-            gui.setItem(9 * 3 + 2, createButtonItem(Material.INK_SACK, DISABLE, (short) 10, null, ENABLE_BARRIER));
-        } else {
-            gui.setItem(9 * 3 + 2, createButtonItem(Material.INK_SACK, ENABLE, (short) 8, null, ENABLE_BARRIER));
-        }
-
-        if (config.getInt(BEDROCK_ENABLED) == 1) {
-            gui.setItem(9 * 3 + 3, createButtonItem(Material.INK_SACK, DISABLE, (short) 10, null, ENABLE_BEDROCK));
-        } else {
-            gui.setItem(9 * 3 + 3, createButtonItem(Material.INK_SACK, ENABLE, (short) 8, null, ENABLE_BEDROCK));
-        }
-
-        if (config.getInt(TSUNAMI_ENABLED) == 1) {
-            gui.setItem(9 * 3 + 4, createButtonItem(Material.INK_SACK, DISABLE, (short) 10, null, ENABLE_TSUNAMI));
-        } else {
-            gui.setItem(9 * 3 + 4, createButtonItem(Material.INK_SACK, ENABLE, (short) 8, null, ENABLE_TSUNAMI));
-        }
-
-        if (config.getInt(CREEPER_ENABLED) == 1) {
-            gui.setItem(9 * 3 + 5, createButtonItem(Material.INK_SACK, DISABLE, (short) 10, null, ENABLE_CREEPER));
-        } else {
-            gui.setItem(9 * 3 + 5, createButtonItem(Material.INK_SACK, ENABLE, (short) 8, null, ENABLE_CREEPER));
-        }
-
-        if (config.getInt(TNT_ENABLED) == 1) {
-            gui.setItem(9 * 3 + 6, createButtonItem(Material.INK_SACK, DISABLE, (short) 10, null, ENABLE_TNT));
-        } else {
-            gui.setItem(9 * 3 + 6, createButtonItem(Material.INK_SACK, ENABLE, (short) 8, null, ENABLE_TNT));
-        }
-
-        gui.setItem(9 * 3 + 7, createButtonItem(Material.INK_SACK, (setAndGet.getShowRemoval() ? DISABLE : ENABLE), (short) (setAndGet.getShowRemoval() ? 10 : 8), null, REMOVAL_VISIBLE));
-
-        gui.setItem(9 * 4 + 8, createButtonItem(Material.PAPER, ChatColor.RESET + "" + ChatColor.RED + "Reset config", (short) 0, null, "Reset"));
+    private void initializeGUI(int page) {
+        setAndGet.getAssign().assignPage(page);
     }
 
-    private void fillBorders(ItemStack borderItem, int size, boolean fillRightCorner) {
+    private ItemStack createButtonItem(Material material, String name, short data, String lore, String identifier) {
+        return setAndGet.getCreateButtonItem().createButtonItem(material, name, data, lore, identifier);
+    }
+
+    private void fillBorders(ItemStack borderItem, int size) {
         // Fill top and bottom rows
         int size9 = size / 9;
         for (int i = 0; i < 9; i++) {
@@ -126,64 +85,16 @@ public class ConfigGUI implements Listener {
 
             gui.setItem(leftSlot, borderItem); // Left column
         }
-        if (!fillRightCorner) {
-            for (int i = 0; i < (size9 - 2); i++) {
-                int rightSlot = 9 * (i + 2) - 1;
+        for (int i = 0; i < (size9 - 1); i++) {
+            int rightSlot = 9 * (i + 2) - 1;
 
-                gui.setItem(rightSlot, borderItem); // Right column
-            }
-        } else {
-            for (int i = 0; i < (size9 - 1); i++) {
-                int rightSlot = 9 * (i + 2) - 1;
-
-                gui.setItem(rightSlot, borderItem); // Right column
-            }
+            gui.setItem(rightSlot, borderItem); // Right column
         }
-    }
-
-
-    private ItemStack createButtonItem(Material material, String name, short data, String lore, String ident) {
-        List<String> loreToString;
-        if (lore != null) {
-            lore = ChatColor.RESET + lore;
-            loreToString = Collections.singletonList(lore);
-        } else {
-            loreToString = null;
-        }
-        if (name != null) {
-            name = ChatColor.RESET + name;
-        }
-        ItemStack item = new ItemStack(material, 1, data);
-        ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(name);
-        meta.setLore(loreToString);
-        item.setItemMeta(meta);
-
-        NBTItem nbtItem = new NBTItem(item);
-        nbtItem.setString("Ident", ident);
-
-        return nbtItem.getItem();
     }
 
     public void openGUI(Player player) {
-        initializeGUI();
-        int playerLimit = setAndGet.getRadiusLimit() - 2;
-        int creeperLimit = setAndGet.getCreeperRadiusLimit() - 2;
-        int tntLimit = setAndGet.getTntRadiusLimit() - 2;
-        gui.setItem(9 + 1, createButtonItem(Material.BUCKET, ChatColor.RESET + "Liquid removal", (short) 0, null, null));
-        gui.setItem(9 * 2 + 1, createButtonItem(Material.ENDER_PEARL, ChatColor.RESET + String.valueOf(playerLimit), (short) 0, ChatColor.RESET + "" + ChatColor.DARK_PURPLE + MANAGED, null));
-        gui.setItem(9 + 2, createButtonItem(Material.BARRIER, ChatColor.RESET + "Surface removal", (short) 0, null, null));
-        gui.setItem(9 * 2 + 2, createButtonItem(Material.ENDER_PEARL, ChatColor.RESET + String.valueOf(playerLimit), (short) 0, ChatColor.RESET + "" + ChatColor.DARK_PURPLE + MANAGED, null));
-        gui.setItem(9 + 3, createButtonItem(Material.BEDROCK, ChatColor.RESET + "All block removal", (short) 0, null, null));
-        gui.setItem(9 * 2 + 3, createButtonItem(Material.ENDER_PEARL, ChatColor.RESET + String.valueOf(playerLimit), (short) 0, ChatColor.RESET + "" + ChatColor.DARK_PURPLE + MANAGED, null));
-        gui.setItem(9 + 4, createButtonItem(Material.WATER_BUCKET, ChatColor.RESET + "Tsunami", (short) 0, null, null));
-        gui.setItem(9 * 2 + 4, createButtonItem(Material.ENDER_PEARL, ChatColor.RESET + String.valueOf(playerLimit), (short) 0, ChatColor.RESET + "" + ChatColor.DARK_PURPLE + MANAGED, null));
-        gui.setItem(9 + 5, createButtonItem(Material.SKULL_ITEM, ChatColor.RESET + "Custom creeper explosions", (short) 4, null, null));
-        gui.setItem(9 * 2 + 5, createButtonItem(Material.ENDER_PEARL, ChatColor.RESET + String.valueOf(creeperLimit), (short) 0, ChatColor.RESET + "" + ChatColor.DARK_PURPLE + "This value is managed by the creeper radius limit.", null));
-        gui.setItem(9 + 6, createButtonItem(Material.TNT, ChatColor.RESET + "Custom TNT explosions", (short) 0, null, null));
-        gui.setItem(9 * 2 + 6, createButtonItem(Material.ENDER_PEARL, ChatColor.RESET + String.valueOf(tntLimit), (short) 0, ChatColor.RESET + "" + ChatColor.DARK_PURPLE + "This value is managed by the TNT radius limit.", null));
-        gui.setItem(9 + 7, createButtonItem(Material.BEACON, ChatColor.RESET + "Removal visibility", (short) 0, null, null));
-        gui.setItem(9 * 2 + 7, createButtonItem(Material.ENDER_PEARL, ChatColor.RESET + (!setAndGet.getShowRemoval() ? ChatColor.RED + "Disabled" : ChatColor.GREEN + "Enabled"), (short) 0, null, null));
+        generateGUI(currentPage);
+        initializeGUI(currentPage);
         player.openInventory(gui);
     }
 
@@ -220,7 +131,7 @@ public class ConfigGUI implements Listener {
     }
 
     private void handleItemClick(Player player, ItemStack clickedItem) {
-        if (clickedItem != null && (clickedItem.getType() == Material.INK_SACK || clickedItem.getType() == Material.PAPER || clickedItem.getType() == Material.CONCRETE)) {
+        if (clickedItem != null && (clickedItem.getType() == Material.INK_SACK || clickedItem.getType() == Material.PAPER || clickedItem.getType() == Material.CONCRETE ||clickedItem.getType() == Material.ARROW)) {
             NBTItem nbtItem = new NBTItem(clickedItem);
             String identifier = nbtItem.getString("Ident");
             short data = clickedItem.getDurability();
@@ -230,14 +141,21 @@ public class ConfigGUI implements Listener {
             }
 
             if (clickedItem.getType() == Material.PAPER && (identifier.equalsIgnoreCase("Reset"))) {
-                confirmationPrompt("Reset config?", player);
+                confirmationPrompt(player);
             }
 
+            if (identifier.equalsIgnoreCase("nextPage")) {
+                currentPage++;
+                openGUI(player);
+            } else if (identifier.equalsIgnoreCase("prevPage")) {
+                currentPage--;
+                openGUI(player);
+            }
         }
     }
 
     private boolean handleButtonFeatures(Player player, String identifier, short data) {
-        if (gui.getTitle().equals("Test (WIP)")) {
+        if (gui.getTitle().equals("Test (WIP) Page " + (currentPage + 1))) {
             if (identifier.equalsIgnoreCase(ENABLE_BUCKET)) {
                 handleButtonClick(player, identifier, data, BUCKET_ENABLED, 1, "Liquid removal enabled!", "Liquid removal disabled!");
                 return true;
@@ -247,17 +165,20 @@ public class ConfigGUI implements Listener {
             } else if (identifier.equalsIgnoreCase(ENABLE_BEDROCK)) {
                 handleButtonClick(player, identifier, data, BEDROCK_ENABLED, 3, "All block removal enabled!", "All block removal disabled!");
                 return true;
+            } else if (identifier.equalsIgnoreCase(ENABLE_SPHERE)) {
+                handleButtonClick(player, identifier, data, SPHERE_ENABLED, 4, "Sphere creation enabled!", "Sphere creation disabled!");
+                return true;
             } else if (identifier.equalsIgnoreCase(ENABLE_TSUNAMI)) {
-                handleButtonClick(player, identifier, data, TSUNAMI_ENABLED, 4, "Tsunami enabled!", "Tsunami disabled!");
+                handleButtonClick(player, identifier, data, TSUNAMI_ENABLED, 5, "Tsunami enabled!", "Tsunami disabled!");
                 return true;
             } else if (identifier.equalsIgnoreCase(ENABLE_CREEPER)) {
-                handleButtonClick(player, identifier, data, CREEPER_ENABLED, 5, "Custom creeper explosions enabled!", "Custom creeper explosions disabled!");
+                handleButtonClick(player, identifier, data, CREEPER_ENABLED, 6, "Custom creeper explosions enabled!", "Custom creeper explosions disabled!");
                 return true;
             } else if (identifier.equalsIgnoreCase(ENABLE_TNT)) {
-                handleButtonClick(player, identifier, data, TNT_ENABLED, 6, "Custom TNT explosions enabled!", "Custom TNT explosions disabled!");
+                handleButtonClick(player, identifier, data, TNT_ENABLED, 7, "Custom TNT explosions enabled!", "Custom TNT explosions disabled!");
                 return true;
             } else if (identifier.equalsIgnoreCase(REMOVAL_VISIBLE)) {
-                handleButtonClick(player, identifier, data, REMOVAL_VISIBLE, 7, "Removal visibility enabled!", "Removal visibility disabled!");
+                handleButtonClick(player, identifier, data, REMOVAL_VISIBLE, 1, "Removal visibility enabled!", "Removal visibility disabled!");
             }
         } else if (gui.getTitle().equals("Reset config?")) {
             if (identifier.equalsIgnoreCase("cancel")) {
@@ -274,59 +195,12 @@ public class ConfigGUI implements Listener {
     }
 
     private void resetConfig(Player player) {
-        try {
-            // Create the data.yml file if it doesn't exist
-            if (!configFile.exists()) {
-                boolean fileCreated = configFile.createNewFile();
-                if (!fileCreated) {
-                    logger.log(Level.SEVERE, "Config file could not be created");
-                } else {
-                    Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "Config file created!");
-                    FileWriter writer = setAndGet.getConfigManager().getFileWriter();
-                    writer.close();
-                }
-            } else {
-                if (!isFileDeleted()) {
-                    logger.log(Level.SEVERE, "Config file could not be deleted");
-                    player.sendMessage(ChatColor.RED + "Config file could not be reset");
-                } else {
-                    Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "Config file deleted!");
-                    boolean fileCreated = configFile.createNewFile();
-                    if (!fileCreated) {
-                        logger.log(Level.SEVERE, "Config file could not be created");
-                        player.sendMessage(ChatColor.RED + "Config file could not be reset");
-                    } else {
-                        Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "Config file created!");
-                        FileWriter writer = setAndGet.getConfigManager().getFileWriter();
-                        writer.close();
-                        player.sendMessage(ChatColor.GREEN + "Config reset!");
-                    }
-                }
-            }
-
-            this.config = YamlConfiguration.loadConfiguration(configFile);
-        } catch (IOException ex) {
-            logger.log(Level.SEVERE, "Could not reset config file", ex);
-        }
+        setAndGet.getConfigManager().resetConfig(player);
     }
 
-    private boolean isFileDeleted() {
-        try {
-            Files.delete(configFile.toPath());
-            // Deletion successful
-            return true;
-        } catch (NoSuchFileException e) {
-            // File does not exist, consider it deleted
-            return true;
-        } catch (IOException e) {
-            // Directory is not empty, consider it not deleted or Unable to delete file for various causes, consider it not deleted
-            return false;
-        }
-    }
-
-    private void confirmationPrompt(String prompt, Player player) {
-        this.gui = Bukkit.createInventory(null, 9 * 3, prompt);
-        fillBorders(createButtonItem(Material.STAINED_GLASS_PANE, "§r", (short) 14, null, null), 9 * 3, true);
+    private void confirmationPrompt(Player player) {
+        this.gui = Bukkit.createInventory(null, 9 * 3, "Reset config?");
+        fillBorders(createButtonItem(Material.STAINED_GLASS_PANE, ChatColor.RED + "" + ChatColor.BOLD + "Warning", (short) 14, null, null), 9 * 3);
         gui.setItem(9 + 2, createButtonItem(Material.CONCRETE, ChatColor.RED + "Cancel", (short) 14, null, "cancel"));
         gui.setItem(9 + 6, createButtonItem(Material.CONCRETE, ChatColor.GREEN + "Confirm", (short) 13, null, "confirm"));
         player.openInventory(gui);
