@@ -210,7 +210,7 @@ public class BucketListener implements Listener {
             processedBlocks.clear();
             return;
         } else {
-            scale.scaleReverseLogic(totalRemovedCount, radiusLimit, markedBlocks, "bucket");
+            scale.scaleReverseLogic(totalRemovedCount, radiusLimit, markedBlocks, "bucket", this::cleanRemove);
         }
 
         // If there are more blocks to remove, schedule the next batch

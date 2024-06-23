@@ -162,7 +162,7 @@ public class SphereMaker implements Listener {
             clear();
             return;
         } else {
-            scale.scaleReverseLogic(totalRemovedCount, radiusLimit, markedBlocks, "sphere");
+            scale.scaleReverseLogic(totalRemovedCount, radiusLimit, markedBlocks, "sphere", null);
         }
         setAndGet.getBlockRemovalScheduler().scheduleBlockRemoval(markedBlocks, removedBlocks, currentRemovingPlayer, this::removeMarkedBlocks, this::clear, repetitions, this::lowerRepetitionsAndToggleRepeated);
     }

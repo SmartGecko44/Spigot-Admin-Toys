@@ -316,7 +316,7 @@ public class BedrockListener implements Listener {
             clearAll();
             return;
         } else {
-            scale.scaleReverseLogic(totalRemovedCount, radiusLimit, markedBlocks, "bedrock");
+            scale.scaleReverseLogic(totalRemovedCount, radiusLimit, markedBlocks, "bedrock", null);
         }
 
         setAndGet.getBlockRemovalScheduler().scheduleBlockRemoval(markedBlocks, removedBlocks, currentRemovingPlayer, this::removeMarkedBlocks, this::clearAll, repetitions, this::lowerRepetitionsAndToggleRepeated);

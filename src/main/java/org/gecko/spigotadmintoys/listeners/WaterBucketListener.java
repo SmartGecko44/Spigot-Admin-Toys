@@ -214,7 +214,7 @@ public class WaterBucketListener implements Listener {
             removedBlocks.clear();
             return;
         } else {
-            scale.scaleReverseLogic(totalRemovedCount, radiusLimit, markedBlocks, "wauh");
+            scale.scaleReverseLogic(totalRemovedCount, radiusLimit, markedBlocks, "wauh", this::cleanRemove);
         }
 
         // If there are more blocks to remove, schedule the next batch

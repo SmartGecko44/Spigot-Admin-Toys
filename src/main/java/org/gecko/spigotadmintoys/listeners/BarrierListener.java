@@ -218,7 +218,7 @@ public class BarrierListener implements Listener {
             }
             cleanup();
         } else {
-            scale.scaleReverseLogic(totalRemovedCount, radiusLimit, markedBlocks, "barrier");
+            scale.scaleReverseLogic(totalRemovedCount, radiusLimit, markedBlocks, "barrier", this::cleanRemove);
 
             // If there are more blocks to remove, schedule the next batch
             if (!markedBlocks.isEmpty()) {
