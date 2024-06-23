@@ -53,7 +53,7 @@ jobs:
           find target -type f -name Spigot-Admin-Toys*.jar -exec cp {} filtered-artifacts/ \;
 
       - name: Upload JAR as an artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Wauh-${{ github.run_number }}
           path: filtered-artifacts
