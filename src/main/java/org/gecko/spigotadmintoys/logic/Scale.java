@@ -26,7 +26,7 @@ public class Scale {
             setAndGet.getCleanRemoveBedrock().cleanRemoveBedrockFunction(scaledBlocksPerIteration, iterator, markedBlocks, source);
             return;
         }
-            cleanRemoveMethod.accept(scaledBlocksPerIteration, iterator);
+        cleanRemoveMethod.accept(scaledBlocksPerIteration, iterator);
     }
 }
 

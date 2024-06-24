@@ -41,7 +41,6 @@ public class ConfigGUI implements Listener {
     private int currentPage = 0;
 
 
-
     public ConfigGUI(SetAndGet setAndGet) {
         configManager = setAndGet.getConfigManager();
         config = configManager.getConfig();
@@ -131,7 +130,7 @@ public class ConfigGUI implements Listener {
     }
 
     private void handleItemClick(Player player, ItemStack clickedItem) {
-        if (clickedItem != null && (clickedItem.getType() == Material.INK_SACK || clickedItem.getType() == Material.PAPER || clickedItem.getType() == Material.CONCRETE ||clickedItem.getType() == Material.ARROW)) {
+        if (clickedItem != null && (clickedItem.getType() == Material.INK_SACK || clickedItem.getType() == Material.PAPER || clickedItem.getType() == Material.CONCRETE || clickedItem.getType() == Material.ARROW)) {
             NBTItem nbtItem = new NBTItem(clickedItem);
             String identifier = nbtItem.getString("Ident");
             short data = clickedItem.getDurability();

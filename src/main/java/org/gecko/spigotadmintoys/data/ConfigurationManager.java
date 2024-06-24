@@ -25,8 +25,8 @@ public class ConfigurationManager {
     public static final String CREATED = "Config file created!";
     private final File configFile;
     private final Logger logger = Logger.getLogger(ConfigurationManager.class.getName());
-    private FileConfiguration config;
     private final SetAndGet setAndGet;
+    private FileConfiguration config;
 
     public ConfigurationManager(SetAndGet setAndGet) {
         this.setAndGet = setAndGet;

@@ -11,8 +11,8 @@ import java.util.*;
 
 public class CleanRemoveBedrock {
 
-    private final SetAndGet setAndGet;
     private static final Set<Material> fallingBlocks = EnumSet.of(Material.SAND, Material.GRAVEL);
+    private final SetAndGet setAndGet;
 
     CleanRemoveBedrock(SetAndGet setAndGet) {
         this.setAndGet = setAndGet;

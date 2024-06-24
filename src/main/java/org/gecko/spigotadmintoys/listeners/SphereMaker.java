@@ -19,14 +19,18 @@ import org.gecko.spigotadmintoys.logic.IterateBlocks;
 import org.gecko.spigotadmintoys.logic.Scale;
 import org.gecko.spigotadmintoys.logic.SetAndGet;
 
-import java.util.*;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Set;
 
 public class SphereMaker implements Listener {
 
-    private Set<Block> blocksToProcess = new HashSet<>();
+    private static final Set<Material> IMMUTABLE_MATERIALS = EnumSet.of(Material.BEDROCK, Material.STATIONARY_WATER, Material.WATER, Material.LAVA, Material.STATIONARY_LAVA, Material.TNT, Material.AIR);
     private final Set<Block> processedBlocks = new HashSet<>();
     private final Set<Block> markedBlocks = new HashSet<>();
     private final Set<Block> removedBlocks = new HashSet<>();
+    private final SetAndGet setAndGet;
+    private Set<Block> blocksToProcess = new HashSet<>();
     private Location clickedLocation;
     private Player currentRemovingPlayer;
     private int radiusLimit;
@@ -36,8 +40,6 @@ public class SphereMaker implements Listener {
     private boolean showRemoval;
     private boolean sphereingActive;
     private boolean stopSphereing;
-    private final SetAndGet setAndGet;
-    private static final Set<Material> IMMUTABLE_MATERIALS = EnumSet.of(Material.BEDROCK, Material.STATIONARY_WATER, Material.WATER, Material.LAVA, Material.STATIONARY_LAVA, Material.TNT, Material.AIR);
     private int repetitions;
     private boolean repeated;
 
