@@ -127,17 +127,11 @@ public class BedrockListener implements Listener {
                 Bukkit.getConsoleSender().sendMessage("Real player not OP");
                 return;
             }
-        } else {
-            Player metaPlayer = Bukkit.getPlayer(tntListener.getTnt().getMetadata(SOURCE).getFirst().asString());
-            if (metaPlayer == null) {
-                Bukkit.getConsoleSender().sendMessage("Meta player not found");
-                return;
-            }
-            if (!metaPlayer.isOp()) {
-                Bukkit.getConsoleSender().sendMessage("Meta player not OP");
-                return;
-            }
+        } else if (Bukkit.getPlayer(tntListener.getTnt().getMetadata(SOURCE).getFirst().asString()) instanceof Player metaPlayer && !metaPlayer.isOp()) {
+            Bukkit.getConsoleSender().sendMessage("Meta player not OP");
+            return;
         }
+
         allRemovalActive = false;
         explosionTrigger = true;
         limitReached = false;

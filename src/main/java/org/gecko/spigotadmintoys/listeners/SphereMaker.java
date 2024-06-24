@@ -15,6 +15,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.gecko.spigotadmintoys.Main;
+import org.gecko.spigotadmintoys.logic.IterateBlocks;
 import org.gecko.spigotadmintoys.logic.Scale;
 import org.gecko.spigotadmintoys.logic.SetAndGet;
 
@@ -94,6 +95,7 @@ public class SphereMaker implements Listener {
 
         Set<Block> nextSet = new HashSet<>();
         String sphereing = "Sphereing: ";
+        IterateBlocks iterateBlocks = setAndGet.getIterateBlocks();
         for (Block block : blocksToProcess) {
             if (processedBlocks.contains(block) || (int) clickedLocation.distance(block.getLocation()) + 1 > radiusLimit - 3) {
                 continue;
@@ -119,7 +121,7 @@ public class SphereMaker implements Listener {
             } else {
                 markedBlocks.add(block);
             }
-            setAndGet.getIterateBlocks().iterateBlocks(block, nextSet, IMMUTABLE_MATERIALS, true);
+            iterateBlocks.iterateBlocks(block, nextSet, IMMUTABLE_MATERIALS, true);
             processedBlocks.add(block);
         }
 

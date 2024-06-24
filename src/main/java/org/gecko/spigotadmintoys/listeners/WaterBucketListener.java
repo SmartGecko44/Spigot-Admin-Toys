@@ -15,6 +15,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.gecko.spigotadmintoys.Main;
+import org.gecko.spigotadmintoys.logic.IterateBlocks;
 import org.gecko.spigotadmintoys.logic.Scale;
 import org.gecko.spigotadmintoys.logic.SetAndGet;
 
@@ -96,6 +97,7 @@ public class WaterBucketListener implements Listener {
         Set<Block> nextSet = new HashSet<>();
         boolean limitReachedThisIteration = false; // Variable to track whether the limit was reached this iteration
         String tsunami = "Tsunami: ";
+        IterateBlocks iterateBlocks = setAndGet.getIterateBlocks();
         for (Block block : blocksToProcess) {
             if (processedBlocks.contains(block)) {
                 continue;
@@ -130,7 +132,7 @@ public class WaterBucketListener implements Listener {
             // Iterate through neighboring blocks and add them to the next set
             for (int i = -1; i <= 1; i++) {
                 if (i == 0) continue; // Skip the current block
-                setAndGet.getIterateBlocks().iterateBlocks(block, nextSet, IMMUTABLE_MATERIALS, false);
+                iterateBlocks.iterateBlocks(block, nextSet, IMMUTABLE_MATERIALS, false);
             }
             processedBlocks.add(block);
         }

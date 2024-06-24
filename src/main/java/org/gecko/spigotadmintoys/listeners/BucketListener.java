@@ -15,6 +15,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.gecko.spigotadmintoys.Main;
+import org.gecko.spigotadmintoys.logic.IterateBlocks;
 import org.gecko.spigotadmintoys.logic.Scale;
 import org.gecko.spigotadmintoys.logic.SetAndGet;
 
@@ -103,6 +104,7 @@ public class BucketListener implements Listener {
         Set<Block> nextSet = new HashSet<>();
         boolean limitReachedThisIteration = false; // Variable to track whether the limit was reached this iteration
         String wR = "Wauh removal: ";
+        IterateBlocks iterateBlocks = setAndGet.getIterateBlocks();
         for (Block block : blocksToProcess) {
             if (processedBlocks.contains(block)) {
                 continue;
@@ -142,7 +144,7 @@ public class BucketListener implements Listener {
             } else {
                 markedBlocks.add(block);
             }
-            setAndGet.getIterateBlocks().iterateBlocks(block, nextSet, IMMUTABLE_MATERIALS, false);
+            iterateBlocks.iterateBlocks(block, nextSet, IMMUTABLE_MATERIALS, false);
             processedBlocks.add(block);
         }
 

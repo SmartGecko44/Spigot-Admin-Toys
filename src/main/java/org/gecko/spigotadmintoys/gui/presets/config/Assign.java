@@ -27,14 +27,13 @@ public class Assign {
         this.playerLimit = setAndGet.getRadiusLimit() - 2;
         this.creeperLimit = setAndGet.getCreeperRadiusLimit() - 2;
         this.tntLimit = setAndGet.getTntRadiusLimit() - 2;
-        switch (page) {
-            case 0:
-                gui1();
-                break;
-            case 1:
-                gui2();
-                break;
+
+        if (page == 0) {
+            gui1();
+        } else if (page == 1) {
+            gui2();
         }
+
         gui.setItem(8, createButtonItem(Material.PAPER, ChatColor.RESET + "" + ChatColor.RED + "Reset config", (short) 0, null, "Reset"));
     }
 
