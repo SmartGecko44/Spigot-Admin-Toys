@@ -23,7 +23,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Cache Maven dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.m2/repository
@@ -32,7 +32,7 @@ jobs:
             maven-
 
       - name: Set up JDK 8
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'adopt'
           java-version: '21'
@@ -53,7 +53,7 @@ jobs:
           find target -type f -name Spigot-Admin-Toys*.jar -exec cp {} filtered-artifacts/ \;
 
       - name: Upload JAR as an artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Wauh-${{ github.run_number }}
           path: filtered-artifacts
