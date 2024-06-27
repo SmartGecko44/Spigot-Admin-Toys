@@ -1,15 +1,15 @@
 # Pull Request
 
 ## Description
-Please provide a brief description of the changes introduced by this pull request.
+###### _- Please provide a brief description of the changes introduced by this pull request._
 
 
 ___
 ## Related Issues
-- List any related issues that this pull request addresses or resolves.
+###### _- List any related issues that this pull request addresses or resolves._
 
 
----
+___
 ## Checklist
 ### Please review and check the following before submitting your pull request:
 
@@ -28,12 +28,12 @@ ___
 - [ ] My code does not house any security vulnerabilities, backdoors or any other malicious code.
 ___
 ## Screenshots (if applicable, delete if not applicable)
-Include any relevant screenshots or visual representations of your changes.
+###### _- Include any relevant screenshots or visual representations of your changes._
 
 
 ___
 ## Additional Notes
-Provide any additional information or context that reviewers or maintainers may find helpful.
+###### _- Provide any additional information or context that reviewers or maintainers may find helpful._
 
 
 ___
