@@ -1,6 +1,7 @@
 package org.gecko.spigotadmintoys.listeners;
 
-import de.tr7zw.changeme.nbtapi.NBTItem;
+import de.tr7zw.changeme.nbtapi.NBT;
+import de.tr7zw.changeme.nbtapi.iface.ReadableItemNBT;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
@@ -20,6 +21,7 @@ import org.gecko.spigotadmintoys.logic.Scale;
 import org.gecko.spigotadmintoys.logic.SetAndGet;
 
 import java.util.*;
+import java.util.function.Function;
 
 public class WaterBucketListener implements Listener {
 
@@ -60,8 +62,7 @@ public class WaterBucketListener implements Listener {
         BucketListener bucketListener = setAndGet.getBucketListener();
         BarrierListener barrierListener = setAndGet.getBarrierListener();
         BedrockListener bedrockListener = setAndGet.getBedrockListener();
-        NBTItem nbtItem = new NBTItem(event.getPlayer().getInventory().getItemInMainHand());
-        String identifier = nbtItem.getString("Ident");
+        String identifier = NBT.get(event.getPlayer().getInventory().getItemInMainHand(), (Function<ReadableItemNBT, String>) nbt -> nbt.getString("Ident"));
         radiusLimit = setAndGet.getRadiusLimit();
         realRadiusLimit = radiusLimit - 2;
         showRemoval = setAndGet.getShowRemoval();

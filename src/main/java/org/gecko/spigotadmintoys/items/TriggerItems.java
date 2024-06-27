@@ -1,6 +1,7 @@
 package org.gecko.spigotadmintoys.items;
 
-import de.tr7zw.changeme.nbtapi.NBTItem;
+import de.tr7zw.changeme.nbtapi.NBT;
+import de.tr7zw.changeme.nbtapi.iface.ReadWriteItemNBT;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -8,6 +9,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class TriggerItems {
 
@@ -21,9 +23,8 @@ public class TriggerItems {
         meta.setLore(loreToList);
         item.setItemMeta(meta);
 
-        NBTItem nbtItem = new NBTItem(item);
-        nbtItem.setString("Ident", ident);
+        NBT.modify(item, (Consumer<ReadWriteItemNBT>) nbt -> nbt.setString("Ident", ident));
 
-        return nbtItem.getItem();
+        return item;
     }
 }

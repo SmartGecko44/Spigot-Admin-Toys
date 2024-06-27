@@ -1,6 +1,7 @@
 package org.gecko.spigotadmintoys.gui;
 
-import de.tr7zw.changeme.nbtapi.NBTItem;
+import de.tr7zw.changeme.nbtapi.NBT;
+import de.tr7zw.changeme.nbtapi.iface.ReadableItemNBT;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -13,6 +14,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.gecko.spigotadmintoys.data.ConfigurationManager;
 import org.gecko.spigotadmintoys.logic.SetAndGet;
+
+import java.util.function.Function;
 
 public class ConfigGUI implements Listener {
 
@@ -131,8 +134,7 @@ public class ConfigGUI implements Listener {
 
     private void handleItemClick(Player player, ItemStack clickedItem) {
         if (clickedItem != null && (clickedItem.getType() == Material.INK_SACK || clickedItem.getType() == Material.PAPER || clickedItem.getType() == Material.CONCRETE || clickedItem.getType() == Material.ARROW)) {
-            NBTItem nbtItem = new NBTItem(clickedItem);
-            String identifier = nbtItem.getString("Ident");
+            String identifier = NBT.get(clickedItem, (Function<ReadableItemNBT, String>) nbt -> nbt.getString("Ident"));
             short data = clickedItem.getDurability();
 
             if (handleButtonFeatures(player, identifier, data)) {

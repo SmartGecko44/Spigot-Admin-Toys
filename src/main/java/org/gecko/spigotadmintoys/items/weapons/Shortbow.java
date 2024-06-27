@@ -1,6 +1,7 @@
 package org.gecko.spigotadmintoys.items.weapons;
 
-import de.tr7zw.changeme.nbtapi.NBTItem;
+import de.tr7zw.changeme.nbtapi.NBT;
+import de.tr7zw.changeme.nbtapi.iface.ReadableItemNBT;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Arrow;
@@ -11,6 +12,8 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.gecko.spigotadmintoys.enchantments.enchants.weapons.bows.BowListener;
 import org.gecko.spigotadmintoys.items.TriggerItems;
+
+import java.util.function.Function;
 
 public class Shortbow implements Listener {
 
@@ -31,8 +34,7 @@ public class Shortbow implements Listener {
             return;
         }
 
-        NBTItem nbtItem = new NBTItem(event.getPlayer().getInventory().getItemInMainHand());
-        String identifier = nbtItem.getString("Ident");
+        String identifier = NBT.get(event.getPlayer().getInventory().getItemInMainHand(), (Function<ReadableItemNBT, String>) nbt -> nbt.getString("Ident"));
 
         if (!identifier.equals(SHORTBOWCONST)) {
             return;

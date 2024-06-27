@@ -1,6 +1,7 @@
 package org.gecko.spigotadmintoys.listeners;
 
-import de.tr7zw.changeme.nbtapi.NBTItem;
+import de.tr7zw.changeme.nbtapi.NBT;
+import de.tr7zw.changeme.nbtapi.iface.ReadableItemNBT;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
@@ -24,6 +25,7 @@ import org.gecko.spigotadmintoys.logic.SetAndGet;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Function;
 
 public class BedrockListener implements Listener {
 
@@ -168,8 +170,7 @@ public class BedrockListener implements Listener {
             return;
         }
         Player player = event.getPlayer();
-        NBTItem nbtItem = new NBTItem(event.getPlayer().getInventory().getItemInMainHand());
-        String identifier = nbtItem.getString("Ident");
+        String identifier = NBT.get(event.getPlayer().getInventory().getItemInMainHand(), (Function<ReadableItemNBT, String>) nbt -> nbt.getString("Ident"));
         // Check if the bucket is filling with water
         if (player.getInventory().getItemInMainHand().getType() == Material.BEDROCK && identifier.equalsIgnoreCase("Custom Bedrock") && (!IMMUTABLE_MATERIALS.contains(event.getBlock().getType()))) {
             allRemovalActive = false;
