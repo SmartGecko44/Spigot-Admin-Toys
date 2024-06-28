@@ -35,11 +35,11 @@ public class CleanRemoveBedrock {
             repetitions = setAndGet.getSphereMaker().getRepetitions();
             removedBlocks = setAndGet.getSphereMaker().getRemovedBlocks();
         }
+        boolean currentRemovingPlayerExists = currentRemovingPlayer != null;
         for (int i = 0; i < scaledBlocksPerIteration && iterator.hasNext(); i++) {
             Block block = iterator.next();
-            //TODO: Optimize this
             if (repeated) {
-                if (currentRemovingPlayer != null) {
+                if (currentRemovingPlayerExists) {
                     currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "Cleaning up falling blocks (" + repetitions + (repetitions == 1 ? " repetition left)" : " repetitions left)")));
                 }
                 if (fallingBlocks.contains(block.getType())) {
@@ -60,6 +60,7 @@ public class CleanRemoveBedrock {
 
                 // Add the block to temporary list
                 blocksToRemove.add(block);
+                assert currentRemovingPlayer != null;
                 currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "Cleaning up blocks, " + markedBlocks.size() + " blocks left. That's " + (markedBlocks.size() / scaledBlocksPerIteration + 1) + (markedBlocks.size() / scaledBlocksPerIteration == 1 ? " iteration" : " iterations") + " left"));
             }
         }
