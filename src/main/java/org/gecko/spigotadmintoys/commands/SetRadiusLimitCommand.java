@@ -1,5 +1,6 @@
 package org.gecko.spigotadmintoys.commands;
 
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -42,14 +43,17 @@ public class SetRadiusLimitCommand implements CommandExecutor, TabCompleter {
                         }
 
                         if (operation.equals("tnt")) {
+                            int oldLimit = setAndGet.getTntRadiusLimit() - 2;
                             setAndGet.setTntRadiusLimit(newLimit);  // Use the setter method for TNT operations
-                            player.sendMessage("TNT radius set to " + newLimit);
+                            player.sendMessage("TNT radius set from " + ChatColor.RED + oldLimit + ChatColor.RESET + " to " + ChatColor.GREEN + newLimit + newLimit);
                         } else if (operation.equals(PLAYER)) {
+                            int oldLimit = setAndGet.getRadiusLimit() - 2;
                             setAndGet.setRadiusLimit(newLimit); // Use the setter method for player operations
-                            player.sendMessage("Player operation limit set to " + newLimit);
+                            player.sendMessage("Player operation limit set from " + ChatColor.RED + oldLimit + ChatColor.RESET + " to " + ChatColor.GREEN + newLimit);
                         } else {
-                            setAndGet.setCreeperLimit(newLimit);
-                            player.sendMessage("Creeper radius limit set to " + newLimit);
+                            int oldLimit = setAndGet.getCreeperRadiusLimit() - 2;
+                            setAndGet.setCreeperLimit(newLimit); // Use the setter method for creeper operations
+                            player.sendMessage("Creeper radius limit set from" + ChatColor.RED + oldLimit + ChatColor.RESET + " to " + ChatColor.GREEN + newLimit);
                         }
                     } catch (NumberFormatException e) {
                         player.sendMessage("Please specify a valid integer.");

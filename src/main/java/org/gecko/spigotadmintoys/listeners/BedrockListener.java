@@ -1,6 +1,7 @@
 package org.gecko.spigotadmintoys.listeners;
 
-import de.tr7zw.changeme.nbtapi.NBTItem;
+import de.tr7zw.changeme.nbtapi.NBT;
+import de.tr7zw.changeme.nbtapi.iface.ReadableItemNBT;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
@@ -21,7 +22,10 @@ import org.gecko.spigotadmintoys.Main;
 import org.gecko.spigotadmintoys.logic.Scale;
 import org.gecko.spigotadmintoys.logic.SetAndGet;
 
-import java.util.*;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.function.Function;
 
 public class BedrockListener implements Listener {
 
@@ -65,7 +69,7 @@ public class BedrockListener implements Listener {
                 TNTPrimed tntPrimed = (TNTPrimed) location.getWorld().spawnEntity(location.add(0.5, 0.5, 0.5), EntityType.PRIMED_TNT);
                 tntPrimed.setFuseTicks(20);
                 if (tntListener.getTntPlayer() != null) {
-                tntPrimed.setMetadata(SOURCE, new FixedMetadataValue(JavaPlugin.getPlugin(Main.class), tntListener.getTntPlayer().getName()));
+                    tntPrimed.setMetadata(SOURCE, new FixedMetadataValue(JavaPlugin.getPlugin(Main.class), tntListener.getTntPlayer().getName()));
                 }
                 nextSet.add(block);
             }
@@ -127,17 +131,11 @@ public class BedrockListener implements Listener {
                 Bukkit.getConsoleSender().sendMessage("Real player not OP");
                 return;
             }
-        } else {
-            Player metaPlayer = Bukkit.getPlayer(tntListener.getTnt().getMetadata(SOURCE).getFirst().asString());
-            if (metaPlayer == null) {
-                Bukkit.getConsoleSender().sendMessage("Meta player not found");
-                return;
-            }
-            if (!metaPlayer.isOp()) {
-                Bukkit.getConsoleSender().sendMessage("Meta player not OP");
-                return;
-            }
+        } else if (Bukkit.getPlayer(tntListener.getTnt().getMetadata(SOURCE).getFirst().asString()) instanceof Player metaPlayer && !metaPlayer.isOp()) {
+            Bukkit.getConsoleSender().sendMessage("Meta player not OP");
+            return;
         }
+
         allRemovalActive = false;
         explosionTrigger = true;
         limitReached = false;
@@ -172,8 +170,7 @@ public class BedrockListener implements Listener {
             return;
         }
         Player player = event.getPlayer();
-        NBTItem nbtItem = new NBTItem(event.getPlayer().getInventory().getItemInMainHand());
-        String identifier = nbtItem.getString("Ident");
+        String identifier = NBT.get(event.getPlayer().getInventory().getItemInMainHand(), (Function<ReadableItemNBT, String>) nbt -> nbt.getString("Ident"));
         // Check if the bucket is filling with water
         if (player.getInventory().getItemInMainHand().getType() == Material.BEDROCK && identifier.equalsIgnoreCase("Custom Bedrock") && (!IMMUTABLE_MATERIALS.contains(event.getBlock().getType()))) {
             allRemovalActive = false;
@@ -316,7 +313,7 @@ public class BedrockListener implements Listener {
             clearAll();
             return;
         } else {
-            scale.scaleReverseLogic(totalRemovedCount, radiusLimit, markedBlocks, "bedrock");
+            scale.scaleReverseLogic(totalRemovedCount, radiusLimit, markedBlocks, "bedrock", null);
         }
 
         setAndGet.getBlockRemovalScheduler().scheduleBlockRemoval(markedBlocks, removedBlocks, currentRemovingPlayer, this::removeMarkedBlocks, this::clearAll, repetitions, this::lowerRepetitionsAndToggleRepeated);

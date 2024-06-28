@@ -25,12 +25,12 @@ public class SetAndGet {
     private final CreateButtonItem createButtonItem;
     private final Assign assign;
     private final ConfigGUI configGUI;
+    private final CleanRemoveBedrock cleanRemoveBedrock;
+    private final BlockRemovalScheduler blockRemovalScheduler;
     FileConfiguration config;
     private int playerRadiusLimit;
     private int tntRadiusLimit;
     private int creeperRadiusLimit;
-    private final CleanRemoveBedrock cleanRemoveBedrock;
-    private final BlockRemovalScheduler blockRemovalScheduler;
 
     public SetAndGet() {
         this.configManager = new ConfigurationManager(this);

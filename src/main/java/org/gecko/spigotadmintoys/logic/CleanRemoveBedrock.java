@@ -7,13 +7,11 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class CleanRemoveBedrock {
 
+    private static final Set<Material> fallingBlocks = EnumSet.of(Material.SAND, Material.GRAVEL);
     private final SetAndGet setAndGet;
 
     CleanRemoveBedrock(SetAndGet setAndGet) {
@@ -44,7 +42,7 @@ public class CleanRemoveBedrock {
                 if (currentRemovingPlayer != null) {
                     currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "Cleaning up falling blocks (" + repetitions + (repetitions == 1 ? " repetition left)" : " repetitions left)")));
                 }
-                if (block.getType() == Material.SAND || block.getType() == Material.GRAVEL) {
+                if (fallingBlocks.contains(block.getType())) {
                     block.setType(Material.AIR);
                     // Add the block to the new set
                     removedBlocks.add(block);

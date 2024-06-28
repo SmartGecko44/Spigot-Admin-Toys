@@ -1,6 +1,7 @@
 package org.gecko.spigotadmintoys.listeners;
 
-import de.tr7zw.changeme.nbtapi.NBTItem;
+import de.tr7zw.changeme.nbtapi.NBT;
+import de.tr7zw.changeme.nbtapi.iface.ReadableItemNBT;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
@@ -15,17 +16,23 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.gecko.spigotadmintoys.Main;
+import org.gecko.spigotadmintoys.logic.IterateBlocks;
 import org.gecko.spigotadmintoys.logic.Scale;
 import org.gecko.spigotadmintoys.logic.SetAndGet;
 
-import java.util.*;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.function.Function;
 
 public class SphereMaker implements Listener {
 
-    private Set<Block> blocksToProcess = new HashSet<>();
+    private static final Set<Material> IMMUTABLE_MATERIALS = EnumSet.of(Material.BEDROCK, Material.STATIONARY_WATER, Material.WATER, Material.LAVA, Material.STATIONARY_LAVA, Material.TNT, Material.AIR);
     private final Set<Block> processedBlocks = new HashSet<>();
     private final Set<Block> markedBlocks = new HashSet<>();
     private final Set<Block> removedBlocks = new HashSet<>();
+    private final SetAndGet setAndGet;
+    private Set<Block> blocksToProcess = new HashSet<>();
     private Location clickedLocation;
     private Player currentRemovingPlayer;
     private int radiusLimit;
@@ -35,8 +42,6 @@ public class SphereMaker implements Listener {
     private boolean showRemoval;
     private boolean sphereingActive;
     private boolean stopSphereing;
-    private final SetAndGet setAndGet;
-    private static final Set<Material> IMMUTABLE_MATERIALS = EnumSet.of(Material.BEDROCK, Material.STATIONARY_WATER, Material.WATER, Material.LAVA, Material.STATIONARY_LAVA, Material.TNT, Material.AIR);
     private int repetitions;
     private boolean repeated;
 
@@ -61,8 +66,7 @@ public class SphereMaker implements Listener {
         BedrockListener bedrockListener = setAndGet.getBedrockListener();
         BucketListener bucketListener = setAndGet.getBucketListener();
         WaterBucketListener waterBucketListener = setAndGet.getWaterBucketListener();
-        NBTItem nbtItem = new NBTItem(event.getPlayer().getInventory().getItemInMainHand());
-        String identifier = nbtItem.getString("Ident");
+        String identifier = NBT.get(event.getPlayer().getInventory().getItemInMainHand(), (Function<ReadableItemNBT, String>) nbt -> nbt.getString("Ident"));
         radiusLimit = setAndGet.getRadiusLimit();
         realradiusLimit = setAndGet.getRadiusLimit() - 2;
         if (realradiusLimit > 1 && !barrierListener.isBlockRemovalActive() && !bedrockListener.isAllRemovalActive() && !bucketListener.isWauhRemovalActive() && !waterBucketListener.isTsunamiActive() && !IMMUTABLE_MATERIALS.contains(event.getBlock().getType()) && identifier.equals("SphereMaker")) {
@@ -94,6 +98,7 @@ public class SphereMaker implements Listener {
 
         Set<Block> nextSet = new HashSet<>();
         String sphereing = "Sphereing: ";
+        IterateBlocks iterateBlocks = setAndGet.getIterateBlocks();
         for (Block block : blocksToProcess) {
             if (processedBlocks.contains(block) || (int) clickedLocation.distance(block.getLocation()) + 1 > radiusLimit - 3) {
                 continue;
@@ -119,7 +124,7 @@ public class SphereMaker implements Listener {
             } else {
                 markedBlocks.add(block);
             }
-            setAndGet.getIterateBlocks().iterateBlocks(block, nextSet, IMMUTABLE_MATERIALS, true);
+            iterateBlocks.iterateBlocks(block, nextSet, IMMUTABLE_MATERIALS, true);
             processedBlocks.add(block);
         }
 
@@ -162,7 +167,7 @@ public class SphereMaker implements Listener {
             clear();
             return;
         } else {
-            scale.scaleReverseLogic(totalRemovedCount, radiusLimit, markedBlocks, "sphere");
+            scale.scaleReverseLogic(totalRemovedCount, radiusLimit, markedBlocks, "sphere", null);
         }
         setAndGet.getBlockRemovalScheduler().scheduleBlockRemoval(markedBlocks, removedBlocks, currentRemovingPlayer, this::removeMarkedBlocks, this::clear, repetitions, this::lowerRepetitionsAndToggleRepeated);
     }

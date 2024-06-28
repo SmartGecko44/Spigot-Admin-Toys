@@ -1,6 +1,7 @@
 package org.gecko.spigotadmintoys.listeners;
 
-import de.tr7zw.changeme.nbtapi.NBTItem;
+import de.tr7zw.changeme.nbtapi.NBT;
+import de.tr7zw.changeme.nbtapi.iface.ReadableItemNBT;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
@@ -15,10 +16,12 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.gecko.spigotadmintoys.Main;
+import org.gecko.spigotadmintoys.logic.IterateBlocks;
 import org.gecko.spigotadmintoys.logic.Scale;
 import org.gecko.spigotadmintoys.logic.SetAndGet;
 
 import java.util.*;
+import java.util.function.Function;
 
 public class BucketListener implements Listener {
 
@@ -62,8 +65,7 @@ public class BucketListener implements Listener {
         BarrierListener barrierListener = setAndGet.getBarrierListener();
         BedrockListener bedrockListener = setAndGet.getBedrockListener();
         WaterBucketListener waterBucketListener = setAndGet.getWaterBucketListener();
-        NBTItem nbtItem = new NBTItem(event.getPlayer().getInventory().getItemInMainHand());
-        String identifier = nbtItem.getString("Ident");
+        String identifier = NBT.get(event.getPlayer().getInventory().getItemInMainHand(), (Function<ReadableItemNBT, String>) nbt -> nbt.getString("Ident"));
         radiusLimit = setAndGet.getRadiusLimit();
         realRadiusLimit = radiusLimit - 2;
         showRemoval = setAndGet.getShowRemoval();
@@ -103,6 +105,7 @@ public class BucketListener implements Listener {
         Set<Block> nextSet = new HashSet<>();
         boolean limitReachedThisIteration = false; // Variable to track whether the limit was reached this iteration
         String wR = "Wauh removal: ";
+        IterateBlocks iterateBlocks = setAndGet.getIterateBlocks();
         for (Block block : blocksToProcess) {
             if (processedBlocks.contains(block)) {
                 continue;
@@ -142,7 +145,7 @@ public class BucketListener implements Listener {
             } else {
                 markedBlocks.add(block);
             }
-            setAndGet.getIterateBlocks().iterateBlocks(block, nextSet, IMMUTABLE_MATERIALS, false);
+            iterateBlocks.iterateBlocks(block, nextSet, IMMUTABLE_MATERIALS, false);
             processedBlocks.add(block);
         }
 
@@ -210,7 +213,7 @@ public class BucketListener implements Listener {
             processedBlocks.clear();
             return;
         } else {
-            scale.scaleReverseLogic(totalRemovedCount, radiusLimit, markedBlocks, "bucket");
+            scale.scaleReverseLogic(totalRemovedCount, radiusLimit, markedBlocks, "bucket", this::cleanRemove);
         }
 
         // If there are more blocks to remove, schedule the next batch
