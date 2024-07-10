@@ -181,22 +181,10 @@ public class WaterBucketListener implements Listener {
             if (!showRemoval) {
                 removeMarkedBlocks();
             } else {
-                setTsunamiActive(false);
-                setCurrentRemovingPlayer(null);
-                setStopTsunami(false);
-                blocksToProcess.clear();
-                markedBlocks.clear();
-                processedBlocks.clear();
-                removedBlocks.clear();
+                clear();
             }
         } else {
-            setTsunamiActive(false);
-            setCurrentRemovingPlayer(null);
-            setStopTsunami(false);
-            blocksToProcess.clear();
-            markedBlocks.clear();
-            processedBlocks.clear();
-            removedBlocks.clear();
+            clear();
         }
     }
 
@@ -208,13 +196,7 @@ public class WaterBucketListener implements Listener {
             for (Block block : markedBlocks) {
                 block.setType(Material.STATIONARY_WATER);
             }
-            setTsunamiActive(false);
-            setCurrentRemovingPlayer(null);
-            setStopTsunami(false);
-            blocksToProcess.clear();
-            markedBlocks.clear();
-            processedBlocks.clear();
-            removedBlocks.clear();
+            clear();
             return;
         } else {
             scale.scaleReverseLogic(totalRemovedCount, radiusLimit, markedBlocks, "wauh", this::cleanRemove);
@@ -228,14 +210,18 @@ public class WaterBucketListener implements Listener {
             // If all blocks have been processed, but there are blocks in the removedBlocks set,
             // process those in the next iteration.
             getCurrentRemovingPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Water placement finished"));
-            setTsunamiActive(false);
-            setCurrentRemovingPlayer(null);
-            setStopTsunami(false);
-            blocksToProcess.clear();
-            markedBlocks.clear();
-            processedBlocks.clear();
-            removedBlocks.clear();
+            clear();
         }
+    }
+
+    private void clear() {
+        setTsunamiActive(false);
+        setCurrentRemovingPlayer(null);
+        setStopTsunami(false);
+        blocksToProcess.clear();
+        markedBlocks.clear();
+        processedBlocks.clear();
+        removedBlocks.clear();
     }
 
     public void cleanRemove(int scaledBlocksPerIteration, Iterator<Block> iterator) {
