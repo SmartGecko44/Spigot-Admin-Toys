@@ -108,12 +108,12 @@ public class SphereMaker implements Listener {
                 int progressPercentage = (int) ((double) highestDist / (realradiusLimit - 2) * 100);
                 highestDist = dist;
 
-                if (currentRemovingPlayer != null) {
-                    if (highestDist < realradiusLimit + 1) {
-                        currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + sphereing + ChatColor.RED + progressPercentage + "% " + ChatColor.GREEN + "(" + ChatColor.RED + (dist + 1) + ChatColor.WHITE + "/" + ChatColor.GREEN + realradiusLimit + ")"));
-                    } else if (highestDist == realradiusLimit + 1 && showRemoval) {
-                        currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Radius limit reached. Rounding corners..."));
-                    }
+                if (highestDist < realradiusLimit + 1) {
+                    assert currentRemovingPlayer != null;
+                    currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + sphereing + ChatColor.RED + progressPercentage + "% " + ChatColor.GREEN + "(" + ChatColor.RED + (dist + 1) + ChatColor.WHITE + "/" + ChatColor.GREEN + realradiusLimit + ")"));
+                } else if (highestDist == realradiusLimit + 1 && showRemoval) {
+                    assert currentRemovingPlayer != null;
+                    currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Radius limit reached. Rounding corners..."));
                 }
             }
 
