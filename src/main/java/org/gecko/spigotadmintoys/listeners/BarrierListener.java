@@ -183,16 +183,13 @@ public class BarrierListener implements Listener {
         Player player = getCurrentRemovingPlayer();
         // Display the block removal summary to the player
         if (grassRemovedCount + dirtRemovedCount + barrierRemovedCount > 1) {
-            String removed = "Removed ";
-            String dA = " dirt blocks and ";
-            String bB = " barrier blocks.";
 
-            if (barrierRemovedCount > 0 || grassRemovedCount > 0 || dirtRemovedCount > 0) {
-                player.sendMessage(ChatColor.GREEN + removed + ChatColor.RED + grassRemovedCount + ChatColor.GREEN + " grass blocks, " + ChatColor.RED + dirtRemovedCount + ChatColor.GREEN + dA + ChatColor.RED + barrierRemovedCount + ChatColor.GREEN + bB);
+            if (grassRemovedCount > 0 || dirtRemovedCount > 0) {
+                player.sendMessage(ChatColor.GREEN + "Removed" + ChatColor.RED + grassRemovedCount + ChatColor.GREEN + " grass blocks and " + ChatColor.RED + dirtRemovedCount + ChatColor.GREEN + " dirt blocks.");
             }
 
             // Display the block removal summary in the console
-            Bukkit.getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + player.getName() + ChatColor.GREEN + " removed " + ChatColor.RED + grassRemovedCount + ChatColor.GREEN + " grass blocks, " + ChatColor.RED + dirtRemovedCount + ChatColor.GREEN + dA + ChatColor.RED + barrierRemovedCount + ChatColor.GREEN + bB);
+            Bukkit.getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + player.getName() + ChatColor.GREEN + " removed " + ChatColor.RED + grassRemovedCount + ChatColor.GREEN + " grass blocks, " + ChatColor.RED + dirtRemovedCount + ChatColor.GREEN + " barrier blocks and " + ChatColor.RED + barrierRemovedCount + ChatColor.GREEN + " barrier blocks.");
             if (!showRemoval) {
                 removeMarkedBlocks();
             } else {

@@ -187,12 +187,7 @@ public class BucketListener implements Listener {
             Bukkit.getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + player.getName() + ChatColor.GREEN + " removed " + ChatColor.RED + waterRemovedCount + ChatColor.GREEN + " updating water blocks, " + ChatColor.RED + stationaryWaterRemovedCount + ChatColor.GREEN + " stationary water blocks and " + ChatColor.RED + lave + ChatColor.GREEN + " lave blocks.");
             Bukkit.getScheduler().runTaskLater(JavaPlugin.getPlugin(Main.class), this::removeReplacedBlocks, 20L);
         } else {
-            setWauhRemovalActive(false);
-            setCurrentRemovingPlayer(null);
-            setStopWaterRemoval(false);
-            blocksToProcess.clear();
-            markedBlocks.clear();
-            processedBlocks.clear();
+            clear();
         }
     }
 
@@ -205,12 +200,7 @@ public class BucketListener implements Listener {
             for (Block block : markedBlocks) {
                 block.setType(Material.AIR);
             }
-            setWauhRemovalActive(false);
-            setCurrentRemovingPlayer(null);
-            setStopWaterRemoval(false);
-            blocksToProcess.clear();
-            markedBlocks.clear();
-            processedBlocks.clear();
+            clear();
             return;
         } else {
             scale.scaleReverseLogic(totalRemovedCount, radiusLimit, markedBlocks, "bucket", this::cleanRemove);
@@ -231,27 +221,25 @@ public class BucketListener implements Listener {
                 } else {
                     getCurrentRemovingPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Water block cleanup finished"));
                     // Reset repetitions to stop further repetitions
-                    repetitions = 1;
-                    setWauhRemovalActive(false);
-                    setCurrentRemovingPlayer(null);
-                    setStopWaterRemoval(false);
-                    blocksToProcess.clear();
-                    markedBlocks.clear();
-                    processedBlocks.clear();
+                    clear();
                 }
 
             } else {
                 getCurrentRemovingPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "Water block cleanup finished"));
-                repetitions = 1;
-                setWauhRemovalActive(false);
-                setCurrentRemovingPlayer(null);
-                setStopWaterRemoval(false);
-                blocksToProcess.clear();
-                markedBlocks.clear();
-                processedBlocks.clear();
-                removedBlocks.clear();
+                clear();
             }
         }
+    }
+
+    private void clear() {
+        repetitions = 1;
+        setWauhRemovalActive(false);
+        setCurrentRemovingPlayer(null);
+        setStopWaterRemoval(false);
+        blocksToProcess.clear();
+        markedBlocks.clear();
+        processedBlocks.clear();
+        removedBlocks.clear();
     }
 
     public void cleanRemove(int scaledBlocksPerIteration, Iterator<Block> iterator) {

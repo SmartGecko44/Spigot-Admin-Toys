@@ -37,11 +37,9 @@ public class CleanRemoveBedrock {
         }
         for (int i = 0; i < scaledBlocksPerIteration && iterator.hasNext(); i++) {
             Block block = iterator.next();
-            //TODO: Optimize this
             if (repeated) {
-                if (currentRemovingPlayer != null) {
-                    currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "Cleaning up falling blocks (" + repetitions + (repetitions == 1 ? " repetition left)" : " repetitions left)")));
-                }
+                assert currentRemovingPlayer != null;
+                currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "Cleaning up falling blocks (" + repetitions + (repetitions == 1 ? " repetition left)" : " repetitions left)")));
                 if (fallingBlocks.contains(block.getType())) {
                     block.setType(Material.AIR);
                     // Add the block to the new set
@@ -60,7 +58,8 @@ public class CleanRemoveBedrock {
 
                 // Add the block to temporary list
                 blocksToRemove.add(block);
-                currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "Cleaning up blocks, " + markedBlocks.size() + " blocks left. That's " + (markedBlocks.size() / scaledBlocksPerIteration + 1) + (markedBlocks.size() / scaledBlocksPerIteration == 1 ? " iteration" : " iterations") + " left"));
+                assert currentRemovingPlayer != null;
+                currentRemovingPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "Cleaning up blocks, " + markedBlocks.size() + " blocks left. That's " + (markedBlocks.size() / scaledBlocksPerIteration + 1) + " iteration(s) left"));
             }
         }
 
